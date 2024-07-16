@@ -1,41 +1,18 @@
 import type { TitleThinTrophy } from "psn-api/dist/models/title-thin-trophy.model";
-import {
-  TrophyTitle,
-  getTitleTrophies,
-  getUserTrophiesEarnedForTitle,
-} from "psn-api";
-import { GameStats } from "../models/gameStats";
+import { getTitleTrophies, getUserTrophiesEarnedForTitle } from "psn-api";
+
 import { ConvertTrophyInfo, TrophyInfo } from "../models/trophyInfo";
 import { mergeTrophyLists } from "../utils/trophies";
-import fs from "fs";
-
-//FIXME ========================================================//
-const getGamesList = (): TrophyTitle[] => {
-  //TODO Change to use getTrophyTitles from gameRepository
-  const gamesData = fs.readFileSync("./games.json", {
-    encoding: "utf8",
-    flag: "r",
-  });
-  const trophyTitlesJson = JSON.parse(gamesData);
-
-  return trophyTitlesJson;
-};
-
-//TODO Remove self-executing anonymous function using TS.
-let trophyTitles: TrophyTitle[];
-(() => {
-  trophyTitles = getGamesList();
-})();
-// END FIXME ====================================================//
 
 //Get the game trophies list.
 const getGameTrophiesList = async (
+  accessToken: string,
   npCommunicationId: string,
   trophyTitlePlatform: string
 ): Promise<TitleThinTrophy[]> => {
   //FIXME Get accessToken/accountId from the request
   const { trophies: gameTrophiesList } = await getTitleTrophies(
-    { accessToken: "envAccessToken"! },
+    { accessToken: accessToken },
     npCommunicationId,
     "all",
     {
@@ -48,13 +25,15 @@ const getGameTrophiesList = async (
 
 //Get the list of earned trophies for each of the user's titles.
 const getGameTrophiesEarnedList = async (
+  accessToken: string,
+  accountId: string,
   npCommunicationId: string,
   trophyTitlePlatform: string
 ): Promise<TitleThinTrophy[]> => {
   //FIXME Get accessToken/accountId from the request
   const { trophies: gameEarnedTrophies } = await getUserTrophiesEarnedForTitle(
-    { accessToken: "envAccessToken"! },
-    "envAccountId"!,
+    { accessToken: accessToken },
+    accountId,
     npCommunicationId,
     "all",
     {
@@ -66,84 +45,86 @@ const getGameTrophiesEarnedList = async (
   return gameEarnedTrophies;
 };
 
-//TODO Refactor after create function to get single game trophy list
-//Get the list of trophies stats for each of the user's titles.
-const getGameTrophiesInfo = async (game: TrophyTitle): Promise<GameStats> => {
+//Get the list of trophies info for a single game
+const getGameTrophiesInfo = async (
+  accessToken: string,
+  accountId: string,
+  npCommunicationId: any,
+  trophyTitlePlatform: any
+): Promise<TrophyInfo[]> => {
   const gameTrophies = await getGameTrophiesList(
-    game.npCommunicationId,
-    game.trophyTitlePlatform
-  );
-  const gameEarnedTrophies = await getGameTrophiesEarnedList(
-    game.npCommunicationId,
-    game.trophyTitlePlatform
+    accessToken,
+    npCommunicationId,
+    trophyTitlePlatform
   );
 
-  let gameStats: GameStats;
+  const gameEarnedTrophies = await getGameTrophiesEarnedList(
+    accessToken,
+    accountId,
+    npCommunicationId,
+    trophyTitlePlatform
+  );
+
+  const trophyList = new Array<TrophyInfo>();
 
   if (gameTrophies !== undefined && gameEarnedTrophies !== undefined) {
     const mergedTrophies = mergeTrophyLists(gameTrophies, gameEarnedTrophies);
-
-    const trophyList = new Array<TrophyInfo>();
 
     mergedTrophies.forEach((obj) => {
       let item = JSON.stringify(obj);
       let trophyItem = ConvertTrophyInfo.toTrophyInfo(item);
       trophyList.push(trophyItem);
     });
-
-    gameStats = new GameStats(
-      game.trophyTitleName,
-      game.trophyTitlePlatform,
-      game.definedTrophies,
-      game.earnedTrophies,
-      trophyList
-    );
   }
   return new Promise((resolve, reject) => {
-    return resolve(gameStats);
+    return resolve(trophyList);
   });
 };
 
-//TODO Refactor after create function to get single game trophy list
+//TODO FIXME - Change to use getTrophyTitles from gameRepository
 //Get the list of trophies stats for each of the user's titles.
-const getAllGamesTrophiesInfoList = async (): Promise<GameStats[]> => {
-  let mergedTrophiesList: GameStats[] = [];
+// const getAllGamesTrophiesInfoList = async (): Promise<GameStats[]> => {
+//   let mergedTrophiesList: GameStats[] = [];
 
-  for (const game of trophyTitles) {
-    const gameTrophies = await getGameTrophiesList(
-      game.npCommunicationId,
-      game.trophyTitlePlatform
-    );
-    const gameEarnedTrophies = await getGameTrophiesEarnedList(
-      game.npCommunicationId,
-      game.trophyTitlePlatform
-    );
+//   for (const game of trophyTitles) {
+//     const gameTrophies = await getGameTrophiesList(
+//       accessToken,
+//       npCommunicationId,
+//       trophyTitlePlatform
+//     );
 
-    if (gameTrophies !== undefined && gameEarnedTrophies !== undefined) {
-      const mergedTrophies = mergeTrophyLists(gameTrophies, gameEarnedTrophies);
+//     const gameEarnedTrophies = await getGameTrophiesEarnedList(
+//       accessToken,
+//       accountId,
+//       npCommunicationId,
+//       trophyTitlePlatform
+//     );
 
-      const trophyList = new Array<TrophyInfo>();
+//     if (gameTrophies !== undefined && gameEarnedTrophies !== undefined) {
+//       const mergedTrophies = mergeTrophyLists(gameTrophies, gameEarnedTrophies);
 
-      mergedTrophies.forEach((obj) => {
-        let item = JSON.stringify(obj);
-        let trophyItem = ConvertTrophyInfo.toTrophyInfo(item);
-        trophyList.push(trophyItem);
-      });
+//       const trophyList = new Array<TrophyInfo>();
 
-      const gameStats = new GameStats(
-        game.trophyTitleName,
-        game.trophyTitlePlatform,
-        game.definedTrophies,
-        game.earnedTrophies,
-        trophyList
-      );
+//       mergedTrophies.forEach((obj) => {
+//         let item = JSON.stringify(obj);
+//         let trophyItem = ConvertTrophyInfo.toTrophyInfo(item);
+//         trophyList.push(trophyItem);
+//       });
 
-      mergedTrophiesList.push(gameStats);
-    }
-  }
-  return new Promise((resolve, reject) => {
-    return resolve(mergedTrophiesList);
-  });
-};
+//       const gameStats = new GameStats(
+//         game.trophyTitleName,
+//         game.trophyTitlePlatform,
+//         game.definedTrophies,
+//         game.earnedTrophies,
+//         trophyList
+//       );
 
-export { getGameTrophiesInfo, getAllGamesTrophiesInfoList };
+//       mergedTrophiesList.push(gameStats);
+//     }
+//   }
+//   return new Promise((resolve, reject) => {
+//     return resolve(mergedTrophiesList);
+//   });
+// };
+
+export { getGameTrophiesInfo };

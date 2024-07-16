@@ -71,7 +71,7 @@ app.use("/users", authenticate, userRouter);
 app.use("/games", gameRouter);
 
 //Trophies Routes
-app.use("/trophies", trophyRouter);
+app.use("/trophy", trophyRouter);
 
 //Error Handler
 app.use(errorHandler);
