@@ -1,10 +1,10 @@
 import express from "express";
-import { getGameTrophiesStats } from "../controllers/trophyController";
+import { getAllGamesTrophiesInfo } from "../controllers/trophyController";
 import { validateRequest } from "../middlewares/requestValidators";
 
 const router = express.Router();
 
-router.get("/stats", validateRequest, getGameTrophiesStats);
+router.get("/stats", validateRequest, getAllGamesTrophiesInfo);
 
 // router.get("/:id", gameController.getGame);
 
