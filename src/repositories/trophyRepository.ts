@@ -1,7 +1,6 @@
 import type { TitleThinTrophy } from "psn-api/dist/models/title-thin-trophy.model";
 import { getTitleTrophies, getUserTrophiesEarnedForTitle } from "psn-api";
-
-import { ConvertTrophyInfo, TrophyInfo } from "../models/trophyInfo";
+import type { Trophy } from "psn-api";
 import { mergeTrophyLists } from "../utils/trophies";
 
 //Get the game trophies list.
@@ -10,13 +9,12 @@ const getGameTrophiesList = async (
   npCommunicationId: string,
   trophyTitlePlatform: string
 ): Promise<TitleThinTrophy[]> => {
-  //FIXME Get accessToken/accountId from the request
   const { trophies: gameTrophiesList } = await getTitleTrophies(
     { accessToken: accessToken },
     npCommunicationId,
-    "all",
+    "all", //TODO Get trophyGroupId option from request
     {
-      npServiceName: trophyTitlePlatform !== "PS5" ? "trophy" : undefined,
+      npServiceName: trophyTitlePlatform !== "PS5" ? "trophy" : undefined, //TODO Get trophyTitlePlatform option from request
     }
   );
 
@@ -30,14 +28,13 @@ const getGameTrophiesEarnedList = async (
   npCommunicationId: string,
   trophyTitlePlatform: string
 ): Promise<TitleThinTrophy[]> => {
-  //FIXME Get accessToken/accountId from the request
   const { trophies: gameEarnedTrophies } = await getUserTrophiesEarnedForTitle(
     { accessToken: accessToken },
     accountId,
     npCommunicationId,
-    "all",
+    "all", //TODO Get trophyGroupId option from request
     {
-      npServiceName: !trophyTitlePlatform.includes("PS5")
+      npServiceName: !trophyTitlePlatform.includes("PS5") //TODO Get trophyTitlePlatform option from request
         ? "trophy"
         : undefined,
     }
@@ -51,7 +48,7 @@ const getGameTrophiesInfo = async (
   accountId: string,
   npCommunicationId: any,
   trophyTitlePlatform: any
-): Promise<TrophyInfo[]> => {
+): Promise<Trophy[]> => {
   const gameTrophies = await getGameTrophiesList(
     accessToken,
     npCommunicationId,
@@ -65,19 +62,13 @@ const getGameTrophiesInfo = async (
     trophyTitlePlatform
   );
 
-  const trophyList = new Array<TrophyInfo>();
+  let mergedTrophies = new Array<Trophy>();
 
   if (gameTrophies !== undefined && gameEarnedTrophies !== undefined) {
-    const mergedTrophies = mergeTrophyLists(gameTrophies, gameEarnedTrophies);
-
-    mergedTrophies.forEach((obj) => {
-      let item = JSON.stringify(obj);
-      let trophyItem = ConvertTrophyInfo.toTrophyInfo(item);
-      trophyList.push(trophyItem);
-    });
+    mergedTrophies = mergeTrophyLists(gameTrophies, gameEarnedTrophies);
   }
   return new Promise((resolve, reject) => {
-    return resolve(trophyList);
+    return resolve(mergedTrophies);
   });
 };
 
