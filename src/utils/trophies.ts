@@ -22,13 +22,21 @@ const mergeTrophyLists = (
 };
 
 const normalizeTrophy = (trophy: Trophy) => {
+  const nonEarnedDateTime = new Date(0).toISOString();
+
   return {
-    isEarned: trophy.earned ?? false,
-    earnedOn: trophy.earned ? trophy.earnedDateTime : "unearned",
-    type: capitalizeTypeMap[trophy.trophyType ?? trophy.trophyType],
-    rarity: rarityMap[trophy.trophyRare ?? 0],
-    earnedRate: Number(trophy.trophyEarnedRate),
+    trophyId: trophy.trophyId,
+    trophyHidden: trophy.trophyHidden,
+    isEarned: trophy.earned,
+    isEarnedDateTime: trophy.earned ? trophy.earnedDateTime : nonEarnedDateTime,
+    trophyType: capitalizeTypeMap[trophy.trophyType ?? trophy.trophyType],
+    trophyRare: trophy.trophyRare,
+    trophyEarnedRate: Number(trophy.trophyEarnedRate),
     trophyName: trophy.trophyName,
+    trophyDetail: trophy.trophyDetail,
+    trophyIconUrl: trophy.trophyIconUrl,
+    trophyGroupId: trophy.trophyGroupId,
+    rarity: rarityMap[trophy.trophyRare ?? 0],
     groupId: trophy.trophyGroupId,
     points: pointsMap[trophy.trophyType ?? 0],
   };
