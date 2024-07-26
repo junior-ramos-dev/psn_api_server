@@ -4,7 +4,7 @@ import { validateRequest } from "../middlewares/requestValidators";
 
 const router = express.Router();
 
-router.get("/", validateRequest("headers")!, getUserGames);
+router.get("/", getUserGames);
 
 // router.get("/:id", gameController.getGame);
 

@@ -6,6 +6,7 @@ import helmet from "helmet";
 import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
 import morgan from "morgan";
+import chalk from "chalk";
 import { authenticate } from "./middlewares/authMiddleware";
 import { errorHandler } from "./middlewares/errorMiddleware";
 import authRouter from "./routes/authRouter";
@@ -14,6 +15,10 @@ import gameRouter from "./routes/gameRouter";
 import trophyRouter from "./routes/trophyRouter";
 
 import "express-async-errors";
+
+import { PSN_AUTH } from "./controllers/authPsnController";
+
+console.log(PSN_AUTH.accessToken);
 
 dotenv.config();
 
@@ -34,7 +39,40 @@ declare global {
 const port = process.env.PORT ?? 3000;
 
 const app = express();
-app.use(morgan("tiny"));
+// Apply color to the status code
+morgan.token("status", (req, res) => {
+  const status = res.statusCode;
+  const color =
+    status >= 500
+      ? "red"
+      : status >= 400
+      ? "yellow"
+      : status >= 300
+      ? "cyan"
+      : status >= 200
+      ? "green"
+      : "white";
+  return chalk[color](status);
+});
+
+// Apply color to the method
+morgan.token("method", (req, res) => {
+  const method = req.method;
+  const color =
+    method === "GET"
+      ? "green"
+      : method === "POST"
+      ? "yellow"
+      : method === "PUT"
+      ? "cyan"
+      : method === "DELETE"
+      ? "red"
+      : "white";
+  return chalk[color](method);
+});
+
+app.use(morgan(":method :url - :status"));
+
 app.use(express.json());
 
 app.use(helmet());
@@ -62,16 +100,18 @@ app.listen(port, () => {
 
 //Auth Routes
 app.use(authRouter);
-app.use("/psnAuth/", authRouter);
+// app.use("/psnAuth/", authRouter);
 
 //User Routes
 app.use("/users", authenticate, userRouter);
 
 //Games Routes
+//TODO Add authenticate middleware
 app.use("/games", gameRouter);
 
 //Trophies Routes
-app.use("/trophy", trophyRouter);
+//TODO Add authenticate middleware
+app.use("/trophies", trophyRouter);
 
 //Error Handler
 app.use(errorHandler);

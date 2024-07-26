@@ -4,11 +4,7 @@ import { validateRequest } from "../middlewares/requestValidators";
 
 const router = express.Router();
 
-router.get(
-  "/list/:trophyTitlePlatform/:npCommunicationId",
-  validateRequest("headers")!,
-  getGameTrophies
-);
+router.get("/list/:trophyTitlePlatform/:npCommunicationId", getGameTrophies);
 // router.get(
 //   "/list/:trophyTitlePlatform/:npCommunicationId",
 //   async function (req, res) {
