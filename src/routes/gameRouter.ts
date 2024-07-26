@@ -1,6 +1,5 @@
 import express from "express";
 import { getUserGames } from "../controllers/gameController";
-import { validateRequest } from "../middlewares/requestValidators";
 
 const router = express.Router();
 

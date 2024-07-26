@@ -16,10 +16,6 @@ import trophyRouter from "./routes/trophyRouter";
 
 import "express-async-errors";
 
-import { PSN_AUTH } from "./controllers/authPsnController";
-
-console.log(PSN_AUTH.accessToken);
-
 dotenv.config();
 
 interface UserBasicInfo {
