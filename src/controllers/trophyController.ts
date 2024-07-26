@@ -1,9 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 import { getGameTrophiesInfo } from "../repositories/trophyRepository";
-import { validationResult } from "express-validator";
-import { getBearerTokenFromHeader } from "../utils/api";
 
-//TODO get req params
+import { psnAuthFactory, PSN_AUTH } from "./authPsnController";
+
 //Get the list of trophies info for all games from a user.
 const getGameTrophies = async (
   req: Request,
@@ -11,21 +10,21 @@ const getGameTrophies = async (
   next: NextFunction
 ) => {
   //Validate Request Headers
-  const errors = validationResult(req); // Encontra os erros de validação nesta solicitação e os envolve em um objeto com funções úteis
+  // const errors = validationResult(req); // Encontra os erros de validação nesta solicitação e os envolve em um objeto com funções úteis
 
-  if (!errors.isEmpty()) {
-    res.status(422).json({ errors: errors.array() });
-    return;
-  }
+  // if (!errors.isEmpty()) {
+  //   res.status(422).json({ errors: errors.array() });
+  //   return;
+  // }
 
-  const acessToken = getBearerTokenFromHeader(req.headers.authorization);
-  const accountId = req.get("accountid")!;
+  //Get and keep PSN access token in memory
+  const { accessToken, accountId } = await psnAuthFactory(PSN_AUTH);
 
   const trophyTitlePlatform = req.params.trophyTitlePlatform;
   const npCommunicationId = req.params.npCommunicationId;
 
   const gameTrophiesInfoList = await getGameTrophiesInfo(
-    acessToken,
+    accessToken,
     accountId,
     npCommunicationId,
     trophyTitlePlatform
@@ -51,7 +50,7 @@ export { getGameTrophies };
 //     return;
 //   }
 
-//   const acessToken = getBearerTokenFromHeader(req.headers.authorization);
+//   const accessToken = getBearerTokenFromHeader(req.headers.authorization);
 //   const accountId = req.get("accountid")!;
 
 //   const allGamesTrophiesInfoList = await getAllGamesTrophiesInfoList();

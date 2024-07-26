@@ -1,9 +1,9 @@
 import { Request, Response, NextFunction } from "express";
 import { ConvertGame, Game } from "../models/game";
 import { getTrophyTitles } from "../repositories/gameRepository";
-import { validationResult } from "express-validator";
-import { getBearerTokenFromHeader } from "../utils/api";
 import { formatStringToTitleCase } from "../utils/strings";
+
+import { psnAuthFactory, PSN_AUTH } from "./authPsnController";
 
 const getUserGames = async (
   req: Request,
@@ -11,19 +11,17 @@ const getUserGames = async (
   next: NextFunction
 ) => {
   //Validate Request Headers
-  const errors = validationResult(req); // Encontra os erros de validação nesta solicitação e os envolve em um objeto com funções úteis
+  // const errors = validationResult(req); // Encontra os erros de validação nesta solicitação e os envolve em um objeto com funções úteis
 
-  if (!errors.isEmpty()) {
-    res.status(422).json({ errors: errors.array() });
-    return;
-  }
+  // if (!errors.isEmpty()) {
+  //   res.status(422).json({ errors: errors.array() });
+  //   return;
+  // }
 
-  const acessToken = getBearerTokenFromHeader(req.headers.authorization);
-  const accountId = req.get("accountid")!;
+  //Get and keep PSN access token in memory
+  const { accessToken, accountId } = await psnAuthFactory(PSN_AUTH);
 
-  // console.log(acessToken, accountId);
-
-  const games = await getTrophyTitles(acessToken, accountId);
+  const games = await getTrophyTitles(accessToken, accountId);
   const gamesList = new Array<Game>();
 
   games.forEach((obj) => {
