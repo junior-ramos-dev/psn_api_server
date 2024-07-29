@@ -95,7 +95,7 @@ app.listen(port, () => {
 // });
 
 //Auth Routes
-app.use(authRouter);
+app.use("/auth", authRouter);
 // app.use("/psnAuth/", authRouter);
 
 //User Routes
