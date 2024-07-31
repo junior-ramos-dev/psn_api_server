@@ -94,6 +94,9 @@ app.listen(port, () => {
 //   res.send("Server is up!");
 // });
 
+//Server Running Status
+app.get("/status", (req, res, next) => res.sendStatus(200));
+
 //Auth Routes
 app.use("/auth", authRouter);
 // app.use("/psnAuth/", authRouter);
