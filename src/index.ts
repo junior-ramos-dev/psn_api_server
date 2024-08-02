@@ -77,6 +77,8 @@ app.use(
   cors({
     origin: "http://localhost:8001",
     credentials: true,
+    exposedHeaders: ["ETag"],
+    methods: ["GET", " POST", "DELETE", "UPDATE", "PUT", "PATCH"],
   })
 );
 
