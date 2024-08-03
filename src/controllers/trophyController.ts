@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
-import { getGameTrophiesInfo } from "../repositories/trophyRepository";
+import { getGameTrophiesInfo } from "../services/psnApi/trophies";
 
-import { psnAuthFactory, PSN_AUTH } from "./authPsnController";
+import { psnAuthFactory, PSN_AUTH } from "../services/psnApi/auth";
 
 //Get the list of trophies info for all games from a user.
 const getGameTrophies = async (

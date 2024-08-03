@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import User from "../models/user";
+import User from "../models/schemas/user";
 import { generateToken, clearToken } from "../utils/auth";
 
 const registerUser = async (req: Request, res: Response) => {

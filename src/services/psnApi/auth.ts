@@ -11,7 +11,7 @@ import {
   PsnAuth,
   IPsnAuthTokensResponse,
   createPsnAuth,
-} from "../models/psnAuth";
+} from "../../models/classes/psnAuth";
 
 import chalk from "chalk";
 

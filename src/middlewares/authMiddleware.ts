@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import jwt, { JwtPayload } from "jsonwebtoken";
-import User from "../models/user";
+import User from "../models/schemas/user";
 import asyncHandler from "express-async-handler";
 import { AuthenticationError } from "./errorMiddleware";
 

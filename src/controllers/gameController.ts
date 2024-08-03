@@ -1,11 +1,16 @@
 import { Request, Response, NextFunction } from "express";
-import { ConvertGame, Game } from "../models/game";
-import { getTrophyTitles } from "../repositories/gameRepository";
-import { formatStringToTitleCase } from "../utils/strings";
+import {
+  createDbGamesByUser,
+  updateDbGamesByUser,
+  getDbGamesByUser,
+} from "../services/repositories/gameRepository";
+import User from "../models/schemas/user";
+import { UserGames } from "../models/schemas/game";
+import etag from "etag";
+import { isFreshEtagHeader } from "../utils/api";
+import { IGame } from "src/models/interfaces/game";
 
-import { psnAuthFactory, PSN_AUTH } from "./authPsnController";
-
-const getUserGames = async (
+const getGamesByUser = async (
   req: Request,
   res: Response,
   next: NextFunction
@@ -17,25 +22,64 @@ const getUserGames = async (
   //   res.status(422).json({ errors: errors.array() });
   //   return;
   // }
+  const userId = req.params["userId"];
+  const user = await User.findById(userId);
 
-  //Get and keep PSN access token in memory
-  const { accessToken, accountId } = await psnAuthFactory(PSN_AUTH);
-
-  const games = await getTrophyTitles(accessToken, accountId);
-  const gamesList = new Array<Game>();
-
-  games.forEach((obj) => {
-    let item = JSON.stringify(obj);
-    let gameItem = ConvertGame.toGame(item);
-
-    formatStringToTitleCase(gameItem.trophyTitleDetail);
-    gamesList.push(gameItem);
+  const userGamesExists = await UserGames.findOne({
+    userId: user!._id,
   });
 
-  res.json(gamesList);
+  let gamesByUser;
+
+  if (!userGamesExists) {
+    gamesByUser = await createDbGamesByUser(user!._id);
+    console.log("created userGames on DB");
+  } else {
+    const currentDate = new Date();
+    const updatedAt = userGamesExists.updatedAt;
+    console.log(currentDate, updatedAt);
+
+    //Check date to retrive new data after 2 hours
+    const diffHours =
+      Math.abs(currentDate.getTime() - updatedAt.getTime()) / 3600000;
+    console.log(diffHours);
+    if (diffHours > 12) {
+      gamesByUser = await updateDbGamesByUser(user!._id);
+      console.log("updated userGames on DB");
+    } else {
+      gamesByUser = await getDbGamesByUser(user!._id);
+      console.log("returned userGames from DB");
+    }
+  }
+
+  res.json(gamesByUser);
 };
 
-export { getUserGames };
+// app.get("/games/etag")
+//TODO Implement with DB
+const getGamesWithEtag = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const body = {
+      data: "Testing etag",
+    };
+    res.setHeader("etag", etag(Buffer.from(JSON.stringify(body))));
+    if (isFreshEtagHeader(req, res)) {
+      res.statusCode = 304;
+      res.send();
+    } else {
+      res.statusCode = 200;
+      res.send({ ...body });
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export { getGamesByUser };
 
 // async function getGame(req: Request, res: Response, next: NextFunction) {
 //   const id = req.params.id;

@@ -1,7 +1,7 @@
 import type { TitleThinTrophy } from "psn-api/dist/models/title-thin-trophy.model";
 import { getTitleTrophies, getUserTrophiesEarnedForTitle } from "psn-api";
 import type { Trophy } from "psn-api";
-import { mergeTrophyLists } from "../utils/trophies";
+import { mergeTrophyLists } from "../../utils/trophies";
 
 //Get the game trophies list.
 const getGameTrophiesList = async (
