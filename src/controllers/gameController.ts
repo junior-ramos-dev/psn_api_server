@@ -9,6 +9,7 @@ import { UserGames } from "../models/schemas/game";
 import etag from "etag";
 import { isFreshEtagHeader } from "../utils/api";
 import { IGame } from "src/models/interfaces/game";
+import { validationResult } from "express-validator";
 
 const getGamesByUser = async (
   req: Request,
@@ -16,63 +17,58 @@ const getGamesByUser = async (
   next: NextFunction
 ) => {
   //Validate Request Headers
-  // const errors = validationResult(req); // Encontra os erros de validação nesta solicitação e os envolve em um objeto com funções úteis
+  const errors = validationResult(req); // Encontra os erros de validação nesta solicitação e os envolve em um objeto com funções úteis
 
-  // if (!errors.isEmpty()) {
-  //   res.status(422).json({ errors: errors.array() });
-  //   return;
-  // }
-  const userId = req.params["userId"];
-  const user = await User.findById(userId);
-
-  const userGamesExists = await UserGames.findOne({
-    userId: user!._id,
-  });
-
-  let gamesByUser;
-
-  if (!userGamesExists) {
-    gamesByUser = await createDbGamesByUser(user!._id);
-    console.log("created userGames on DB");
-  } else {
-    const currentDate = new Date();
-    const updatedAt = userGamesExists.updatedAt;
-    console.log(currentDate, updatedAt);
-
-    //Check date to retrive new data after 2 hours
-    const diffHours =
-      Math.abs(currentDate.getTime() - updatedAt.getTime()) / 3600000;
-    console.log(diffHours);
-    if (diffHours > 12) {
-      gamesByUser = await updateDbGamesByUser(user!._id);
-      console.log("updated userGames on DB");
-    } else {
-      gamesByUser = await getDbGamesByUser(user!._id);
-      console.log("returned userGames from DB");
-    }
+  if (!errors.isEmpty()) {
+    res.status(422).json({ errors: errors.array() });
+    return;
   }
 
-  res.json(gamesByUser);
-};
-
-// app.get("/games/etag")
-//TODO Implement with DB
-const getGamesWithEtag = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
   try {
-    const body = {
-      data: "Testing etag",
-    };
-    res.setHeader("etag", etag(Buffer.from(JSON.stringify(body))));
-    if (isFreshEtagHeader(req, res)) {
-      res.statusCode = 304;
-      res.send();
+    const userId = req.params["userId"];
+    const user = await User.findById(userId);
+
+    const userGamesExists = await UserGames.findOne({
+      userId: user!._id,
+    }).lean();
+
+    let gamesByUser;
+
+    if (userGamesExists) {
+      gamesByUser = await getDbGamesByUser(user!._id);
+
+      res.setHeader("etag", etag(Buffer.from(JSON.stringify(gamesByUser))));
+
+      const isFreshEtag = isFreshEtagHeader(req, res);
+      console.log("isFreshEtag: ", isFreshEtag);
+
+      const currentDate = new Date();
+      const updatedAt = userGamesExists.updatedAt;
+      console.log(currentDate, updatedAt);
+
+      // Check updatedAt to retrive new data from psnApi after 2 hours
+      const diffHours =
+        Math.abs(currentDate.getTime() - updatedAt.getTime()) / 3600000;
+      console.log(diffHours);
+
+      //TODO Set the diff to a lower value for prod
+      if (isFreshEtag && diffHours > 1000) {
+        gamesByUser = await updateDbGamesByUser(user!._id);
+        console.log("updated userGames on DB");
+      } else if (isFreshEtag && diffHours < 1000) {
+        console.log(
+          "Not Modified. You can continue using the same cached version of the response."
+        );
+        res.status(304).send();
+      } else if (!isFreshEtag) {
+        console.log("returned userGames from DB");
+        res.json(gamesByUser);
+      }
     } else {
-      res.statusCode = 200;
-      res.send({ ...body });
+      gamesByUser = await createDbGamesByUser(user!._id);
+      console.log("created userGames on DB");
+
+      res.json(gamesByUser);
     }
   } catch (error) {
     console.log(error);

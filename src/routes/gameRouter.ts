@@ -1,9 +1,10 @@
 import express from "express";
 import { getGamesByUser } from "../controllers/gameController";
+import { validateRequest } from "../middlewares/requestValidators";
 
 const router = express.Router();
 
-router.get("/:userId", getGamesByUser);
+router.get("/:userId", validateRequest("headers")!, getGamesByUser);
 
 // router.get("/:id", gameController.getGame);
 
