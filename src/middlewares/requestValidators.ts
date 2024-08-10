@@ -8,10 +8,8 @@ export const validateRequest = (method: string) => {
       return validateHeaders;
     }
     case "body": {
-      //TODO;
     }
     case "params": {
-      //TODO;
     }
   }
 };
@@ -19,7 +17,7 @@ export const validateRequest = (method: string) => {
 const validateHeaders = [
   header("etag")
     .exists({ values: "undefined" })
-    .withMessage("Missing AccountId Header") // you can specify the message to show if a validation has failed
+    .withMessage("Missing ETag Header") // you can specify the message to show if a validation has failed
     .bail(), // not necessary, but it stops execution if previous validation failed
   // header("authorization")
   //   .exists({ values: "undefined" })

@@ -1,19 +1,27 @@
-import { UserGames } from "../../models/schemas/game";
-import { Convert } from "../../models/interfaces/game";
+import { GameIcon, UserGames } from "../../models/schemas/game";
+import { Convert, IGame } from "../../models/interfaces/game";
 import { PSN_AUTH, psnAuthFactory } from "../psnApi/auth";
 import { getTrophyTitles } from "../psnApi/games";
 import { Types } from "mongoose";
+import { dolwnloadFileToBase64 } from "../../utils/download";
 
+// Get games by user and add (populate) the virtual reference from GameIcon schema
 export const getDbGamesByUser = async (userId: Types.ObjectId) => {
   const userGames = await UserGames.findOne({
     userId: userId,
   });
+  // .populate({
+  //   path: "games.gameIconBin",
+  //   select: "iconBinaryData",
+  //   // model: "gameiscons",
+  // });
 
   let gamesList = Convert.toIGameArray(userGames!.games);
 
   return gamesList;
 };
 
+// Create the lsit of games by user
 export const createDbGamesByUser = async (userId: Types.ObjectId) => {
   // psnAuthFactory get and keep PSN access token in memory
   const { accessToken, accountId } = await psnAuthFactory(PSN_AUTH);
@@ -35,6 +43,7 @@ export const createDbGamesByUser = async (userId: Types.ObjectId) => {
   return gamesList;
 };
 
+// Update the lsit of games by user
 export const updateDbGamesByUser = async (userId: Types.ObjectId) => {
   // psnAuthFactory get and keep PSN access token in memory
   const { accessToken, accountId } = await psnAuthFactory(PSN_AUTH);
@@ -60,6 +69,54 @@ export const updateDbGamesByUser = async (userId: Types.ObjectId) => {
   }
 
   return gamesList;
+};
+
+// Get the game icon binary data
+export const getDbGameIconBin = async (npCommunicationId: string) => {
+  const userGames = await GameIcon.findOne({
+    npCommunicationId: npCommunicationId,
+  });
+
+  return userGames;
+};
+
+/**
+ * Download the game icon (if not exists yet) and insert as binary data in the collection "gamesicons"
+ * aside from the "usergames" collection.
+ */
+export const createDbGameIconBin = async (games: IGame[]) => {
+  try {
+    let count = 1;
+
+    for (const game of games) {
+      const gamesIconExists = await GameIcon.findOne({
+        npCommunicationId: game.npCommunicationId,
+      }).lean();
+
+      if (gamesIconExists) {
+        console.log(
+          `[${count}/${games.length}] Game Icon already exists: ${game.trophyTitleName};`
+        );
+      } else {
+        console.log(
+          `[${count}/${games.length}] Downloading Game Icon: ${game.trophyTitleName};`
+        );
+        const iconBase64 = await dolwnloadFileToBase64(game.trophyTitleIconUrl);
+
+        await GameIcon.create({
+          npCommunicationId: game.npCommunicationId,
+          trophyTitleName: game.trophyTitleName,
+          trophyTitleIconUrl: game.trophyTitleIconUrl,
+          iconBinaryData: iconBase64,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        });
+      }
+      count++;
+    }
+  } catch (err: any) {
+    console.log(err);
+  }
 };
 
 // async function getGame(id: number): Promise<Game | undefined> {

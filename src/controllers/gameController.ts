@@ -3,14 +3,16 @@ import {
   createDbGamesByUser,
   updateDbGamesByUser,
   getDbGamesByUser,
+  createDbGameIconBin,
+  getDbGameIconBin,
 } from "../services/repositories/gameRepository";
 import User from "../models/schemas/user";
 import { UserGames } from "../models/schemas/game";
 import etag from "etag";
 import { isFreshEtagHeader } from "../utils/api";
-import { IGame } from "src/models/interfaces/game";
 import { validationResult } from "express-validator";
 
+/** */
 const getGamesByUser = async (
   req: Request,
   res: Response,
@@ -37,25 +39,45 @@ const getGamesByUser = async (
     if (userGamesExists) {
       gamesByUser = await getDbGamesByUser(user!._id);
 
+      /**
+       * The ETag (or entity tag) HTTP response header is an identifier for a specific version of a resource.
+       * It lets caches be more efficient and save bandwidth, as a web server does not need to resend a full response
+       * if the content was not changed.
+       *
+       * See https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/ETag
+       * */
       res.setHeader("etag", etag(Buffer.from(JSON.stringify(gamesByUser))));
-
+      res.setHeader(
+        "if-none-match",
+        etag(Buffer.from(JSON.stringify(gamesByUser)))
+      );
       const isFreshEtag = isFreshEtagHeader(req, res);
-      console.log("isFreshEtag: ", isFreshEtag);
 
+      // Interval in hours to request data from psnApi;
+      //TODO Set the diff to 2 hours for prod
+      const psnApiPollingInterval = 100; //hours
       const currentDate = new Date();
       const updatedAt = userGamesExists.updatedAt;
-      console.log(currentDate, updatedAt);
 
-      // Check updatedAt to retrive new data from psnApi after 2 hours
+      // Check the "updatedAt" from UserGames schema to retrieve new data from psnApi after 2 hours
       const diffHours =
         Math.abs(currentDate.getTime() - updatedAt.getTime()) / 3600000;
+
+      console.log(currentDate, updatedAt);
       console.log(diffHours);
 
-      //TODO Set the diff to a lower value for prod
-      if (isFreshEtag && diffHours > 1000) {
+      console.log("isFreshEtag: ", isFreshEtag);
+
+      if (isFreshEtag && diffHours > psnApiPollingInterval) {
         gamesByUser = await updateDbGamesByUser(user!._id);
+
+        // Download and update (if not exists yet) the game image (trophyTitleIconUrl)
+        // and insert as binary data in the collection "gamesicons"
+        await createDbGameIconBin(gamesByUser);
+
         console.log("updated userGames on DB");
-      } else if (isFreshEtag && diffHours < 1000) {
+        res.json(gamesByUser);
+      } else if (isFreshEtag && diffHours < psnApiPollingInterval) {
         console.log(
           "Not Modified. You can continue using the same cached version of the response."
         );
@@ -68,6 +90,10 @@ const getGamesByUser = async (
       gamesByUser = await createDbGamesByUser(user!._id);
       console.log("created userGames on DB");
 
+      // Download and create (if not exists yet) the game image (trophyTitleIconUrl)
+      // and insert as binary data in the collection "gamesicons"
+      await createDbGameIconBin(gamesByUser);
+
       res.json(gamesByUser);
     }
   } catch (error) {
@@ -75,7 +101,24 @@ const getGamesByUser = async (
   }
 };
 
-export { getGamesByUser };
+/** */
+const getDbGameIconBinByGame = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const npCommunicationId = req.params["npCommunicationId"];
+
+    const gameIconBin = await getDbGameIconBin(npCommunicationId);
+
+    res.json(gameIconBin);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export { getGamesByUser, getDbGameIconBinByGame };
 
 // async function getGame(req: Request, res: Response, next: NextFunction) {
 //   const id = req.params.id;

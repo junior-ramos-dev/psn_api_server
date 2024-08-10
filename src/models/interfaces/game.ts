@@ -25,6 +25,15 @@ export interface IGame extends Document {
   lastUpdatedDateTime: Date;
 }
 
+export interface IGameIcon extends Document {
+  npCommunicationId: string;
+  trophyTitleName: string;
+  trophyTitleIconUrl: string;
+  iconBinaryData: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 // Converts JSON strings to/from your types
 export class Convert {
   public static toIGame(json: string): IGame {

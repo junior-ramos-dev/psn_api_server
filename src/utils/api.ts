@@ -11,17 +11,17 @@ export const isFreshEtagHeader = (req: Request, res: Response) => {
   try {
     let resHeader = {
       etag: JSON.parse(res.get("etag")!),
-      "if-none-match": "*",
+      "if-none-match": JSON.parse(res.get("if-none-match")!),
     };
     let reqHeader = {
       etag:
         req.headers["etag"] != ""
           ? JSON.parse(req.headers["etag"]!)
           : req.headers["etag"],
-      "if-none-match": "*",
+      "if-none-match": JSON.parse(req.headers["if-none-match"]!),
     };
-    // console.log(reqHeader);
-    // console.log(resHeader);
+    console.log(reqHeader);
+    console.log(resHeader);
     return fresh(reqHeader, resHeader);
   } catch (error) {
     console.log(error);

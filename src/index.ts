@@ -107,11 +107,11 @@ app.use("/auth", authRouter);
 app.use("/users", authenticate, userRouter);
 
 //Games Routes
-//TODO Add authenticate middleware
+//TODO Add authenticate middleware for prod
 app.use("/games", gameRouter);
 
 //Trophies Routes
-//TODO Add authenticate middleware
+//TODO Add authenticate middleware for prod
 app.use("/trophies", trophyRouter);
 
 //Error Handler

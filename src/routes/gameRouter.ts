@@ -1,10 +1,15 @@
 import express from "express";
-import { getGamesByUser } from "../controllers/gameController";
+import {
+  getDbGameIconBinByGame,
+  getGamesByUser,
+} from "../controllers/gameController";
 import { validateRequest } from "../middlewares/requestValidators";
 
 const router = express.Router();
 
 router.get("/:userId", validateRequest("headers")!, getGamesByUser);
+
+router.get("/icon/:npCommunicationId", getDbGameIconBinByGame);
 
 // router.get("/:id", gameController.getGame);
 

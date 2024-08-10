@@ -3,6 +3,7 @@ import { getGameTrophiesInfo } from "../services/psnApi/trophies";
 
 import { psnAuthFactory, PSN_AUTH } from "../services/psnApi/auth";
 
+//TODO Persist on DB and use Etag like gamesList
 //Get the list of trophies info for all games from a user.
 const getGameTrophies = async (
   req: Request,
@@ -35,7 +36,7 @@ const getGameTrophies = async (
 
 export { getGameTrophies };
 
-//FIXME
+//TODO Get the list of trophies info for all games from a user.
 //Get the list of trophies info for all games from a user.
 // const getAllGamesTrophiesInfo = async (
 //   req: Request,
