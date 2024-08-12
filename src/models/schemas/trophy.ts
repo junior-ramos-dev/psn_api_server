@@ -1,4 +1,5 @@
 import { Schema } from "mongoose";
+
 import { ITrophyCount } from "../interfaces/trophy";
 
 export const TrophyCount = new Schema<ITrophyCount>({

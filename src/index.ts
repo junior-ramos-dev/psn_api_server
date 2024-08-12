@@ -1,18 +1,19 @@
-import express, { Request, Response } from "express";
-import connectUserDB from "./connections/userDB";
-import dotenv from "dotenv";
-import cors from "cors";
-import helmet from "helmet";
 import bodyParser from "body-parser";
-import cookieParser from "cookie-parser";
-import morgan from "morgan";
 import chalk from "chalk";
+import cookieParser from "cookie-parser";
+import cors from "cors";
+import dotenv from "dotenv";
+import express, { Request, Response } from "express";
+import helmet from "helmet";
+import morgan from "morgan";
+
+import connectUserDB from "./connections/userDB";
 import { authenticate } from "./middlewares/authMiddleware";
 import { errorHandler } from "./middlewares/errorMiddleware";
 import authRouter from "./routes/authRouter";
-import userRouter from "./routes/userRouter";
 import gameRouter from "./routes/gameRouter";
 import trophyRouter from "./routes/trophyRouter";
+import userRouter from "./routes/userRouter";
 
 import "express-async-errors";
 

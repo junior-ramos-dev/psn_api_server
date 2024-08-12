@@ -1,4 +1,5 @@
 import express from "express";
+
 import { getGameTrophies } from "../controllers/trophyController";
 
 const router = express.Router();

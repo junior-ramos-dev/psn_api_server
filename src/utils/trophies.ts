@@ -1,7 +1,8 @@
 import type { Trophy } from "psn-api";
 import { TrophyRarity } from "psn-api";
-import { TrophyTypesNames } from "../enums/trophy";
 import { TrophyNormalized } from "src/models/interfaces/trophy";
+
+import { TrophyTypesNames } from "../enums/trophy";
 
 const mergeTrophyLists = (
   titleTrophies: Trophy[],

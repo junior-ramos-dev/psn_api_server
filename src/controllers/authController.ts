@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
+
 import User from "../models/schemas/user";
-import { generateToken, clearToken } from "../utils/auth";
+import { clearToken,generateToken } from "../utils/auth";
 
 const registerUser = async (req: Request, res: Response) => {
   const { name, email, password } = req.body;
@@ -49,4 +50,4 @@ const logoutUser = (req: Request, res: Response) => {
   res.status(200).json({ message: "User logged out" });
 };
 
-export { registerUser, authenticateUser, logoutUser };
+export { authenticateUser, logoutUser,registerUser };

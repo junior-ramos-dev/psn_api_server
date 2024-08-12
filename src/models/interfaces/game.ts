@@ -1,5 +1,6 @@
-import { ITrophyCount } from "./trophy";
 import { Types } from "mongoose";
+
+import { ITrophyCount } from "./trophy";
 
 export interface IUserGames extends Document {
   userId: Types.ObjectId;

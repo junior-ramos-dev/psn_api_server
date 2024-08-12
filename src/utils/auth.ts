@@ -1,5 +1,5 @@
-import jwt from "jsonwebtoken";
 import { Response } from "express";
+import jwt from "jsonwebtoken";
 
 const generateToken = (res: Response, userId: string) => {
   const jwtSecret = process.env.JWT_SECRET || "";
@@ -22,4 +22,4 @@ const clearToken = (res: Response) => {
   });
 };
 
-export { generateToken, clearToken };
+export { clearToken,generateToken };

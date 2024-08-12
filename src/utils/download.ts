@@ -1,5 +1,5 @@
-import * as fs from "fs";
 import axios, { AxiosResponse } from "axios";
+import * as fs from "fs";
 
 //TODOCustomize params to download diferent types of files
 export const dolwnloadFileToBase64 = async (

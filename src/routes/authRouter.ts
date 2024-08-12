@@ -1,8 +1,9 @@
 import express from "express";
+
 import {
-  registerUser,
   authenticateUser,
   logoutUser,
+  registerUser,
 } from "../controllers/authController";
 
 const authRouter = express.Router();

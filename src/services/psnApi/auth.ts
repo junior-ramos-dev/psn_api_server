@@ -1,19 +1,18 @@
+import chalk from "chalk";
 import { Request, Response } from "express";
-
 import {
   exchangeCodeForAccessToken,
   exchangeNpssoForCode,
   exchangeRefreshTokenForAuthTokens,
 } from "psn-api";
 
-import "dotenv/config";
 import {
-  PsnAuth,
-  IPsnAuthTokensResponse,
   createPsnAuth,
+  IPsnAuthTokensResponse,
+  PsnAuth,
 } from "../../models/classes/psnAuth";
 
-import chalk from "chalk";
+import "dotenv/config";
 
 // const error = chalk.red;
 const warning = chalk.yellow;
@@ -180,4 +179,4 @@ export const refreshAccessTokenWithAccessCode = async (accessCode: string) => {
 
 psnAuthFactory(PSN_AUTH).then((auth) => (PSN_AUTH = auth));
 
-export { psnAuthFactory, PSN_AUTH };
+export { PSN_AUTH,psnAuthFactory };

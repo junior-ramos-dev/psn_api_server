@@ -22,4 +22,4 @@ class AuthenticationError extends Error {
   }
 }
 
-export { errorHandler, AuthenticationError };
+export { AuthenticationError,errorHandler };

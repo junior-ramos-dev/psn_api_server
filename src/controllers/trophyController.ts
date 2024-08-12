@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
-import { getGameTrophiesInfo } from "../services/psnApi/trophies";
 
-import { psnAuthFactory, PSN_AUTH } from "../services/psnApi/auth";
+import { PSN_AUTH,psnAuthFactory } from "../services/psnApi/auth";
+import { getGameTrophiesInfo } from "../services/psnApi/trophies";
 
 //TODO Persist on DB and use Etag like gamesList
 //Get the list of trophies info for all games from a user.

@@ -1,9 +1,10 @@
-import { GameIcon, UserGames } from "../../models/schemas/game";
+import { MongooseError, Types } from "mongoose";
+
 import { Convert, IGame } from "../../models/interfaces/game";
+import { GameIcon, UserGames } from "../../models/schemas/game";
+import { dolwnloadFileToBase64 } from "../../utils/download";
 import { PSN_AUTH, psnAuthFactory } from "../psnApi/auth";
 import { getTrophyTitles } from "../psnApi/games";
-import { MongooseError, Types } from "mongoose";
-import { dolwnloadFileToBase64 } from "../../utils/download";
 
 /**
  * Get games by user and add (populate) the virtual reference from GameIcon schema

@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+
 import User from "../models/schemas/user";
 
 const getUser = async (req: Request, res: Response) => {

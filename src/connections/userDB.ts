@@ -1,5 +1,5 @@
-import mongoose, { MongooseError } from "mongoose";
 import chalk from "chalk";
+import mongoose, { MongooseError } from "mongoose";
 
 const chalkError = chalk.red;
 const chalkInfo = chalk.green;

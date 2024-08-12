@@ -1,5 +1,7 @@
 import mongoose, { Schema } from "mongoose";
+
 import { IGame, IGameIcon, IUserGames } from "../interfaces/game";
+
 import { TrophyCount } from "./trophy";
 
 //Model for Game
@@ -133,4 +135,4 @@ const Game = mongoose.model("Game", GameSchema);
 const GameIcon = mongoose.model("GameIcon", GameIconSchema);
 const UserGames = mongoose.model("UserGames", UserGamesSchema);
 
-export { Game, UserGames, GameIcon };
+export { Game, GameIcon,UserGames };
