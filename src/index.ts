@@ -5,6 +5,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import express, { Request, Response } from "express";
 import helmet from "helmet";
+import { Types } from "mongoose";
 import morgan from "morgan";
 
 import connectUserDB from "./connections/userDB";
@@ -20,7 +21,7 @@ import "express-async-errors";
 dotenv.config();
 
 interface AuthUSer {
-  _id: string;
+  _id: Types.ObjectId | string;
   name: string;
   email: string;
 }

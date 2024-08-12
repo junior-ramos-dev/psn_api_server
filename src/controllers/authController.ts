@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 
 import User from "../models/schemas/user";
-import { clearToken,generateToken } from "../utils/auth";
+import { clearToken, generateToken } from "../utils/auth";
 
 const registerUser = async (req: Request, res: Response) => {
   const { name, email, password } = req.body;
@@ -18,7 +18,7 @@ const registerUser = async (req: Request, res: Response) => {
   });
 
   if (user) {
-    generateToken(res, user._id);
+    generateToken(res, String(user._id));
     res.status(201).json({
       id: user._id,
       name: user.name,
@@ -34,7 +34,7 @@ const authenticateUser = async (req: Request, res: Response) => {
   const user = await User.findOne({ email });
 
   if (user && (await user.comparePassword(password))) {
-    generateToken(res, user._id);
+    generateToken(res, String(user._id));
     res.status(201).json({
       id: user._id,
       name: user.name,
@@ -50,4 +50,4 @@ const logoutUser = (req: Request, res: Response) => {
   res.status(200).json({ message: "User logged out" });
 };
 
-export { authenticateUser, logoutUser,registerUser };
+export { authenticateUser, logoutUser, registerUser };
