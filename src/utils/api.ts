@@ -20,8 +20,8 @@ export const isFreshEtagHeader = (req: Request, res: Response) => {
           : req.headers["etag"],
       "if-none-match": JSON.parse(req.headers["if-none-match"]!),
     };
-    console.log(reqHeader);
-    console.log(resHeader);
+    // console.log(reqHeader);
+    // console.log(resHeader);
     return fresh(reqHeader, resHeader);
   } catch (error) {
     console.log(error);

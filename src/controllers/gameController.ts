@@ -56,7 +56,7 @@ const getGamesByUser = async (
 
       // Interval in hours to request data from psnApi;
       //TODO Set the diff to 2 hours for prod
-      const psnApiPollingInterval = 100; //hours
+      const psnApiPollingInterval = 1000; //hours
       const currentDate = new Date();
       const updatedAt = userGamesExists.updatedAt;
 

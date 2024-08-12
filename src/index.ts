@@ -106,13 +106,20 @@ app.use("/auth", authRouter);
 //User Routes
 app.use("/users", authenticate, userRouter);
 
-//Games Routes
-//TODO Add authenticate middleware for prod
-app.use("/games", gameRouter);
+// Set the authenticate middleware when using the endpoins in production
+if (process.env.NODE_ENV === "production") {
+  //Games Routes
+  app.use("/games", authenticate, gameRouter);
 
-//Trophies Routes
-//TODO Add authenticate middleware for prod
-app.use("/trophies", trophyRouter);
+  //Trophies Routes
+  app.use("/trophies", authenticate, trophyRouter);
+} else {
+  //Games Routes
+  app.use("/games", gameRouter);
+
+  //Trophies Routes
+  app.use("/trophies", trophyRouter);
+}
 
 //Error Handler
 app.use(errorHandler);
