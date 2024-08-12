@@ -1,7 +1,7 @@
 import type { TitleThinTrophy } from "psn-api/dist/models/title-thin-trophy.model";
 import { getTitleTrophies, getUserTrophiesEarnedForTitle } from "psn-api";
-import type { Trophy } from "psn-api";
 import { mergeTrophyLists } from "../../utils/trophies";
+import { TrophyNormalized } from "src/models/interfaces/trophy";
 
 //Get the game trophies list.
 const getGameTrophiesList = async (
@@ -46,9 +46,9 @@ const getGameTrophiesEarnedList = async (
 const getGameTrophiesInfo = async (
   accessToken: string,
   accountId: string,
-  npCommunicationId: any,
-  trophyTitlePlatform: any
-): Promise<Trophy[]> => {
+  npCommunicationId: string,
+  trophyTitlePlatform: string
+): Promise<TrophyNormalized[]> => {
   const gameTrophies = await getGameTrophiesList(
     accessToken,
     npCommunicationId,
@@ -62,13 +62,17 @@ const getGameTrophiesInfo = async (
     trophyTitlePlatform
   );
 
-  let mergedTrophies = new Array<Trophy>();
+  let mergedTrophies = new Array<TrophyNormalized>();
 
   if (gameTrophies !== undefined && gameEarnedTrophies !== undefined) {
     mergedTrophies = mergeTrophyLists(gameTrophies, gameEarnedTrophies);
   }
   return new Promise((resolve, reject) => {
-    return resolve(mergedTrophies);
+    try {
+      return resolve(mergedTrophies);
+    } catch (error) {
+      return reject(error);
+    }
   });
 };
 

@@ -44,7 +44,7 @@ export class Convert {
     return JSON.stringify(value);
   }
 
-  public static toIGameArray(jsonArray: any[]) {
+  public static toIGameArray(jsonArray: object[]) {
     const gamesList = new Array<IGame>();
 
     jsonArray.forEach((obj) => {

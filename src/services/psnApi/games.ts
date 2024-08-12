@@ -12,6 +12,10 @@ export const getTrophyTitles = async (
   );
 
   return new Promise((resolve, reject) => {
-    return resolve(trophyTitles);
+    try {
+      return resolve(trophyTitles);
+    } catch (error) {
+      return reject(error);
+    }
   });
 };

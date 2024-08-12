@@ -36,6 +36,7 @@ export class PsnAuth implements IPsnAuth {
     tokenType: string = "",
     accountId: string = ""
   ) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     (this.accessToken = accessToken),
       (this.expiresIn = expiresIn),
       (this.idToken = idToken),

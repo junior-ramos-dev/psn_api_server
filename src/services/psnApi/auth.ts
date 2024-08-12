@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from "express";
+import { Request, Response } from "express";
 
 import {
   exchangeCodeForAccessToken,
@@ -15,7 +15,7 @@ import {
 
 import chalk from "chalk";
 
-const error = chalk.red;
+// const error = chalk.red;
 const warning = chalk.yellow;
 const info = chalk.green;
 
@@ -23,6 +23,11 @@ const info = chalk.green;
 const ACCOUNT_ID = process.env.ACCOUNT_ID!;
 let PSN_AUTH = new PsnAuth();
 
+/**
+ *
+ * @param psnAuth
+ * @returns
+ */
 const psnAuthFactory = async (psnAuth: PsnAuth): Promise<PsnAuth> => {
   let iPsnAuthTokensResponse: IPsnAuthTokensResponse | undefined;
   let isAccessTokenExpired = false;
@@ -74,6 +79,10 @@ const psnAuthFactory = async (psnAuth: PsnAuth): Promise<PsnAuth> => {
   });
 };
 
+/**
+ *
+ * @returns
+ */
 const getPsnAuthCredentials = async (): Promise<IPsnAuthTokensResponse> => {
   const authCredentials = await authenticatePsn();
 
@@ -118,17 +127,25 @@ const authenticatePsn = async (): Promise<IPsnAuthTokensResponse> => {
   });
 };
 
-const getPsnAcessTokenByRequest = async (
+/**
+ *
+ * @param req
+ * @param res
+ */
+export const getPsnAcessTokenByRequest = async (
   req: Request,
-  res: Response,
-  next: NextFunction
+  res: Response
 ) => {
   const auth = await getPsnAuthCredentials();
   if (auth) res.json(auth);
   else res.sendStatus(404);
 };
 
-const refreshAccessTokenWithAccessCode = async (accessCode: string) => {
+/**
+ *
+ * @param accessCode
+ */
+export const refreshAccessTokenWithAccessCode = async (accessCode: string) => {
   // We're going to be working with the authorization object
   // returned from this function we used when we first authenticated.
   const authorization = await exchangeCodeForAccessToken(accessCode);
@@ -157,6 +174,7 @@ const refreshAccessTokenWithAccessCode = async (accessCode: string) => {
 
     // Like above, we can now convert `updatedAuthorization.expiresIn` to
     // an ISO date string to be ready for a future `isAccessTokenExpired` comparison.
+    return updatedAuthorization;
   }
 };
 
