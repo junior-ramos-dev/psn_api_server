@@ -9,7 +9,7 @@ export interface IUser extends Document {
   comparePassword: (enteredPassword: string) => boolean;
 }
 
-export interface IUserGames extends Document {
+export interface IUserGames {
   userId: Types.ObjectId;
   games: IGame[];
   createdAt: Date;

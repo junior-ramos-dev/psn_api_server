@@ -19,7 +19,7 @@ export interface IGame {
   lastUpdatedDateTime: Date;
 }
 
-export interface IGameTrophies extends Document {
+export interface IGameTrophies {
   userId: Types.ObjectId;
   npCommunicationId: string;
   trophies: ITrophy[];
@@ -27,7 +27,7 @@ export interface IGameTrophies extends Document {
   updatedAt: Date;
 }
 
-export interface IGameIcon extends Document {
+export interface IGameIcon {
   npCommunicationId: string;
   trophyTitleName: string;
   trophyTitleIconUrl: string;
