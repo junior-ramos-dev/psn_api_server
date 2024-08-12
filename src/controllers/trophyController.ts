@@ -1,15 +1,11 @@
-import { Request, Response, NextFunction } from "express";
+import { Request, Response } from "express";
 import { getGameTrophiesInfo } from "../services/psnApi/trophies";
 
 import { psnAuthFactory, PSN_AUTH } from "../services/psnApi/auth";
 
 //TODO Persist on DB and use Etag like gamesList
 //Get the list of trophies info for all games from a user.
-const getGameTrophies = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+const getGameTrophies = async (req: Request, res: Response) => {
   //Validate Request Headers
   // const errors = validationResult(req); // Encontra os erros de validação nesta solicitação e os envolve em um objeto com funções úteis
 

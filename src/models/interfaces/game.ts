@@ -48,8 +48,8 @@ export class Convert {
     const gamesList = new Array<IGame>();
 
     jsonArray.forEach((obj) => {
-      let item = JSON.stringify(obj);
-      let gameItem = Convert.toIGame(item);
+      const item = JSON.stringify(obj);
+      const gameItem = Convert.toIGame(item);
 
       gamesList.push(gameItem);
     });

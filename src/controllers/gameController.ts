@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from "express";
+import { Request, Response } from "express";
 import {
   createDbGamesByUser,
   updateDbGamesByUser,
@@ -14,11 +14,7 @@ import { isFreshEtagHeader } from "../utils/api";
 import { validationResult } from "express-validator";
 
 /** */
-const getGamesByUser = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+const getGamesByUser = async (req: Request, res: Response) => {
   //Validate Request Headers
   const errors = validationResult(req); // Encontra os erros de validação nesta solicitação e os envolve em um objeto com funções úteis
 
@@ -105,11 +101,7 @@ const getGamesByUser = async (
 /**
  *
  */
-const getGameIconBinByGame = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+const getGameIconBinByGame = async (req: Request, res: Response) => {
   try {
     const npCommunicationId = req.params["npCommunicationId"];
 
@@ -124,11 +116,7 @@ const getGameIconBinByGame = async (
 /**
  *
  */
-const getGameIconBinByListOfGamesIds = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+const getGameIconBinByListOfGamesIds = async (req: Request, res: Response) => {
   try {
     const { npCommIdList } = req.body;
     const gameIconBin = await getDbGameIconBinByListOfGamesIds(npCommIdList);

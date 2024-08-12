@@ -1,16 +1,16 @@
 import mongoose from "mongoose";
 import chalk from "chalk";
 
-const error = chalk.red;
-const warning = chalk.yellow;
-const info = chalk.green;
+const chalkError = chalk.red;
+const chalkInfo = chalk.green;
+// const chalkWarning = chalk.yellow;
 
 const connectUserDB = async () => {
   try {
     const conn = await mongoose.connect(process.env.MONGODB_URI || "");
-    console.log(info(`MongoDB Connected: ${conn.connection.host}`));
+    console.log(chalkInfo(`MongoDB Connected: ${conn.connection.host}`));
   } catch (error: any) {
-    console.error(`Error: ${error.message}`);
+    console.log(chalkError(`Error: ${error.message}`));
     process.exit(1);
   }
 };

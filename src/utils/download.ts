@@ -6,7 +6,6 @@ export const dolwnloadFileToBase64 = async (
   imageUrl: string
 ): Promise<string> => {
   let data: string = "";
-  let count = 1;
 
   await axios
     .get(imageUrl, {

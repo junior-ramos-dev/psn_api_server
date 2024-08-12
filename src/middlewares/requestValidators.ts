@@ -8,8 +8,10 @@ export const validateRequest = (method: string) => {
       return validateHeaders;
     }
     case "body": {
+      return;
     }
     case "params": {
+      return;
     }
   }
 };
@@ -21,12 +23,12 @@ const validateHeaders = [
     .bail(), // not necessary, but it stops execution if previous validation failed
   // header("authorization")
   //   .exists({ values: "undefined" })
-  //   .withMessage("Missing Authorization Header") // you can specify the message to show if a validation has failed
-  //   .bail() // not necessary, but it stops execution if previous validation failed
+  //   .withMessage("Missing Authorization Header")
+  //   .bail()
   //   .contains("Bearer")
   //   .withMessage("Authorization Token is not Bearer"),
   // header("accountid")
   //   .exists({ values: "undefined" })
-  //   .withMessage("Missing AccountId Header") // you can specify the message to show if a validation has failed
-  //   .bail(), // not necessary, but it stops execution if previous validation failed
+  //   .withMessage("Missing AccountId Header")
+  //   .bail(),
 ];

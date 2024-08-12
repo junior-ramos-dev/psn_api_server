@@ -9,11 +9,11 @@ export const getBearerTokenFromHeader = (authToken: any) => {
 // Helper function to check if Etag is new
 export const isFreshEtagHeader = (req: Request, res: Response) => {
   try {
-    let resHeader = {
+    const resHeader = {
       etag: JSON.parse(res.get("etag")!),
       "if-none-match": JSON.parse(res.get("if-none-match")!),
     };
-    let reqHeader = {
+    const reqHeader = {
       etag:
         req.headers["etag"] != ""
           ? JSON.parse(req.headers["etag"]!)

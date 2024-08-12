@@ -21,7 +21,7 @@ export const getDbGamesByUser = async (userId: Types.ObjectId) => {
   //   // model: "gameiscons",
   // });
 
-  let gamesList = Convert.toIGameArray(userGames!.games);
+  const gamesList = Convert.toIGameArray(userGames!.games);
 
   return gamesList;
 };
@@ -37,7 +37,7 @@ export const createDbGamesByUser = async (userId: Types.ObjectId) => {
   const { accessToken, accountId } = await psnAuthFactory(PSN_AUTH);
   const psnApiGames = await getTrophyTitles(accessToken, accountId);
 
-  let gamesList = Convert.toIGameArray(psnApiGames);
+  const gamesList = Convert.toIGameArray(psnApiGames);
 
   try {
     await UserGames.create({
@@ -64,7 +64,7 @@ export const updateDbGamesByUser = async (userId: Types.ObjectId) => {
   const { accessToken, accountId } = await psnAuthFactory(PSN_AUTH);
   const psnApiGames = await getTrophyTitles(accessToken, accountId);
 
-  let gamesList = Convert.toIGameArray(psnApiGames);
+  const gamesList = Convert.toIGameArray(psnApiGames);
 
   try {
     const userGames = await UserGames.findOneAndUpdate(

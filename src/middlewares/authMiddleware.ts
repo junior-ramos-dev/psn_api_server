@@ -7,7 +7,7 @@ import { AuthenticationError } from "./errorMiddleware";
 const authenticate = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      let token = req.cookies.jwt;
+      const token = req.cookies.jwt;
 
       if (!token) {
         throw new AuthenticationError("Token not found");
@@ -28,8 +28,8 @@ const authenticate = asyncHandler(
 
       req.user = user;
       next();
-    } catch (e) {
-      throw new AuthenticationError("Invalid token");
+    } catch (error) {
+      throw new AuthenticationError(`Invalid token: ${error}`);
     }
   }
 );
