@@ -1,6 +1,17 @@
+import { Types } from "mongoose";
+
+import { IGame } from "./game";
+
 export interface IUser extends Document {
   name: string;
   email: string;
   password: string;
   comparePassword: (enteredPassword: string) => boolean;
+}
+
+export interface IUserGames extends Document {
+  userId: Types.ObjectId;
+  games: IGame[];
+  createdAt: Date;
+  updatedAt: Date;
 }

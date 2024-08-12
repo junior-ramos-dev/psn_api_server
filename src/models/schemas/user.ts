@@ -1,7 +1,9 @@
 import bcrypt from "bcryptjs";
 import mongoose, { Schema } from "mongoose";
 
-import { IUser } from "../interfaces/user";
+import { IUser, IUserGames } from "../interfaces/user";
+
+import { GameSchema } from "./game";
 
 const userSchema = new Schema<IUser>({
   name: {
@@ -32,6 +34,27 @@ userSchema.methods.comparePassword = async function (enteredPassword: string) {
   return await bcrypt.compare(enteredPassword, this.password);
 };
 
-const User = mongoose.model("User", userSchema);
+// Model for the list of games from a user
+const UserGamesSchema = new Schema<IUserGames>(
+  {
+    userId: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+    },
+    games: [GameSchema],
+    createdAt: {
+      type: Date,
+      required: true,
+    },
+    updatedAt: {
+      type: Date,
+      required: true,
+    },
+  },
+  { timestamps: true }
+);
 
-export default User;
+const User = mongoose.model("User", userSchema);
+const UserGames = mongoose.model("UserGames", UserGamesSchema);
+
+export { User, UserGames };

@@ -1,7 +1,8 @@
 import { MongooseError, Types } from "mongoose";
 
 import { Convert, IGame } from "../../models/interfaces/game";
-import { GameIcon, UserGames } from "../../models/schemas/game";
+import { GameIcon } from "../../models/schemas/game";
+import { UserGames } from "../../models/schemas/user";
 import { dolwnloadFileToBase64 } from "../../utils/download";
 import { PSN_AUTH, psnAuthFactory } from "../psnApi/auth";
 import { getTrophyTitles } from "../psnApi/games";

@@ -1,8 +1,16 @@
-import { getTitleTrophies, getUserTrophiesEarnedForTitle } from "psn-api";
+import {
+  getTitleTrophies,
+  getUserTrophiesEarnedForTitle,
+  Trophy,
+} from "psn-api";
 import type { TitleThinTrophy } from "psn-api/dist/models/title-thin-trophy.model";
-import { TrophyNormalized } from "src/models/interfaces/trophy";
+import { ITrophy } from "src/models/interfaces/trophy";
 
-import { mergeTrophyLists } from "../../utils/trophies";
+import {
+  CAPITALIZE_TYPE_MAP,
+  POINTS_MAP,
+  RARITY_MAP,
+} from "../../models/types/trophy";
 
 //Get the game trophies list.
 const getGameTrophiesList = async (
@@ -49,7 +57,7 @@ const getGameTrophiesInfo = async (
   accountId: string,
   npCommunicationId: string,
   trophyTitlePlatform: string
-): Promise<TrophyNormalized[]> => {
+): Promise<ITrophy[]> => {
   const gameTrophies = await getGameTrophiesList(
     accessToken,
     npCommunicationId,
@@ -63,7 +71,7 @@ const getGameTrophiesInfo = async (
     trophyTitlePlatform
   );
 
-  let mergedTrophies = new Array<TrophyNormalized>();
+  let mergedTrophies = new Array<ITrophy>();
 
   if (gameTrophies !== undefined && gameEarnedTrophies !== undefined) {
     mergedTrophies = mergeTrophyLists(gameTrophies, gameEarnedTrophies);
@@ -76,6 +84,50 @@ const getGameTrophiesInfo = async (
     }
   });
 };
+
+const mergeTrophyLists = (
+  titleTrophies: Trophy[],
+  earnedTrophies: Trophy[]
+) => {
+  const mergedTrophies: ITrophy[] = [];
+
+  for (const earnedTrophy of earnedTrophies) {
+    const foundTitleTrophy = titleTrophies.find(
+      (t) => t.trophyId === earnedTrophy.trophyId
+    );
+
+    mergedTrophies.push(
+      normalizeTrophy({ ...earnedTrophy, ...foundTitleTrophy })
+    );
+  }
+
+  return mergedTrophies;
+};
+
+const normalizeTrophy = (trophy: Trophy) => {
+  const nonEarnedDateTime = new Date(0).toISOString();
+
+  const trophyNormalized: ITrophy = {
+    trophyId: trophy.trophyId,
+    trophyHidden: trophy.trophyHidden,
+    isEarned: trophy.earned,
+    isEarnedDateTime: trophy.earned ? trophy.earnedDateTime : nonEarnedDateTime,
+    trophyType: CAPITALIZE_TYPE_MAP[trophy.trophyType ?? trophy.trophyType],
+    trophyRare: trophy.trophyRare,
+    trophyEarnedRate: Number(trophy.trophyEarnedRate),
+    trophyName: trophy.trophyName,
+    trophyDetail: trophy.trophyDetail,
+    trophyIconUrl: trophy.trophyIconUrl,
+    trophyGroupId: trophy.trophyGroupId,
+    rarity: RARITY_MAP[trophy.trophyRare ?? 0],
+    groupId: trophy.trophyGroupId,
+    points: POINTS_MAP[trophy.trophyType ?? 0],
+  };
+
+  return trophyNormalized;
+};
+
+export { mergeTrophyLists, normalizeTrophy };
 
 //TODO FIXME - Change to use getTrophyTitles from gameRepository
 //Get the list of trophies stats for each of the user's titles.

@@ -1,15 +1,8 @@
 import { Types } from "mongoose";
 
-import { ITrophyCount } from "./trophy";
+import { ITrophy, ITrophyCount } from "./trophy";
 
-export interface IUserGames extends Document {
-  userId: Types.ObjectId;
-  games: IGame[];
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-export interface IGame extends Document {
+export interface IGame {
   npCommunicationId: string;
   npServiceName: string;
   trophySetVersion: string;
@@ -24,6 +17,14 @@ export interface IGame extends Document {
   earnedTrophies: ITrophyCount;
   hiddenFlag: boolean;
   lastUpdatedDateTime: Date;
+}
+
+export interface IGameTrophies extends Document {
+  userId: Types.ObjectId;
+  npCommunicationId: string;
+  trophies: ITrophy[];
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface IGameIcon extends Document {

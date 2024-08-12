@@ -1,12 +1,10 @@
-import { TrophyRarity } from "psn-api";
-
-export interface TrophyNormalized {
+export interface ITrophy {
   trophyId: number;
   trophyHidden: boolean;
   isEarned: boolean | undefined;
   isEarnedDateTime: string | undefined;
   trophyType: string;
-  trophyRare: TrophyRarity | undefined;
+  trophyRare: number | undefined;
   trophyEarnedRate: number;
   trophyName: string | undefined;
   trophyDetail: string | undefined;

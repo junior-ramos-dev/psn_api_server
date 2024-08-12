@@ -1,11 +1,11 @@
 import mongoose, { Schema } from "mongoose";
 
-import { IGame, IGameIcon, IUserGames } from "../interfaces/game";
+import { IGame, IGameIcon, IGameTrophies } from "../interfaces/game";
 
-import { TrophyCount } from "./trophy";
+import { TrophyCount, TrophySchema } from "./trophy";
 
 //Model for Game
-const GameSchema = new Schema<IGame>(
+export const GameSchema = new Schema<IGame>(
   {
     npCommunicationId: {
       type: String,
@@ -111,14 +111,19 @@ const GameIconSchema = new Schema<IGameIcon>(
   { timestamps: true }
 );
 
-// Model for the list of games from a user
-const UserGamesSchema = new Schema<IUserGames>(
+// Model for the list of trophies from a game
+const GameTrophiesSchema = new Schema<IGameTrophies>(
   {
     userId: {
       type: Schema.Types.ObjectId,
       ref: "User",
     },
-    games: [GameSchema],
+    npCommunicationId: {
+      type: String,
+      required: true,
+      unique: true,
+    },
+    trophies: [TrophySchema],
     createdAt: {
       type: Date,
       required: true,
@@ -131,8 +136,7 @@ const UserGamesSchema = new Schema<IUserGames>(
   { timestamps: true }
 );
 
-const Game = mongoose.model("Game", GameSchema);
 const GameIcon = mongoose.model("GameIcon", GameIconSchema);
-const UserGames = mongoose.model("UserGames", UserGamesSchema);
+const GameTrophies = mongoose.model("GameTrophies", GameTrophiesSchema);
 
-export { Game, GameIcon,UserGames };
+export { GameIcon, GameTrophies };

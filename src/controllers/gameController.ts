@@ -2,8 +2,7 @@ import etag from "etag";
 import { Request, Response } from "express";
 import { validationResult } from "express-validator";
 
-import { UserGames } from "../models/schemas/game";
-import User from "../models/schemas/user";
+import { User, UserGames } from "../models/schemas/user";
 import {
   createDbGameIconBin,
   createDbGamesByUser,
@@ -128,7 +127,7 @@ const getGameIconBinByListOfGamesIds = async (req: Request, res: Response) => {
   }
 };
 
-export { getGameIconBinByGame, getGameIconBinByListOfGamesIds,getGamesByUser };
+export { getGameIconBinByGame, getGameIconBinByListOfGamesIds, getGamesByUser };
 
 // async function getGame(req: Request, res: Response, next: NextFunction) {
 //   const id = req.params.id;
