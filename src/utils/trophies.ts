@@ -1,12 +1,13 @@
 import type { Trophy } from "psn-api";
 import { TrophyRarity } from "psn-api";
-import { TrophyTypes } from "../enums/trophy";
+import { TrophyTypesNames } from "../enums/trophy";
+import { TrophyNormalized } from "src/models/interfaces/trophy";
 
 const mergeTrophyLists = (
   titleTrophies: Trophy[],
   earnedTrophies: Trophy[]
 ) => {
-  const mergedTrophies: any[] = [];
+  const mergedTrophies: TrophyNormalized[] = [];
 
   for (const earnedTrophy of earnedTrophies) {
     const foundTitleTrophy = titleTrophies.find(
@@ -24,7 +25,7 @@ const mergeTrophyLists = (
 const normalizeTrophy = (trophy: Trophy) => {
   const nonEarnedDateTime = new Date(0).toISOString();
 
-  return {
+  const trophyNormalized: TrophyNormalized = {
     trophyId: trophy.trophyId,
     trophyHidden: trophy.trophyHidden,
     isEarned: trophy.earned,
@@ -40,6 +41,8 @@ const normalizeTrophy = (trophy: Trophy) => {
     groupId: trophy.trophyGroupId,
     points: pointsMap[trophy.trophyType ?? 0],
   };
+
+  return trophyNormalized;
 };
 
 const rarityMap: Record<TrophyRarity, string> = {
@@ -49,18 +52,18 @@ const rarityMap: Record<TrophyRarity, string> = {
   [TrophyRarity.Common]: "Common",
 };
 
-const pointsMap: Record<TrophyTypes, number> = {
-  [TrophyTypes.Bronze]: 15,
-  [TrophyTypes.Silver]: 30,
-  [TrophyTypes.Gold]: 90,
-  [TrophyTypes.Platinum]: 180,
+const pointsMap: Record<TrophyTypesNames, number> = {
+  [TrophyTypesNames.Bronze]: 15,
+  [TrophyTypesNames.Silver]: 30,
+  [TrophyTypesNames.Gold]: 90,
+  [TrophyTypesNames.Platinum]: 180,
 };
 
-const capitalizeTypeMap: Record<TrophyTypes, string> = {
-  [TrophyTypes.Bronze]: "Bronze",
-  [TrophyTypes.Silver]: "Silver",
-  [TrophyTypes.Gold]: "Gold",
-  [TrophyTypes.Platinum]: "Platinum",
+const capitalizeTypeMap: Record<TrophyTypesNames, string> = {
+  [TrophyTypesNames.Bronze]: "Bronze",
+  [TrophyTypesNames.Silver]: "Silver",
+  [TrophyTypesNames.Gold]: "Gold",
+  [TrophyTypesNames.Platinum]: "Platinum",
 };
 
 export { mergeTrophyLists, normalizeTrophy };

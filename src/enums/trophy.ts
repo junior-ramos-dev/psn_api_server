@@ -1,4 +1,4 @@
-export enum TrophyTypes {
+export enum TrophyTypesNames {
   Bronze = "bronze",
   Silver = "silver",
   Gold = "gold",
