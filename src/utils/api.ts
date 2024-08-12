@@ -1,8 +1,8 @@
-import { Request, Response, NextFunction } from "express";
+import { Request, Response } from "express";
 import fresh from "fresh";
 
 // Helper function to get token value
-export const getBearerTokenFromHeader = (authToken: any) => {
+export const getBearerTokenFromHeader = (authToken: string) => {
   return authToken.split(" ")[1];
 };
 

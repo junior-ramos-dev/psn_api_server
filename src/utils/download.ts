@@ -41,9 +41,8 @@ export const dolwnloadImgToDisk = async (
       console.log(res);
       console.log("[success]");
       try {
-        let data;
-        data = res.data;
-        fs.writeFileSync(`${filePath}${fileName}`, JSON.stringify(res.data), {
+        const data = res.data;
+        fs.writeFileSync(`${filePath}${fileName}`, JSON.stringify(data), {
           encoding: "base64",
         });
       } catch (err) {

@@ -2,7 +2,7 @@ import { GameIcon, UserGames } from "../../models/schemas/game";
 import { Convert, IGame } from "../../models/interfaces/game";
 import { PSN_AUTH, psnAuthFactory } from "../psnApi/auth";
 import { getTrophyTitles } from "../psnApi/games";
-import { Types } from "mongoose";
+import { MongooseError, Types } from "mongoose";
 import { dolwnloadFileToBase64 } from "../../utils/download";
 
 /**
@@ -46,8 +46,10 @@ export const createDbGamesByUser = async (userId: Types.ObjectId) => {
       createdAt: new Date(),
       updatedAt: new Date(),
     });
-  } catch (err: any) {
-    console.log(err);
+  } catch (error: unknown) {
+    if (error instanceof MongooseError) {
+      console.log(error);
+    }
   }
 
   return gamesList;
@@ -79,8 +81,10 @@ export const updateDbGamesByUser = async (userId: Types.ObjectId) => {
     );
 
     await userGames?.save();
-  } catch (err: any) {
-    console.log(err);
+  } catch (error: unknown) {
+    if (error instanceof MongooseError) {
+      console.log(error);
+    }
   }
 
   return gamesList;
@@ -152,8 +156,10 @@ export const createDbGameIconBin = async (games: IGame[]) => {
       }
       count++;
     }
-  } catch (err: any) {
-    console.log(err);
+  } catch (error: unknown) {
+    if (error instanceof MongooseError) {
+      console.log(error);
+    }
   }
 };
 
