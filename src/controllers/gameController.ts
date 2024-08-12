@@ -13,10 +13,16 @@ import {
 } from "../services/repositories/gameRepository";
 import { isFreshEtagHeader } from "../utils/api";
 
-/** */
+/**
+ *
+ * @param req
+ * @param res
+ * @returns
+ */
 const getGamesByUser = async (req: Request, res: Response) => {
-  //Validate Request Headers
-  const errors = validationResult(req); // Encontra os erros de validação nesta solicitação e os envolve em um objeto com funções úteis
+  // Validate Request Headers
+  // Find and validate the request properties
+  const errors = validationResult(req);
 
   if (!errors.isEmpty()) {
     res.status(422).json({ errors: errors.array() });

@@ -8,28 +8,7 @@ import { PSN_AUTH, psnAuthFactory } from "../psnApi/auth";
 import { getTrophyTitles } from "../psnApi/games";
 
 /**
- * Get games by user and add (populate) the virtual reference from GameIcon schema
- *
- * @param userId
- * @returns
- */
-export const getDbGamesByUser = async (userId: Types.ObjectId) => {
-  const userGames = await UserGames.findOne({
-    userId: userId,
-  });
-  // .populate({
-  //   path: "games.gameIconBin",
-  //   select: "iconBinaryData",
-  //   // model: "gameiscons",
-  // });
-
-  const gamesList = Convert.toIGameArray(userGames!.games);
-
-  return gamesList;
-};
-
-/**
- * Create the lsit of games by user
+ * Create the list of games by user
  *
  * @param userId
  * @returns
@@ -53,6 +32,27 @@ export const createDbGamesByUser = async (userId: Types.ObjectId) => {
       console.log(error);
     }
   }
+
+  return gamesList;
+};
+
+/**
+ * Get games by user and add (populate) the virtual reference from GameIcon schema
+ *
+ * @param userId
+ * @returns
+ */
+export const getDbGamesByUser = async (userId: Types.ObjectId) => {
+  const userGames = await UserGames.findOne({
+    userId: userId,
+  });
+  // .populate({
+  //   path: "games.gameIconBin",
+  //   select: "iconBinaryData",
+  //   // model: "gameiscons",
+  // });
+
+  const gamesList = Convert.toIGameArray(userGames!.games);
 
   return gamesList;
 };
