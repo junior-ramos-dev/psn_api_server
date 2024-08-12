@@ -5,6 +5,7 @@ import {
   getDbGamesByUser,
   createDbGameIconBin,
   getDbGameIconBin,
+  getDbGameIconBinByListOfGamesIds,
 } from "../services/repositories/gameRepository";
 import User from "../models/schemas/user";
 import { UserGames } from "../models/schemas/game";
@@ -101,8 +102,10 @@ const getGamesByUser = async (
   }
 };
 
-/** */
-const getDbGameIconBinByGame = async (
+/**
+ *
+ */
+const getGameIconBinByGame = async (
   req: Request,
   res: Response,
   next: NextFunction
@@ -118,7 +121,25 @@ const getDbGameIconBinByGame = async (
   }
 };
 
-export { getGamesByUser, getDbGameIconBinByGame };
+/**
+ *
+ */
+const getGameIconBinByListOfGamesIds = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { npCommIdList } = req.body;
+    const gameIconBin = await getDbGameIconBinByListOfGamesIds(npCommIdList);
+
+    res.json(gameIconBin);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export { getGamesByUser, getGameIconBinByGame, getGameIconBinByListOfGamesIds };
 
 // async function getGame(req: Request, res: Response, next: NextFunction) {
 //   const id = req.params.id;

@@ -1,6 +1,7 @@
 import express from "express";
 import {
-  getDbGameIconBinByGame,
+  getGameIconBinByGame,
+  getGameIconBinByListOfGamesIds,
   getGamesByUser,
 } from "../controllers/gameController";
 import { validateRequest } from "../middlewares/requestValidators";
@@ -9,7 +10,9 @@ const router = express.Router();
 
 router.get("/:userId", validateRequest("headers")!, getGamesByUser);
 
-router.get("/icon/:npCommunicationId", getDbGameIconBinByGame);
+router.get("/icon/:npCommunicationId", getGameIconBinByGame);
+
+router.post("/icon/list", getGameIconBinByListOfGamesIds);
 
 // router.get("/:id", gameController.getGame);
 

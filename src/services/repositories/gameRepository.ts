@@ -5,7 +5,12 @@ import { getTrophyTitles } from "../psnApi/games";
 import { Types } from "mongoose";
 import { dolwnloadFileToBase64 } from "../../utils/download";
 
-// Get games by user and add (populate) the virtual reference from GameIcon schema
+/**
+ * Get games by user and add (populate) the virtual reference from GameIcon schema
+ *
+ * @param userId
+ * @returns
+ */
 export const getDbGamesByUser = async (userId: Types.ObjectId) => {
   const userGames = await UserGames.findOne({
     userId: userId,
@@ -21,7 +26,12 @@ export const getDbGamesByUser = async (userId: Types.ObjectId) => {
   return gamesList;
 };
 
-// Create the lsit of games by user
+/**
+ * Create the lsit of games by user
+ *
+ * @param userId
+ * @returns
+ */
 export const createDbGamesByUser = async (userId: Types.ObjectId) => {
   // psnAuthFactory get and keep PSN access token in memory
   const { accessToken, accountId } = await psnAuthFactory(PSN_AUTH);
@@ -43,7 +53,12 @@ export const createDbGamesByUser = async (userId: Types.ObjectId) => {
   return gamesList;
 };
 
-// Update the lsit of games by user
+/**
+ * Update the lsit of games by user
+ *
+ * @param userId
+ * @returns
+ */
 export const updateDbGamesByUser = async (userId: Types.ObjectId) => {
   // psnAuthFactory get and keep PSN access token in memory
   const { accessToken, accountId } = await psnAuthFactory(PSN_AUTH);
@@ -71,13 +86,34 @@ export const updateDbGamesByUser = async (userId: Types.ObjectId) => {
   return gamesList;
 };
 
-// Get the game icon binary data
+/**
+ * Get the game icon binary data
+ *
+ * @param npCommunicationId
+ * @returns
+ */
 export const getDbGameIconBin = async (npCommunicationId: string) => {
-  const userGames = await GameIcon.findOne({
+  const gameIconBin = await GameIcon.findOne({
     npCommunicationId: npCommunicationId,
   });
 
-  return userGames;
+  return gameIconBin;
+};
+
+/**
+ * Get a list of game icon binary data from an array of "npCommunicationId"
+ *
+ * @param npCommIdList
+ * @returns
+ */
+export const getDbGameIconBinByListOfGamesIds = async (
+  npCommIdList: string[]
+) => {
+  const gameIconBinList = await GameIcon.find({
+    npCommunicationId: { $in: [...npCommIdList] },
+  });
+
+  return gameIconBinList;
 };
 
 /**
@@ -102,6 +138,8 @@ export const createDbGameIconBin = async (games: IGame[]) => {
           `[${count}/${games.length}] Downloading Game Icon: ${game.trophyTitleName};`
         );
         const iconBase64 = await dolwnloadFileToBase64(game.trophyTitleIconUrl);
+
+        console.log(iconBase64);
 
         await GameIcon.create({
           npCommunicationId: game.npCommunicationId,
