@@ -1,16 +1,22 @@
 import { header } from "express-validator";
 
+export enum REQUEST_PROPERTY {
+  HEADERS = "headers",
+  BODY = "body",
+  PARAMS = "params",
+}
+
 // the validator middleware will have already thrown a 403 if the header was missing,
 // so you can be 100% sure that the header is present with validations you created.
-export const validateRequest = (method: string) => {
+export const validateReq = (method: REQUEST_PROPERTY) => {
   switch (method) {
-    case "headers": {
+    case REQUEST_PROPERTY.HEADERS: {
       return validateHeaders;
     }
-    case "body": {
+    case REQUEST_PROPERTY.BODY: {
       return;
     }
-    case "params": {
+    case REQUEST_PROPERTY.PARAMS: {
       return;
     }
   }

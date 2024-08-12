@@ -5,11 +5,14 @@ import {
   getGameIconBinByListOfGamesIds,
   getGamesByUser,
 } from "../controllers/gameController";
-import { validateRequest } from "../middlewares/requestValidators";
+import {
+  REQUEST_PROPERTY,
+  validateReq,
+} from "../middlewares/requestMiddleware";
 
 const router = express.Router();
 
-router.get("/:userId", validateRequest("headers")!, getGamesByUser);
+router.get("/:userId", validateReq(REQUEST_PROPERTY.HEADERS)!, getGamesByUser);
 
 router.get("/icon/:npCommunicationId", getGameIconBinByGame);
 
