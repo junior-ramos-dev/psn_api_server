@@ -1,6 +1,6 @@
 import { MongooseError, Types } from "mongoose";
-import { GameTrophies } from "src/models/schemas/game";
 
+import { GameTrophies } from "../../models/schemas/game";
 import { PSN_AUTH, psnAuthFactory } from "../psnApi/auth";
 import { getGameTrophiesInfo } from "../psnApi/trophies";
 

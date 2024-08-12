@@ -1,9 +1,12 @@
 import express from "express";
 
-import { getGameTrophies } from "../controllers/trophyController";
+import { getTrophiesByGame } from "../controllers/trophyController";
 
 const router = express.Router();
 
-router.get("/list/:trophyTitlePlatform/:npCommunicationId", getGameTrophies);
+router.get(
+  "/:userId/:trophyTitlePlatform/:npCommunicationId/list",
+  getTrophiesByGame
+);
 
 export default router;

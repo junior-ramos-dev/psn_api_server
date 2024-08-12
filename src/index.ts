@@ -115,13 +115,13 @@ if (process.env.NODE_ENV === "production") {
   app.use("/games", authenticate, gameRouter);
 
   //Trophies Routes
-  app.use("/trophies", authenticate, trophyRouter);
+  app.use("/trophy", authenticate, trophyRouter);
 } else {
   //Games Routes
   app.use("/games", gameRouter);
 
   //Trophies Routes
-  app.use("/trophies", trophyRouter);
+  app.use("/trophy", trophyRouter);
 }
 
 //Error Handler
