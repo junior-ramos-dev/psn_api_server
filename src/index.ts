@@ -1,4 +1,4 @@
-import express, { Request, Response, NextFunction } from "express";
+import express, { Request, Response } from "express";
 import connectUserDB from "./connections/userDB";
 import dotenv from "dotenv";
 import cors from "cors";
@@ -18,16 +18,17 @@ import "express-async-errors";
 
 dotenv.config();
 
-interface UserBasicInfo {
+interface AuthUSer {
   _id: string;
   name: string;
   email: string;
 }
 
 declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace Express {
     interface Request {
-      user?: UserBasicInfo | null;
+      user?: AuthUSer | null;
     }
   }
 }
@@ -36,7 +37,7 @@ const port = process.env.PORT ?? 3000;
 
 const app = express();
 // Apply color to the status code
-morgan.token("status", (req, res) => {
+morgan.token("status", (req: Request, res: Response) => {
   const status = res.statusCode;
   const color =
     status >= 500
@@ -52,7 +53,7 @@ morgan.token("status", (req, res) => {
 });
 
 // Apply color to the method
-morgan.token("method", (req, res) => {
+morgan.token("method", (req: Request) => {
   const method = req.method;
   const color =
     method === "GET"
@@ -97,7 +98,7 @@ app.listen(port, () => {
 // });
 
 //Server Running Status
-app.get("/status", (req, res, next) => res.sendStatus(200));
+app.get("/status", (req: Request, res: Response) => res.sendStatus(200));
 
 //Auth Routes
 app.use("/auth", authRouter);
