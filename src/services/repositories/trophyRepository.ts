@@ -19,7 +19,7 @@ export const createDbTrophiesByGame = async (
 ) => {
   // psnAuthFactory get and keep PSN access token in memory
   const { accessToken, accountId } = await psnAuthFactory(PSN_AUTH);
-  const gameTrophiesList = await getGameTrophiesInfo(
+  const psnApiTrophyList = await getGameTrophiesInfo(
     accessToken,
     accountId,
     npCommunicationId,
@@ -27,11 +27,13 @@ export const createDbTrophiesByGame = async (
   );
   // const gamesList = Convert.toIGameArray(psnApiGames);
 
+  let gameTrophiesList;
+
   try {
-    await GameTrophies.create({
+    gameTrophiesList = await GameTrophies.create({
       userId: userId,
       npCommunicationId: npCommunicationId,
-      trophies: gameTrophiesList,
+      trophies: psnApiTrophyList,
       createdAt: new Date(),
       updatedAt: new Date(),
     });
@@ -71,19 +73,20 @@ export const updateDbTrophiesByGame = async (
 ) => {
   // psnAuthFactory get and keep PSN access token in memory
   const { accessToken, accountId } = await psnAuthFactory(PSN_AUTH);
-  const gameTrophiesList = await getGameTrophiesInfo(
+  const psnApiTrophyList = await getGameTrophiesInfo(
     accessToken,
     accountId,
     npCommunicationId,
     trophyTitlePlatform
   );
   // const gamesList = Convert.toIGameArray(psnApiGames);
+  let gameTrophiesList;
 
   try {
-    const gameTrophies = await GameTrophies.findOneAndUpdate(
+    gameTrophiesList = await GameTrophies.findOneAndUpdate(
       { userId: userId, npCommunicationId: npCommunicationId },
       {
-        $set: { games: gameTrophiesList, updatedAt: new Date() },
+        $set: { games: psnApiTrophyList, updatedAt: new Date() },
       },
       {
         new: true,
@@ -91,7 +94,7 @@ export const updateDbTrophiesByGame = async (
       }
     );
 
-    await gameTrophies?.save();
+    await gameTrophiesList?.save();
   } catch (error: unknown) {
     if (error instanceof MongooseError) {
       console.log(error);
