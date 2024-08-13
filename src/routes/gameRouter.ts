@@ -12,7 +12,11 @@ import {
 
 const router = express.Router();
 
-router.get("/:userId", validateReq(REQUEST_PROPERTY.HEADERS)!, getGamesByUser);
+router.get(
+  "/:userId/list",
+  validateReq(REQUEST_PROPERTY.HEADERS)!,
+  getGamesByUser
+);
 
 router.get("/icon/:npCommunicationId", getGameIconBinByGame);
 
