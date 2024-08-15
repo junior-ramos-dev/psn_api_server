@@ -35,6 +35,7 @@ const getTrophiesByGame = async (req: Request, res: Response) => {
 
     const gameTrophiesExists = await GameTrophies.findOne({
       userId: user!._id,
+      npCommunicationId: npCommunicationId,
     }).lean();
 
     let trophiesByGame;

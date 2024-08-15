@@ -23,7 +23,7 @@ const getGameTrophiesList = async (
     npCommunicationId,
     "all", //TODO Get trophyGroupId option from request
     {
-      npServiceName: trophyTitlePlatform !== "PS5" ? "trophy" : undefined, //TODO Get trophyTitlePlatform option from request
+      npServiceName: trophyTitlePlatform !== "PS5" ? "trophy" : "trophy2", //TODO Get trophyTitlePlatform option from request
     }
   );
 
@@ -45,7 +45,7 @@ const getGameTrophiesEarnedList = async (
     {
       npServiceName: !trophyTitlePlatform.includes("PS5") //TODO Get trophyTitlePlatform option from request
         ? "trophy"
-        : undefined,
+        : "trophy2",
     }
   );
   return gameEarnedTrophies;
