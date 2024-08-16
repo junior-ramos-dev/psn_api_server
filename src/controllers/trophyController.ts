@@ -1,6 +1,4 @@
-import etag from "etag";
 import { Request, Response } from "express";
-import { validationResult } from "express-validator";
 
 import { GameTrophies } from "../models/schemas/game";
 import { User } from "../models/schemas/user";
@@ -9,24 +7,15 @@ import {
   getDbTrophiesByGame,
   updateDbTrophiesByGame,
 } from "../services/repositories/trophyRepository";
-import { isFreshEtagHeader } from "../utils/api";
 
 /**
+ * Get trophy list by Game ID and Game Platform
  *
  * @param req
  * @param res
  * @returns
  */
 const getTrophiesByGame = async (req: Request, res: Response) => {
-  // Validate Request Headers
-  // Find and validate the request properties
-  const errors = validationResult(req);
-
-  if (!errors.isEmpty()) {
-    res.status(422).json({ errors: errors.array() });
-    return;
-  }
-
   try {
     const userId = req.params["userId"];
     const npCommunicationId = req.params["npCommunicationId"];
@@ -43,20 +32,6 @@ const getTrophiesByGame = async (req: Request, res: Response) => {
     if (gameTrophiesExists) {
       trophiesByGame = await getDbTrophiesByGame(user!._id, npCommunicationId);
 
-      /**
-       * The ETag (or entity tag) HTTP response header is an identifier for a specific version of a resource.
-       * It lets caches be more efficient and save bandwidth, as a web server does not need to resend a full response
-       * if the content was not changed.
-       *
-       * See https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/ETag
-       * */
-      res.setHeader("etag", etag(Buffer.from(JSON.stringify(trophiesByGame))));
-      res.setHeader(
-        "if-none-match",
-        etag(Buffer.from(JSON.stringify(trophiesByGame)))
-      );
-      const isFreshEtag = isFreshEtagHeader(req, res);
-
       // Interval in hours to request data from psnApi;
       //TODO Set the diff to 2 hours for prod
       const psnApiPollingInterval = 1000; //hours
@@ -70,9 +45,7 @@ const getTrophiesByGame = async (req: Request, res: Response) => {
       console.log(currentDate, updatedAt);
       console.log(diffHours);
 
-      console.log("isFreshEtag: ", isFreshEtag);
-
-      if (isFreshEtag && diffHours > psnApiPollingInterval) {
+      if (diffHours > psnApiPollingInterval) {
         trophiesByGame = await updateDbTrophiesByGame(
           user!._id,
           npCommunicationId,
@@ -86,12 +59,7 @@ const getTrophiesByGame = async (req: Request, res: Response) => {
 
         console.log("updated gameTrophies on DB");
         res.json(trophiesByGame);
-      } else if (isFreshEtag && diffHours < psnApiPollingInterval) {
-        console.log(
-          "Not Modified. You can continue using the same cached version of the response."
-        );
-        res.status(304).send();
-      } else if (!isFreshEtag) {
+      } else if (diffHours < psnApiPollingInterval) {
         console.log("returned gameTrophies from DB");
         res.json(trophiesByGame);
       }
