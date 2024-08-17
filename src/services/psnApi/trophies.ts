@@ -7,68 +7,106 @@ import type { TitleThinTrophy } from "psn-api/dist/models/title-thin-trophy.mode
 import { ITrophy } from "src/models/interfaces/trophy";
 
 import {
+  NP_SERVICE_NAME,
+  TROPHY_GROUP_ID,
+  TROPHY_TITLE_PLATFORM,
+} from "@/models/types/game";
+import {
   CAPITALIZE_TYPE_MAP,
   POINTS_MAP,
   RARITY_MAP,
 } from "@/models/types/trophy";
 
-//Get the game trophies list.
+/**
+ * Get the game trophies list.
+ *
+ * @param accessToken
+ * @param npCommunicationId
+ * @param trophyTitlePlatform
+ * @param trophyGroupId
+ * @returns
+ */
 const getGameTrophiesList = async (
   accessToken: string,
   npCommunicationId: string,
-  trophyTitlePlatform: string
+  trophyTitlePlatform: string,
+  trophyGroupId?: string
 ): Promise<TitleThinTrophy[]> => {
   const { trophies: gameTrophiesList } = await getTitleTrophies(
     { accessToken: accessToken },
     npCommunicationId,
-    "all", //TODO Get trophyGroupId option from request
+    trophyGroupId ?? TROPHY_GROUP_ID.ALL,
     {
-      npServiceName: trophyTitlePlatform !== "PS5" ? "trophy" : "trophy2", //TODO Get trophyTitlePlatform option from request
+      npServiceName: !trophyTitlePlatform.includes(TROPHY_TITLE_PLATFORM.PS5)
+        ? NP_SERVICE_NAME.PS3_PS4_PSVITA_TROPHY
+        : NP_SERVICE_NAME.PS5_TROPHY,
     }
   );
 
   return gameTrophiesList;
 };
 
-//Get the list of earned trophies for each of the user's titles.
+/**
+ * Get the list of earned trophies for each of the user's titles.
+ *
+ * @param accessToken
+ * @param accountId
+ * @param npCommunicationId
+ * @param trophyTitlePlatform
+ * @param trophyGroupId
+ * @returns
+ */
 const getGameTrophiesEarnedList = async (
   accessToken: string,
   accountId: string,
   npCommunicationId: string,
-  trophyTitlePlatform: string
+  trophyTitlePlatform: string,
+  trophyGroupId?: string
 ): Promise<TitleThinTrophy[]> => {
   const { trophies: gameEarnedTrophies } = await getUserTrophiesEarnedForTitle(
     { accessToken: accessToken },
     accountId,
     npCommunicationId,
-    "all", //TODO Get trophyGroupId option from request
+    trophyGroupId ?? TROPHY_GROUP_ID.ALL,
     {
-      npServiceName: !trophyTitlePlatform.includes("PS5") //TODO Get trophyTitlePlatform option from request
-        ? "trophy"
-        : "trophy2",
+      npServiceName: !trophyTitlePlatform.includes(TROPHY_TITLE_PLATFORM.PS5)
+        ? NP_SERVICE_NAME.PS3_PS4_PSVITA_TROPHY
+        : NP_SERVICE_NAME.PS5_TROPHY,
     }
   );
   return gameEarnedTrophies;
 };
 
-//Get the list of trophies info for a single game
+/**
+ * Get the list of trophies info for a single game
+ *
+ * @param accessToken
+ * @param accountId
+ * @param npCommunicationId
+ * @param trophyTitlePlatform
+ * @param trophyGroupId
+ * @returns
+ */
 const getGameTrophiesInfo = async (
   accessToken: string,
   accountId: string,
   npCommunicationId: string,
-  trophyTitlePlatform: string
+  trophyTitlePlatform: string,
+  trophyGroupId?: string
 ): Promise<ITrophy[]> => {
   const gameTrophies = await getGameTrophiesList(
     accessToken,
     npCommunicationId,
-    trophyTitlePlatform
+    trophyTitlePlatform,
+    trophyGroupId
   );
 
   const gameEarnedTrophies = await getGameTrophiesEarnedList(
     accessToken,
     accountId,
     npCommunicationId,
-    trophyTitlePlatform
+    trophyTitlePlatform,
+    trophyGroupId
   );
 
   let mergedTrophies = new Array<ITrophy>();
@@ -85,6 +123,13 @@ const getGameTrophiesInfo = async (
   });
 };
 
+/**
+ *  Merge the lists for "gameTrophies" and "gameEarnedTrophies" and parse to a list of ITrophy objects
+ *
+ * @param titleTrophies
+ * @param earnedTrophies
+ * @returns
+ */
 const mergeTrophyLists = (
   titleTrophies: Trophy[],
   earnedTrophies: Trophy[]
