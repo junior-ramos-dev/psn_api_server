@@ -1,8 +1,8 @@
 import { MongooseError, Types } from "mongoose";
 
-import { GameTrophies } from "../../models/schemas/game";
-import { PSN_AUTH, psnAuthFactory } from "../psnApi/auth";
-import { getGameTrophiesInfo } from "../psnApi/trophies";
+import { GameTrophies } from "@/models/schemas/game";
+import { PSN_AUTH, psnAuthFactory } from "@/services/psnApi/auth";
+import { getGameTrophiesInfo } from "@/services/psnApi/trophies";
 
 /**
  * Create the list of trophies by game

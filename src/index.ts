@@ -8,13 +8,13 @@ import helmet from "helmet";
 import { Types } from "mongoose";
 import morgan from "morgan";
 
-import connectUserDB from "./connections/userDB";
-import { authenticate } from "./middlewares/authMiddleware";
-import { errorHandler } from "./middlewares/errorMiddleware";
-import authRouter from "./routes/authRouter";
-import gameRouter from "./routes/gameRouter";
-import trophyRouter from "./routes/trophyRouter";
-import userRouter from "./routes/userRouter";
+import connectUserDB from "@/connections/userDB";
+import { authenticate } from "@/middlewares/authMiddleware";
+import { errorHandler } from "@/middlewares/errorMiddleware";
+import authRouter from "@/routes/authRouter";
+import gameRouter from "@/routes/gameRouter";
+import trophyRouter from "@/routes/trophyRouter";
+import userRouter from "@/routes/userRouter";
 
 import "express-async-errors";
 

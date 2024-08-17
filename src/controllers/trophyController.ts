@@ -1,12 +1,12 @@
 import { Request, Response } from "express";
 
-import { GameTrophies } from "../models/schemas/game";
-import { User } from "../models/schemas/user";
+import { GameTrophies } from "@/models/schemas/game";
+import { User } from "@/models/schemas/user";
 import {
   createDbTrophiesByGame,
   getDbTrophiesByGame,
   updateDbTrophiesByGame,
-} from "../services/repositories/trophyRepository";
+} from "@/services/repositories/trophyRepository";
 
 /**
  * Get trophy list by Game ID and Game Platform

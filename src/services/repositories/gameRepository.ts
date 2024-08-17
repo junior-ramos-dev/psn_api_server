@@ -1,11 +1,11 @@
 import { MongooseError, Types } from "mongoose";
 
-import { Convert, IGame } from "../../models/interfaces/game";
-import { GameIcon } from "../../models/schemas/game";
-import { UserGames } from "../../models/schemas/user";
-import { dolwnloadFileToBase64 } from "../../utils/download";
-import { PSN_AUTH, psnAuthFactory } from "../psnApi/auth";
-import { getTrophyTitles } from "../psnApi/games";
+import { Convert, IGame } from "@/models/interfaces/game";
+import { GameIcon } from "@/models/schemas/game";
+import { UserGames } from "@/models/schemas/user";
+import { PSN_AUTH, psnAuthFactory } from "@/services/psnApi/auth";
+import { getTrophyTitles } from "@/services/psnApi/games";
+import { dolwnloadFileToBase64 } from "@/utils/download";
 
 /**
  * Create the list of games by user

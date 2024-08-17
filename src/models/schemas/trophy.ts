@@ -1,6 +1,6 @@
 import { Schema } from "mongoose";
 
-import { ITrophy, ITrophyCount } from "../interfaces/trophy";
+import { ITrophy, ITrophyCount } from "@/models/interfaces/trophy";
 
 export const TrophySchema = new Schema<ITrophy>({
   trophyId: {

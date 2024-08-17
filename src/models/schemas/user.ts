@@ -1,7 +1,7 @@
 import bcrypt from "bcryptjs";
 import mongoose, { Schema } from "mongoose";
 
-import { IUser, IUserGames } from "../interfaces/user";
+import { IUser, IUserGames } from "@/models/interfaces/user";
 
 import { GameSchema } from "./game";
 

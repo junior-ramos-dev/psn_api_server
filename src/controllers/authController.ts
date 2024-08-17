@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 
-import { User } from "../models/schemas/user";
-import { clearToken, generateToken } from "../utils/auth";
+import { User } from "@/models/schemas/user";
+import { clearToken, generateToken } from "@/utils/auth";
 
 const registerUser = async (req: Request, res: Response) => {
   const { name, email, password } = req.body;

@@ -10,7 +10,7 @@ import {
   createPsnAuth,
   IPsnAuthTokensResponse,
   PsnAuth,
-} from "../../models/classes/psnAuth";
+} from "@/models/classes/psnAuth";
 
 import "dotenv/config";
 
@@ -179,4 +179,4 @@ export const refreshAccessTokenWithAccessCode = async (accessCode: string) => {
 
 psnAuthFactory(PSN_AUTH).then((auth) => (PSN_AUTH = auth));
 
-export { PSN_AUTH,psnAuthFactory };
+export { PSN_AUTH, psnAuthFactory };

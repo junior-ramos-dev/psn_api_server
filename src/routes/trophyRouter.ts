@@ -1,6 +1,6 @@
 import express from "express";
 
-import { getTrophiesByGame } from "../controllers/trophyController";
+import { getTrophiesByGame } from "@/controllers/trophyController";
 
 const router = express.Router();
 

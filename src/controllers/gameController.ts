@@ -2,7 +2,7 @@ import etag from "etag";
 import { Request, Response } from "express";
 import { validationResult } from "express-validator";
 
-import { User, UserGames } from "../models/schemas/user";
+import { User, UserGames } from "@/models/schemas/user";
 import {
   createDbGameIconBin,
   createDbGamesByUser,
@@ -10,8 +10,8 @@ import {
   getDbGameIconBinByListOfGamesIds,
   getDbGamesByUser,
   updateDbGamesByUser,
-} from "../services/repositories/gameRepository";
-import { isFreshEtagHeader } from "../utils/api";
+} from "@/services/repositories/gameRepository";
+import { isFreshEtagHeader } from "@/utils/api";
 
 /**
  *

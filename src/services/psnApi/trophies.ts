@@ -10,7 +10,7 @@ import {
   CAPITALIZE_TYPE_MAP,
   POINTS_MAP,
   RARITY_MAP,
-} from "../../models/types/trophy";
+} from "@/models/types/trophy";
 
 //Get the game trophies list.
 const getGameTrophiesList = async (

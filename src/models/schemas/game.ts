@@ -1,6 +1,6 @@
 import mongoose, { Schema } from "mongoose";
 
-import { IGame, IGameIcon, IGameTrophies } from "../interfaces/game";
+import { IGame, IGameIcon, IGameTrophies } from "@/models/interfaces/game";
 
 import { TrophyCount, TrophySchema } from "./trophy";
 

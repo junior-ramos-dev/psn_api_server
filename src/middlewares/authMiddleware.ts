@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import asyncHandler from "express-async-handler";
 import jwt, { JwtPayload } from "jsonwebtoken";
 
-import { User } from "../models/schemas/user";
+import { User } from "@/models/schemas/user";
 
 import { AuthenticationError } from "./errorMiddleware";
 

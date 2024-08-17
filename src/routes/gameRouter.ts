@@ -4,11 +4,8 @@ import {
   getGameIconBinByGame,
   getGameIconBinByListOfGamesIds,
   getGamesByUser,
-} from "../controllers/gameController";
-import {
-  REQUEST_PROPERTY,
-  validateReq,
-} from "../middlewares/requestMiddleware";
+} from "@/controllers/gameController";
+import { REQUEST_PROPERTY, validateReq } from "@/middlewares/requestMiddleware";
 
 const router = express.Router();
 
