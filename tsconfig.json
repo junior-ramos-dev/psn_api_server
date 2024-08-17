@@ -6,12 +6,26 @@
     "moduleResolution": "node",
     "baseUrl": ".",
     "outDir": "./dist/",
+    "paths": {
+      //App Modules Aliases
+      "@/*": ["./src/*"],
+      "@connections/*": ["./connections/*"],
+      "@controllers/*": ["./controllers/*"],
+      "@middlewares/*": ["./middlewares/*"],
+      "@models/*": ["./models/*"],
+      "@routes/*": ["./routes/*"],
+      "@services/*": ["./services/*"],
+      "@utils/*": ["./utils/*"],
+    },
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "strict": true,
     "skipLibCheck": true
   },
-  "ts-node": { "transpileOnly": true },
+  "ts-node": { 
+    "transpileOnly": true,
+    "require": ["tsconfig-paths/register"]
+  },
   "exclude": [
     "node_modues"
   ]
