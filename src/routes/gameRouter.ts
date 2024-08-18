@@ -7,24 +7,20 @@ import {
 } from "@/controllers/gameController";
 import { REQUEST_PROPERTY, validateReq } from "@/middlewares/requestMiddleware";
 
-const router = express.Router();
+const gameRouter = express.Router();
 
-router.get(
+gameRouter.get(
   "/:userId/list",
   validateReq(REQUEST_PROPERTY.HEADERS)!,
   getGamesByUser
 );
 
-router.get("/icon/:npCommunicationId", getGameIconBinByGame);
+gameRouter.get("/icon/:npCommunicationId", getGameIconBinByGame);
 
-router.post("/icon/list", getGameIconBinByListOfGamesIds);
+gameRouter.post("/icon/list", getGameIconBinByListOfGamesIds);
 
-// router.get("/:id", gameController.getGame);
+// gameRouter.patch("/:id", patchGame);
 
-// router.post("/", gameController.postGame);
+// gameRouter.delete("/:id", deleteGame);
 
-// router.patch("/:id", gameController.patchGame);
-
-// router.delete("/:id", gameController.deleteGame);
-
-export default router;
+export default gameRouter;

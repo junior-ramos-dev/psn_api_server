@@ -103,3 +103,49 @@ export const updateDbTrophiesByGame = async (
 
   return gameTrophiesList;
 };
+
+//TODO Get the list of trophies stats for each of the user's titles (bulk).
+// Get the list of trophies stats for each of the user's titles.
+// const getAllGamesTrophiesInfoList = async (): Promise<GameStats[]> => {
+//   let mergedTrophiesList: GameStats[] = [];
+
+//   for (const game of trophyTitles) {
+//     const gameTrophies = await getGameTrophiesList(
+//       accessToken,
+//       npCommunicationId,
+//       trophyTitlePlatform
+//     );
+
+//     const gameEarnedTrophies = await getGameTrophiesEarnedList(
+//       accessToken,
+//       accountId,
+//       npCommunicationId,
+//       trophyTitlePlatform
+//     );
+
+//     if (gameTrophies !== undefined && gameEarnedTrophies !== undefined) {
+//       const mergedTrophies = mergeTrophyLists(gameTrophies, gameEarnedTrophies);
+
+//       const trophyList = new Array<TrophyInfo>();
+
+//       mergedTrophies.forEach((obj) => {
+//         let item = JSON.stringify(obj);
+//         let trophyItem = ConvertTrophyInfo.toTrophyInfo(item);
+//         trophyList.push(trophyItem);
+//       });
+
+//       const gameStats = new GameStats(
+//         game.trophyTitleName,
+//         game.trophyTitlePlatform,
+//         game.definedTrophies,
+//         game.earnedTrophies,
+//         trophyList
+//       );
+
+//       mergedTrophiesList.push(gameStats);
+//     }
+//   }
+//   return new Promise((resolve, reject) => {
+//     return resolve(mergedTrophiesList);
+//   });
+// };

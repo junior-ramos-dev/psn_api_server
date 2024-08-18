@@ -83,7 +83,12 @@ const getTrophiesByGame = async (req: Request, res: Response) => {
   }
 };
 
-//TODO Get the list of trophies info for all games from a user (bulk).
+/**
+ * Get the list of trophies info for all games from a user (bulk).
+ *
+ * @param req
+ * @param res
+ */
 const createOrUpdateAllGamesTrophiesBulk = async (
   req: Request,
   res: Response
@@ -109,8 +114,7 @@ const createOrUpdateAllGamesTrophiesBulk = async (
 
       if (gameTrophiesExists) {
         // Interval in hours to request data from psnApi;
-        //TODO Set the diff to 2 hours for prod
-        const psnApiPollingInterval = 1000; //hours
+        const psnApiPollingInterval = 2; //hours
         const currentDate = new Date();
         const updatedAt = gameTrophiesExists.updatedAt;
 

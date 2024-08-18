@@ -5,15 +5,15 @@ import {
   getTrophiesByGame,
 } from "@/controllers/trophyController";
 
-const router = express.Router();
+const trophyRouter = express.Router();
 
 // Get the list of trohpies for a single game by user
-router.get(
+trophyRouter.get(
   "/:userId/:trophyTitlePlatform/:npCommunicationId/list",
   getTrophiesByGame
 );
 
 // Get the list of trohpies for all games by user
-router.get("/:userId/bulk", createOrUpdateAllGamesTrophiesBulk);
+trophyRouter.get("/:userId/bulk", createOrUpdateAllGamesTrophiesBulk);
 
-export default router;
+export default trophyRouter;
