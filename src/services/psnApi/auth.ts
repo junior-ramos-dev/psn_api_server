@@ -18,7 +18,6 @@ import "dotenv/config";
 const warning = chalk.yellow;
 const info = chalk.green;
 
-//TODO Move ACCOUNT_ID to frontend setup
 const ACCOUNT_ID = process.env.ACCOUNT_ID!;
 let PSN_AUTH = new PsnAuth();
 

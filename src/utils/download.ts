@@ -1,7 +1,7 @@
 import axios, { AxiosResponse } from "axios";
 import * as fs from "fs";
 
-//TODOCustomize params to download diferent types of files
+// Download image binary data
 export const dolwnloadFileToBase64 = async (
   imageUrl: string
 ): Promise<string> => {
@@ -13,24 +13,22 @@ export const dolwnloadFileToBase64 = async (
       responseEncoding: "base64",
     })
     .then((res: AxiosResponse) => {
-      // console.log(res);
-      console.log("[success]");
+      console.log("[Success downloading image binary data]");
 
       data = res.data;
     })
     .catch((err) => {
-      console.log("[failure]");
+      console.log("[Failure downloading image binary data]");
       console.log(err);
     });
   return data;
 };
 
-//TODO Change params to required
-//TODOCustomize params to download diferent types of files
+// Download image file to disk
 export const dolwnloadImgToDisk = async (
   imageUrl: string,
-  filePath?: string,
-  fileName?: string
+  filePath: string,
+  fileName: string
 ) => {
   await axios
     .get(imageUrl, {
@@ -39,7 +37,7 @@ export const dolwnloadImgToDisk = async (
     })
     .then((res) => {
       console.log(res);
-      console.log("[success]");
+      console.log("[Success downloading image file to disk]");
       try {
         const data = res.data;
         fs.writeFileSync(`${filePath}${fileName}`, JSON.stringify(data), {
@@ -50,7 +48,7 @@ export const dolwnloadImgToDisk = async (
       }
     })
     .catch((err) => {
-      console.log("failure]");
+      console.log("Failure downloading image file to disk]");
       console.log(err);
     });
 
