@@ -7,7 +7,7 @@ import helmet from "helmet";
 import { Types } from "mongoose";
 import morgan from "morgan";
 
-import connectUserDB from "@/connections/userDB";
+import connectMongoDB from "@/connections/mongoDB";
 import { authenticate } from "@/middlewares/authMiddleware";
 import { errorHandler } from "@/middlewares/errorMiddleware";
 import authRouter from "@/routes/authRouter";
@@ -106,4 +106,4 @@ if (process.env.NODE_ENV === "production") {
 app.use(errorHandler);
 
 //MongoDb Connection
-connectUserDB();
+connectMongoDB();

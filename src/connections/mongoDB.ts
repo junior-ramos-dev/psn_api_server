@@ -5,7 +5,7 @@ const chalkError = chalk.red;
 const chalkInfo = chalk.green;
 // const chalkWarning = chalk.yellow;
 
-const connectUserDB = async () => {
+const connectMongoDB = async () => {
   try {
     const conn = await mongoose.connect(process.env.MONGODB_URI || "");
     console.log(chalkInfo(`MongoDB Connected: ${conn.connection.host}`));
@@ -17,4 +17,4 @@ const connectUserDB = async () => {
   }
 };
 
-export default connectUserDB;
+export default connectMongoDB;
