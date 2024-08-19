@@ -11,7 +11,7 @@ import {
   getDbGamesByUser,
   updateDbGamesByUser,
 } from "@/services/repositories/gameRepository";
-import { isFreshEtagHeader } from "@/utils/api";
+import { isFreshEtagHeader } from "@/utils/http";
 
 /**
  *

@@ -16,6 +16,11 @@ import gameRouter from "@/routes/gameRouter";
 import trophyRouter from "@/routes/trophyRouter";
 import userRouter from "@/routes/userRouter";
 
+import {
+  applyColorToHttpMethod,
+  applyColorToHttpStatusCode,
+} from "./utils/http";
+
 import "express-async-errors";
 
 dotenv.config();
@@ -41,33 +46,13 @@ const app = express();
 // Apply color to the status code
 morgan.token("status", (req: Request, res: Response) => {
   const status = res.statusCode;
-  const color =
-    status >= 500
-      ? "red"
-      : status >= 400
-      ? "yellow"
-      : status >= 300
-      ? "cyan"
-      : status >= 200
-      ? "green"
-      : "white";
-  return chalk[color](status);
+  return applyColorToHttpStatusCode(status);
 });
 
 // Apply color to the method
 morgan.token("method", (req: Request) => {
   const method = req.method;
-  const color =
-    method === "GET"
-      ? "green"
-      : method === "POST"
-      ? "yellow"
-      : method === "PUT"
-      ? "cyan"
-      : method === "DELETE"
-      ? "red"
-      : "white";
-  return chalk[color](method);
+  return applyColorToHttpMethod(method);
 });
 
 app.use(morgan(":method :url - :status"));
