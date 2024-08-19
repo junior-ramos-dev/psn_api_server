@@ -1,5 +1,4 @@
 import bodyParser from "body-parser";
-import chalk from "chalk";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import dotenv from "dotenv";
@@ -79,17 +78,11 @@ app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
 
-//Default Route
-// app.use((req: Request, res: Response, next: NextFunction) => {
-//   res.send("Server is up!");
-// });
-
 //Server Running Status
 app.get("/status", (req: Request, res: Response) => res.sendStatus(200));
 
 //Auth Routes
 app.use("/auth", authRouter);
-// app.use("/psnAuth/", authRouter);
 
 //User Routes
 app.use("/user", authenticate, userRouter);
