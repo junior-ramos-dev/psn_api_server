@@ -6,9 +6,10 @@ import { IUser, IUserGames } from "@/models/interfaces/user";
 import { GameSchema } from "./game";
 
 const userSchema = new Schema<IUser>({
-  name: {
+  psnUsername: {
     type: String,
     required: true,
+    unique: true,
   },
   email: {
     type: String,

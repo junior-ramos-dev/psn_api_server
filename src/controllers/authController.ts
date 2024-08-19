@@ -4,15 +4,26 @@ import { User } from "@/models/schemas/user";
 import { clearToken, generateToken } from "@/utils/auth";
 
 const registerUser = async (req: Request, res: Response) => {
-  const { name, email, password } = req.body;
-  const userExists = await User.findOne({ email });
+  //TODO Check PSN username with accountId
+  const { psnUsername, email, password } = req.body;
+  const usernameExists = await User.findOne({ psnUsername });
+  const userEmailExists = await User.findOne({ email });
 
-  if (userExists) {
-    res.status(400).json({ message: "The user already exists" });
+  if (usernameExists) {
+    res.status(400).json({
+      message: `An account with PSN Username '${psnUsername}' already exists!`,
+    });
+    return;
+  }
+  if (userEmailExists) {
+    res
+      .status(400)
+      .json({ message: `An account with email '${email}' already exists!` });
+    return;
   }
 
   const user = await User.create({
-    name,
+    psnUsername,
     email,
     password,
   });
@@ -21,11 +32,13 @@ const registerUser = async (req: Request, res: Response) => {
     generateToken(res, String(user._id));
     res.status(201).json({
       id: user._id,
-      name: user.name,
+      psnUsername: user.psnUsername,
       email: user.email,
     });
   } else {
-    res.status(400).json({ message: "An error occurred in creating the user" });
+    res
+      .status(400)
+      .json({ message: "An error occurred in creating the account" });
   }
 };
 
@@ -37,7 +50,7 @@ const authenticateUser = async (req: Request, res: Response) => {
     generateToken(res, String(user._id));
     res.status(201).json({
       id: user._id,
-      name: user.name,
+      psnUsername: user.psnUsername,
       email: user.email,
     });
   } else {
