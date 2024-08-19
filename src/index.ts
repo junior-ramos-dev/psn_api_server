@@ -107,7 +107,7 @@ app.use("/auth", authRouter);
 // app.use("/psnAuth/", authRouter);
 
 //User Routes
-app.use("/users", authenticate, userRouter);
+app.use("/user", authenticate, userRouter);
 
 // Set the authenticate middleware when using the endpoins in production
 if (process.env.NODE_ENV === "production") {
