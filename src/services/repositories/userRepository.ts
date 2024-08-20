@@ -1,4 +1,4 @@
-import { PSN_AUTH, psnAuthFactory } from "@/services/psnApi/auth";
+import { PSN_AUTH } from "@/controllers/authController";
 
 import {
   getPsnAccountIdFromUniversalSearch,
@@ -12,8 +12,8 @@ import {
  * @param psnUsername
  */
 export const getPsnAccountIdByUsername = async (psnUsername: string) => {
-  // psnAuthFactory get and keep PSN access token in memory
-  const { accessToken } = await psnAuthFactory(PSN_AUTH);
+  // Get the credentials used by psn_api
+  const { accessToken } = PSN_AUTH.getCredentials();
 
   const accountId = await getPsnAccountIdFromUniversalSearch(
     accessToken,
@@ -30,8 +30,8 @@ export const getPsnAccountIdByUsername = async (psnUsername: string) => {
  * @returns
  */
 export const getPsnProfileByAccountId = async (accountId: string) => {
-  // psnAuthFactory get and keep PSN access token in memory
-  const { accessToken } = await psnAuthFactory(PSN_AUTH);
+  // Get the credentials used by psn_api
+  const { accessToken } = PSN_AUTH.getCredentials();
 
   const userPsnProfile = await getPsnUserProfileByAccountId(
     accessToken,
@@ -48,8 +48,8 @@ export const getPsnProfileByAccountId = async (accountId: string) => {
  * @returns
  */
 export const getPsnProfileByUsername = async (psnUsername: string) => {
-  // psnAuthFactory get and keep PSN access token in memory
-  const { accessToken } = await psnAuthFactory(PSN_AUTH);
+  // Get the credentials used by psn_api
+  const { accessToken } = PSN_AUTH.getCredentials();
 
   const userPsnProfile = await getPsnUserProfileByUsername(
     accessToken,

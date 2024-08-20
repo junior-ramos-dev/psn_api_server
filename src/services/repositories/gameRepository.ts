@@ -1,9 +1,9 @@
 import { MongooseError, Types } from "mongoose";
 
+import { PSN_AUTH } from "@/controllers/authController";
 import { Convert, IGame } from "@/models/interfaces/game";
 import { GameIcon } from "@/models/schemas/game";
 import { UserGames } from "@/models/schemas/user";
-import { PSN_AUTH, psnAuthFactory } from "@/services/psnApi/auth";
 import { getTrophyTitles } from "@/services/psnApi/games";
 import { dolwnloadFileToBase64 } from "@/utils/download";
 
@@ -14,8 +14,8 @@ import { dolwnloadFileToBase64 } from "@/utils/download";
  * @returns
  */
 export const createDbGamesByUser = async (userId: Types.ObjectId) => {
-  // psnAuthFactory get and keep PSN access token in memory
-  const { accessToken, accountId } = await psnAuthFactory(PSN_AUTH);
+  // Get the credentials used by psn_api
+  const { accessToken, accountId } = PSN_AUTH.getCredentials();
   const psnApiGames = await getTrophyTitles(accessToken, accountId);
 
   const gamesList = Convert.toIGameArray(psnApiGames);
@@ -64,8 +64,8 @@ export const getDbGamesByUser = async (userId: Types.ObjectId) => {
  * @returns
  */
 export const updateDbGamesByUser = async (userId: Types.ObjectId) => {
-  // psnAuthFactory get and keep PSN access token in memory
-  const { accessToken, accountId } = await psnAuthFactory(PSN_AUTH);
+  // Get the credentials used by psn_api
+  const { accessToken, accountId } = PSN_AUTH.getCredentials();
   const psnApiGames = await getTrophyTitles(accessToken, accountId);
 
   const gamesList = Convert.toIGameArray(psnApiGames);

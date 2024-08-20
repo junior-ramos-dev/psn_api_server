@@ -1,7 +1,7 @@
 import { MongooseError, Types } from "mongoose";
 
+import { PSN_AUTH } from "@/controllers/authController";
 import { GameTrophies } from "@/models/schemas/game";
-import { PSN_AUTH, psnAuthFactory } from "@/services/psnApi/auth";
 import { getGameTrophiesInfo } from "@/services/psnApi/trophies";
 
 /**
@@ -17,8 +17,8 @@ export const createDbTrophiesByGame = async (
   npCommunicationId: string,
   trophyTitlePlatform: string
 ) => {
-  // psnAuthFactory get and keep PSN access token in memory
-  const { accessToken, accountId } = await psnAuthFactory(PSN_AUTH);
+  // Get the credentials used by psn_api
+  const { accessToken, accountId } = PSN_AUTH.getCredentials();
   const psnApiTrophyList = await getGameTrophiesInfo(
     accessToken,
     accountId,
@@ -71,8 +71,8 @@ export const updateDbTrophiesByGame = async (
   npCommunicationId: string,
   trophyTitlePlatform: string
 ) => {
-  // psnAuthFactory get and keep PSN access token in memory
-  const { accessToken, accountId } = await psnAuthFactory(PSN_AUTH);
+  // Get the credentials used by psn_api
+  const { accessToken, accountId } = PSN_AUTH.getCredentials();
   const psnApiTrophyList = await getGameTrophiesInfo(
     accessToken,
     accountId,
