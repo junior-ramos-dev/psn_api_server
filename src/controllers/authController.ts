@@ -3,9 +3,8 @@ import jwt from "jsonwebtoken";
 
 import { User } from "@/models/schemas/user";
 import { PsnAuth } from "@/services/psnApi/psnAuth";
+import { getBearerTokenFromHeader } from "@/utils/http";
 
-//TODO Remove from .env file
-const NPSSO = process.env.PSN_NPSSO!;
 let PSN_AUTH: PsnAuth;
 
 const generateToken = (res: Response, userId: string) => {
@@ -55,7 +54,17 @@ const registerUser = async (req: Request, res: Response) => {
 
   if (user) {
     // Get the PSN credentials for using with psn_api
-    PSN_AUTH = await PsnAuth.createPsnAuth(NPSSO).then((psnAuth) => psnAuth);
+    const authorization = req.headers["authorization"];
+
+    if (authorization) {
+      const NPSSO = getBearerTokenFromHeader(authorization);
+      console.log(NPSSO);
+      PSN_AUTH = await PsnAuth.createPsnAuth(NPSSO).then((psnAuth) => psnAuth);
+    } else {
+      res
+        .status(401)
+        .json({ message: "An error occurred in login, Missing 'NPSSO'" });
+    }
 
     generateToken(res, String(user._id));
     res.status(201).json({
@@ -76,7 +85,17 @@ const authenticateUser = async (req: Request, res: Response) => {
 
   if (user && (await user.comparePassword(password))) {
     // Get the PSN credentials for using with psn_api
-    PSN_AUTH = await PsnAuth.createPsnAuth(NPSSO).then((psnAuth) => psnAuth);
+    const authorization = req.headers["authorization"];
+
+    if (authorization) {
+      const NPSSO = getBearerTokenFromHeader(authorization);
+      console.log(NPSSO);
+      PSN_AUTH = await PsnAuth.createPsnAuth(NPSSO).then((psnAuth) => psnAuth);
+    } else {
+      res
+        .status(401)
+        .json({ message: "An error occurred in login, Missing 'NPSSO'" });
+    }
 
     generateToken(res, String(user._id));
     res.status(201).json({
