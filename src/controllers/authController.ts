@@ -61,9 +61,9 @@ const registerUser = async (req: Request, res: Response) => {
       console.log(NPSSO);
       PSN_AUTH = await PsnAuth.createPsnAuth(NPSSO).then((psnAuth) => psnAuth);
     } else {
-      res.status(401).json({
-        message: "An error occurred in creating the account: Missing 'NPSSO'",
-      });
+      res
+        .status(401)
+        .json({ message: "An error occurred in login, Missing 'NPSSO'" });
     }
 
     generateToken(res, String(user._id));
@@ -94,7 +94,7 @@ const authenticateUser = async (req: Request, res: Response) => {
     } else {
       res
         .status(401)
-        .json({ message: "An error occurred in login: Missing 'NPSSO'" });
+        .json({ message: "An error occurred in login, Missing 'NPSSO'" });
     }
 
     generateToken(res, String(user._id));
