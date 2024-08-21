@@ -1,6 +1,6 @@
 import { Types } from "mongoose";
 
-import { IGame } from "./game";
+import { IGame } from "../game";
 
 export interface IUser extends Document {
   psnUsername: string;

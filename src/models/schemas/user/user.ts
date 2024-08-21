@@ -1,9 +1,9 @@
 import bcrypt from "bcryptjs";
 import mongoose, { Schema } from "mongoose";
 
-import { IUser, IUserGames } from "@/models/interfaces/user";
+import { IUser, IUserGames } from "@/models/interfaces/user/user";
 
-import { GameSchema } from "./game";
+import { GameSchema } from "../game";
 
 const userSchema = new Schema<IUser>({
   psnUsername: {

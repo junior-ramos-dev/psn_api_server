@@ -15,6 +15,12 @@ export interface ITrophy {
   points: number;
 }
 
+export interface ITrophySummary {
+  level: number;
+  progress: number;
+  earnedTrophies: ITrophyCount;
+}
+
 export interface ITrophyCount {
   bronze: number;
   silver: number;

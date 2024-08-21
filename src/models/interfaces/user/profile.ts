@@ -1,10 +1,12 @@
 // To parse this data:
 //
-//   import { Convert, IPsnProfile } from "./file";
+//   import { ConvertIPsnProfile, IProfile } from "./file";
 //
-//   const iPsnProfile = Convert.toIPsnProfile(json);
+//   const iPsnProfile = ConvertIPsnProfile.fromJson(json);
 
-export interface IPsnProfile {
+import { ITrophySummary } from "../trophy";
+
+export interface IProfile {
   onlineId: string;
   accountId: string;
   npId: string;
@@ -12,7 +14,7 @@ export interface IPsnProfile {
   plus: number;
   aboutMe: string;
   languagesUsed: string[];
-  trophySummary: TrophySummary;
+  trophySummary: ITrophySummary;
   isOfficiallyVerified: boolean;
   personalDetail: PersonalDetail;
   personalDetailSharing: string;
@@ -46,26 +48,13 @@ export interface Presence {
   lastOnlineDate: Date;
 }
 
-export interface TrophySummary {
-  level: number;
-  progress: number;
-  earnedTrophies: EarnedTrophies;
-}
-
-export interface EarnedTrophies {
-  platinum: number;
-  gold: number;
-  silver: number;
-  bronze: number;
-}
-
 // Converts JSON strings to/from your types
 export class ConvertIPsnProfile {
-  public static fromJson(json: string): IPsnProfile {
+  public static fromJson(json: string): IProfile {
     return JSON.parse(json);
   }
 
-  public static toJson(value: IPsnProfile): string {
+  public static toJson(value: IProfile): string {
     return JSON.stringify(value);
   }
 }
