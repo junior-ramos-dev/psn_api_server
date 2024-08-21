@@ -60,14 +60,14 @@ app.use(express.json());
 
 app.use(helmet());
 
-app.use(
-  cors({
-    origin: "http://localhost:8001",
-    credentials: true,
-    exposedHeaders: ["ETag"],
-    methods: ["GET", " POST", "DELETE", "UPDATE", "PUT", "PATCH"],
-  })
-);
+const corsDefaultConfig = {
+  origin: "http://localhost:8001",
+  credentials: true,
+  exposedHeaders: ["ETag"],
+  methods: ["GET", "POST", "DELETE", "UPDATE", "PUT", "PATCH", "OPTIONS"],
+};
+
+app.use(cors(corsDefaultConfig));
 
 app.use(cookieParser());
 
@@ -79,7 +79,7 @@ app.listen(port, () => {
 });
 
 //Server Running Status
-app.get("/status", (req: Request, res: Response) => res.sendStatus(200));
+app.use("/status", (req: Request, res: Response) => res.sendStatus(200));
 
 //Auth Routes
 app.use("/auth", authRouter);
@@ -87,20 +87,11 @@ app.use("/auth", authRouter);
 //User Routes
 app.use("/user", authenticate, userRouter);
 
-// Set the authenticate middleware when using the endpoins in production
-if (process.env.NODE_ENV === "production") {
-  //Games Routes
-  app.use("/game", authenticate, gameRouter);
+//Games Routes
+app.use("/game", authenticate, gameRouter);
 
-  //Trophies Routes
-  app.use("/trophy", authenticate, trophyRouter);
-} else {
-  //Games Routes
-  app.use("/game", gameRouter);
-
-  //Trophies Routes
-  app.use("/trophy", trophyRouter);
-}
+//Trophies Routes
+app.use("/trophy", authenticate, trophyRouter);
 
 //Error Handler
 app.use(errorHandler);
