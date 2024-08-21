@@ -60,12 +60,12 @@ export interface EarnedTrophies {
 }
 
 // Converts JSON strings to/from your types
-export class Convert {
-  public static toIPsnProfile(json: string): IPsnProfile {
+export class ConvertIPsnProfile {
+  public static fromJson(json: string): IPsnProfile {
     return JSON.parse(json);
   }
 
-  public static iPsnProfileToJson(value: IPsnProfile): string {
+  public static toJson(value: IPsnProfile): string {
     return JSON.stringify(value);
   }
 }

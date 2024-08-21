@@ -206,7 +206,7 @@ const authenticatePsn = async (
   const allAccountsSearchResults = await makeUniversalSearch(
     authorization,
     process.env.PSN_USERNAME!,
-    "SocialAllAccounts"
+    PSN_DOMAIN.SOCIAL_ALL_ACCOUNTS
   );
   ----------------------------------------------------------------------- */
 

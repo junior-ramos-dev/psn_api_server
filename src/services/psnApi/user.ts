@@ -8,6 +8,8 @@ import {
   UniversalSearchResponse,
 } from "psn-api";
 
+import { PSN_DOMAIN } from "@/models/types/psn";
+
 /**
  * Get the user's accountID.
  *
@@ -27,7 +29,7 @@ export const getPsnAccountIdFromUniversalSearch = async (
   const accountId = await makeUniversalSearch(
     { accessToken: acessToken },
     psnUsername,
-    "SocialAllAccounts"
+    PSN_DOMAIN.SOCIAL_ALL_ACCOUNTS
   );
 
   return new Promise((resolve, reject) => {

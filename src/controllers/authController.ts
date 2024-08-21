@@ -60,11 +60,9 @@ const registerUser = async (req: Request, res: Response) => {
       const NPSSO = getBearerTokenFromHeader(authorization);
       PSN_AUTH = await PsnAuth.createPsnAuth(NPSSO).then((psnAuth) => psnAuth);
     } else {
-      res
-        .status(401)
-        .json({
-          message: "An error occurred in creating the account: Missing 'NPSSO'",
-        });
+      return res.status(401).json({
+        message: "An error occurred in creating the account: Missing 'NPSSO'",
+      });
     }
 
     generateToken(res, String(user._id));
@@ -92,7 +90,7 @@ const authenticateUser = async (req: Request, res: Response) => {
       const NPSSO = getBearerTokenFromHeader(authorization);
       PSN_AUTH = await PsnAuth.createPsnAuth(NPSSO).then((psnAuth) => psnAuth);
     } else {
-      res
+      return res
         .status(401)
         .json({ message: "An error occurred in login: Missing 'NPSSO'" });
     }
