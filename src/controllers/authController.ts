@@ -1,12 +1,33 @@
 import { Request, Response } from "express";
+import jwt from "jsonwebtoken";
 
 import { User } from "@/models/schemas/user";
 import { PsnAuth } from "@/services/psnApi/psnAuth";
-import { clearToken, generateToken } from "@/utils/auth";
 
 //TODO Remove from .env file
 const NPSSO = process.env.PSN_NPSSO!;
 let PSN_AUTH: PsnAuth;
+
+const generateToken = (res: Response, userId: string) => {
+  const jwtSecret = process.env.JWT_SECRET || "";
+  const token = jwt.sign({ userId }, jwtSecret, {
+    expiresIn: "1h",
+  });
+
+  res.cookie("jwt", token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV !== "development",
+    sameSite: "strict",
+    maxAge: 60 * 60 * 1000,
+  });
+};
+
+const clearToken = (res: Response) => {
+  res.cookie("jwt", "", {
+    httpOnly: true,
+    expires: new Date(0),
+  });
+};
 
 const registerUser = async (req: Request, res: Response) => {
   const { psnUsername, email, password } = req.body;
