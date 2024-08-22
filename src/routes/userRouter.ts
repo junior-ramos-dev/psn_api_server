@@ -1,20 +1,11 @@
 import express from "express";
 
-import {
-  getAppUser,
-  getPsnUserAccountId,
-  getPsnUserProfileByAccountId,
-  getPsnUserProfileByUsername,
-} from "@/controllers/userController";
+import { getUserById, getUserProfileById } from "@/controllers/userController";
 
 const userRouter = express.Router();
 
-userRouter.get("/:psnOnlineId/profile", getPsnUserProfileByUsername);
+userRouter.get("/:userId", getUserById);
 
-userRouter.get("/:accountId/profile", getPsnUserProfileByAccountId);
-
-userRouter.get("/:psnOnlineId/accountId", getPsnUserAccountId);
-
-userRouter.get("/:id", getAppUser);
+userRouter.get("/:userId/profile", getUserProfileById);
 
 export default userRouter;

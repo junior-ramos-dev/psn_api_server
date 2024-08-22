@@ -137,7 +137,11 @@ export const getDbUser = async (
   userId: string
 ): Promise<IUser | undefined | MongooseError> => {
   try {
-    const user = await User.findById(userId);
+    const user = await User.findById(userId, {
+      psnOnlineId: 1,
+      email: 1,
+      _id: 0,
+    });
 
     return user as IUser;
   } catch (error: unknown) {
@@ -155,10 +159,10 @@ export const getDbUser = async (
  * @returns
  */
 export const getDbUserProfile = async (
-  userId: Types.ObjectId
+  userId: string
 ): Promise<IUserProfile | undefined | MongooseError> => {
   try {
-    const userProfile = await UserProfile.findById({
+    const userProfile = await UserProfile.findOne({
       userId: userId,
     });
 
@@ -169,4 +173,21 @@ export const getDbUserProfile = async (
       return error;
     }
   }
+};
+
+//TODO
+/**
+ * Update the user profile with data from psn_api
+ *
+ * @param userId
+ * @param onlineId
+ * @returns
+ */
+export const updateDbUserProfile = async (
+  userId: string,
+  onlineId: string
+): Promise<IUserProfile | undefined | MongooseError> => {
+  console.log(userId, onlineId);
+
+  return;
 };

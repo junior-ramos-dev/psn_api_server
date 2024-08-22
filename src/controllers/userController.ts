@@ -1,98 +1,61 @@
 import { Request, Response } from "express";
 
-import { User } from "@/models/schemas/user";
 import {
-  getPsnAccountIdByUsername,
-  getPsnProfileByAccountId,
-  getPsnProfileByUsername,
+  getDbUser,
+  getDbUserProfile,
 } from "@/services/repositories/userRepository";
+import { isValidId } from "@/utils/mongoose";
 
 /**
+ * Get the user basic info
  *
  * @param req
  * @param res
  */
-const getAppUser = async (req: Request, res: Response) => {
-  const userId = req.user?._id;
-  const user = await User.findById(userId, {
-    psnUsername: 1,
-    email: 1,
-    _id: 0,
-  });
-
-  if (!user) {
-    res.status(400);
-  }
-
-  res.status(200).json(user);
-};
-
-/**
- *
- * @param req
- * @param res
- */
-const getPsnUserAccountId = async (req: Request, res: Response) => {
+const getUserById = async (req: Request, res: Response) => {
   try {
-    const psnUsername = req.params["psnUsername"];
+    const userId = req.params["userId"];
 
-    const accountId = await getPsnAccountIdByUsername(psnUsername);
+    if (isValidId(userId)) {
+      const user = await getDbUser(userId);
 
-    if (!accountId) {
-      res.status(400);
+      res.status(200).json(user);
+    } else {
+      res.status(400).json({ error: "MongoDB: Invalid user id" });
+      return;
     }
-
-    res.status(200).json(accountId);
   } catch (error) {
     console.log(error);
+    res.status(400).json({ error: `MongoDB: User not found: ${error}` });
+    return;
   }
 };
 
 /**
+ * Get the user profile
  *
  * @param req
  * @param res
  */
-const getPsnUserProfileByAccountId = async (req: Request, res: Response) => {
+const getUserProfileById = async (req: Request, res: Response) => {
   try {
-    const accountId = req.params["accountId"];
+    const userId = req.params["userId"];
 
-    const userProfile = await getPsnProfileByAccountId(accountId);
+    if (isValidId(userId)) {
+      const userProfile = await getDbUserProfile(userId);
 
-    if (!userProfile) {
-      res.status(400);
+      res.status(200).json(userProfile);
+    } else {
+      res.status(400).json({ error: "MongoDB: Invalid user id" });
+      return;
     }
-
-    res.status(200).json(userProfile);
   } catch (error) {
     console.log(error);
+    res
+      .status(400)
+      .json({ error: `MongoDB: User profile not found: ${error}` });
+    return;
   }
 };
 
-/**
- *
- * @param req
- * @param res
- */
-const getPsnUserProfileByUsername = async (req: Request, res: Response) => {
-  try {
-    const psnUsername = req.params["psnUsername"];
-
-    const userProfile = await getPsnProfileByUsername(psnUsername);
-
-    if (!userProfile) {
-      res.status(400);
-    }
-
-    res.status(200).json(userProfile);
-  } catch (error) {
-    console.log(error);
-  }
-};
-
-export {
-  getAppUser,
-  getPsnUserAccountId,
-  getPsnUserProfileByAccountId,
-  getPsnUserProfileByUsername,
-};
+export { getUserById, getUserProfileById };
