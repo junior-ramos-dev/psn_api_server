@@ -137,7 +137,6 @@ export class PsnAuth {
       console.log(info("PSN access token was issued."));
       this.tokenCreatedAt = new Date();
     } else if (!this.isAccessTokenExpired) {
-      // this.psnAuthTokensResponse = await authenticatePsn();
       console.log(info("Valid PSN access token is active."));
     }
 

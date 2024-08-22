@@ -36,7 +36,8 @@ export const getPsnAccountIdFromUniversalSearch = async (
     try {
       return resolve(accountId);
     } catch (error) {
-      return reject(error);
+      console.log(error);
+      return reject(new Error(`Error searching PSN Account ID: ${error}`));
     }
   });
 };
@@ -60,8 +61,11 @@ export const getPsnUserProfileByAccountId = async (
   return new Promise((resolve, reject) => {
     try {
       return resolve(userProfile);
-    } catch (error) {
-      return reject(error);
+    } catch (error: unknown) {
+      console.log(error);
+      return reject(
+        new Error(`Error getting PSN Profile by Account ID: ${error}`)
+      );
     }
   });
 };
@@ -86,7 +90,10 @@ export const getPsnUserProfileByUsername = async (
     try {
       return resolve(userProfile);
     } catch (error) {
-      return reject(error);
+      console.log(error);
+      return reject(
+        new Error(`Error getting PSN Profile by Online ID: ${error}`)
+      );
     }
   });
 };
