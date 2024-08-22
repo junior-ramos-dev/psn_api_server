@@ -3,6 +3,7 @@ import jwt from "jsonwebtoken";
 
 import { User } from "@/models/schemas/user";
 import { PsnAuth } from "@/services/psnApi/psnAuth";
+import { createDbUserAndProfile } from "@/services/repositories/userRepository";
 import { getBearerTokenFromHeader } from "@/utils/http";
 
 let PSN_AUTH: PsnAuth;
@@ -29,13 +30,13 @@ const clearToken = (res: Response) => {
 };
 
 const registerUser = async (req: Request, res: Response) => {
-  const { psnUsername, email, password } = req.body;
-  const usernameExists = await User.findOne({ psnUsername });
+  const { psnOnlineId, email, password } = req.body;
+  const usernameExists = await User.findOne({ psnOnlineId });
   const userEmailExists = await User.findOne({ email });
 
   if (usernameExists) {
     res.status(400).json({
-      message: `An account with PSN Username '${psnUsername}' already exists!`,
+      message: `An account with PSN Username '${psnOnlineId}' already exists!`,
     });
     return;
   }
@@ -46,35 +47,36 @@ const registerUser = async (req: Request, res: Response) => {
     return;
   }
 
-  const user = await User.create({
-    psnUsername,
-    email,
-    password,
-  });
+  const authorization = req.headers["authorization"];
+  console.log(authorization);
+  // Check if NPSSO exists
+  if (authorization) {
+    const NPSSO = getBearerTokenFromHeader(authorization);
+    // Initialize the PSN credentials for using with psn_api
+    PSN_AUTH = await PsnAuth.createPsnAuth(NPSSO).then((psnAuth) => psnAuth);
 
-  if (user) {
-    // Get the PSN credentials for using with psn_api
-    const authorization = req.headers["authorization"];
+    const { userDb, userProfileDb } = await createDbUserAndProfile(
+      psnOnlineId,
+      email,
+      password
+    );
 
-    if (authorization) {
-      const NPSSO = getBearerTokenFromHeader(authorization);
-      PSN_AUTH = await PsnAuth.createPsnAuth(NPSSO).then((psnAuth) => psnAuth);
-    } else {
-      return res.status(401).json({
-        message: "An error occurred in creating the account: Missing 'NPSSO'",
+    if (userDb && userProfileDb) {
+      generateToken(res, String(userDb._id));
+      res.status(201).json({
+        id: userDb._id,
+        psnOnlineId: userDb.psnOnlineId,
+        email: userDb.email,
       });
+    } else {
+      res
+        .status(400)
+        .json({ message: "An error occurred in creating the account" });
     }
-
-    generateToken(res, String(user._id));
-    res.status(201).json({
-      id: user._id,
-      psnUsername: user.psnUsername,
-      email: user.email,
-    });
   } else {
-    res
-      .status(400)
-      .json({ message: "An error occurred in creating the account" });
+    return res.status(401).json({
+      message: "An error occurred in creating the account: Missing 'NPSSO'",
+    });
   }
 };
 
@@ -85,6 +87,7 @@ const authenticateUser = async (req: Request, res: Response) => {
   if (user && (await user.comparePassword(password))) {
     // Get the PSN credentials for using with psn_api
     const authorization = req.headers["authorization"];
+    console.log(authorization);
 
     if (authorization) {
       const NPSSO = getBearerTokenFromHeader(authorization);
@@ -98,7 +101,7 @@ const authenticateUser = async (req: Request, res: Response) => {
     generateToken(res, String(user._id));
     res.status(201).json({
       id: user._id,
-      psnUsername: user.psnUsername,
+      psnOnlineId: user.psnOnlineId,
       email: user.email,
     });
   } else {

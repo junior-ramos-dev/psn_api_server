@@ -1,60 +1,126 @@
+import { MongooseError, Types } from "mongoose";
+
 import { PSN_AUTH } from "@/controllers/authController";
+import { User, UserProfile } from "@/models/schemas/user";
 
-import {
-  getPsnAccountIdFromUniversalSearch,
-  getPsnUserProfileByAccountId,
-  getPsnUserProfileByUsername,
-} from "../psnApi/user";
+import { getPsnUserProfileByUsername } from "../psnApi/user";
 
 /**
- * Get PSN User AccountId by Username
+ * Create Db User And Profile
  *
- * @param psnUsername
+ * @param psnOnlineId
+ * @param email
+ * @param password
+ * @returns
  */
-export const getPsnAccountIdByUsername = async (psnUsername: string) => {
-  // Get the credentials used by psn_api
-  const { accessToken } = PSN_AUTH.getCredentials();
+export const createDbUserAndProfile = async (
+  psnOnlineId: string,
+  email: string,
+  password: string
+) => {
+  const session = await User.startSession();
+  session.startTransaction();
+  try {
+    const opts = { session };
+    const userDb = await new User({
+      psnOnlineId,
+      email,
+      password,
+    }).save(opts);
 
-  const accountId = await getPsnAccountIdFromUniversalSearch(
-    accessToken,
-    psnUsername
-  );
+    // Get the credentials used by psn_api
+    const { accessToken } = PSN_AUTH.getCredentials();
 
-  return accountId;
+    const userPsnProfile = await getPsnUserProfileByUsername(
+      accessToken,
+      psnOnlineId
+    );
+
+    console.log(userPsnProfile.profile.aboutMe);
+
+    const userId = userDb._id;
+    const createdAt = new Date();
+    const updatedAt = new Date();
+
+    const userProfile = {
+      userId,
+      ...userPsnProfile.profile,
+      createdAt,
+      updatedAt,
+    };
+
+    console.log(userProfile);
+
+    const userProfileDb = await new UserProfile(userProfile).save(opts);
+
+    await session.commitTransaction();
+    session.endSession();
+    return { userDb, userProfileDb };
+  } catch (error) {
+    // If an error occurred, abort the whole transaction and
+    // undo any changes that might have happened
+    await session.abortTransaction();
+    session.endSession();
+    throw error;
+  }
 };
 
 /**
- * Get Psn Profile By AccountId
+ * Create an User on DB
  *
- * @param accountId
+ * @param psnOnlineId
+ * @param email
+ * @param password
  * @returns
  */
-export const getPsnProfileByAccountId = async (accountId: string) => {
-  // Get the credentials used by psn_api
-  const { accessToken } = PSN_AUTH.getCredentials();
+export const createDbUser = async (
+  psnOnlineId: string,
+  email: string,
+  password: string
+) => {
+  let user = undefined;
 
-  const userPsnProfile = await getPsnUserProfileByAccountId(
-    accessToken,
-    accountId
-  );
-
-  return userPsnProfile;
+  try {
+    user = await User.create({
+      psnOnlineId,
+      email,
+      password,
+    });
+  } catch (error: unknown) {
+    if (error instanceof MongooseError) {
+      console.log(error);
+    }
+  }
+  return user;
 };
 
 /**
- * Get Psn Profile By Username
+ * Create an User Profile on DB
  *
- * @param psnUsername
+ * @param userId
+ * @param psnOnlineId
  * @returns
  */
-export const getPsnProfileByUsername = async (psnUsername: string) => {
-  // Get the credentials used by psn_api
-  const { accessToken } = PSN_AUTH.getCredentials();
+export const createDbUserProfile = async (
+  userId: Types.ObjectId,
+  psnOnlineId: string
+) => {
+  let userDbProfile = undefined;
 
-  const userPsnProfile = await getPsnUserProfileByUsername(
-    accessToken,
-    psnUsername
-  );
+  try {
+    // Get the credentials used by psn_api
+    const { accessToken } = PSN_AUTH.getCredentials();
 
-  return userPsnProfile;
+    const userPsnProfile = await getPsnUserProfileByUsername(
+      accessToken,
+      psnOnlineId
+    );
+
+    userDbProfile = await UserProfile.create({ userId, ...userPsnProfile });
+  } catch (error: unknown) {
+    if (error instanceof MongooseError) {
+      console.log(error);
+    }
+  }
+  return userDbProfile;
 };

@@ -3,7 +3,7 @@ import { Types } from "mongoose";
 import { IGame } from "../game";
 
 export interface IUser extends Document {
-  psnUsername: string;
+  psnOnlineId: string;
   email: string;
   password: string;
   comparePassword: (enteredPassword: string) => boolean;

@@ -5,7 +5,7 @@ import {
   IConsoleAvailability,
   IPersonalDetail,
   IPresence,
-  IProfile,
+  IUserProfile,
 } from "@/models/interfaces/user";
 
 import { TrophySummary } from "../trophy";
@@ -54,89 +54,103 @@ const ConsoleAvailabilitySchema = new Schema<IConsoleAvailability>({
   },
 });
 
-const ProfileSchema = new Schema<IProfile>({
-  userId: {
-    type: Schema.Types.ObjectId,
-    ref: "User",
+const ProfileSchema = new Schema<IUserProfile>(
+  {
+    userId: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+    },
+    onlineId: {
+      type: String,
+      required: true,
+      unique: true,
+    },
+    accountId: {
+      type: String,
+      required: true,
+      unique: true,
+    },
+    npId: {
+      type: String,
+      required: true,
+      unique: true,
+    },
+    avatarUrls: {
+      type: [AvatarURLSchema],
+      default: [],
+    },
+    plus: {
+      type: Number,
+      required: true,
+    },
+    aboutMe: {
+      type: String,
+      default: "",
+    },
+    languagesUsed: {
+      type: [String],
+      default: [],
+    },
+    trophySummary: {
+      type: TrophySummary,
+      required: true,
+    },
+    isOfficiallyVerified: {
+      type: Boolean,
+      required: true,
+    },
+    personalDetail: {
+      type: PersonalDetailSchema,
+      default: {},
+    },
+    personalDetailSharing: {
+      type: String,
+      default: "",
+    },
+    personalDetailSharingRequestMessageFlag: {
+      type: Boolean,
+      required: true,
+    },
+    primaryOnlineStatus: {
+      type: String,
+      default: "",
+    },
+    presences: {
+      type: [PresenceSchema],
+      default: [],
+    },
+    friendRelation: {
+      type: String,
+      default: "",
+    },
+    requestMessageFlag: {
+      type: Boolean,
+      required: true,
+    },
+    blocking: {
+      type: Boolean,
+      required: true,
+    },
+    following: {
+      type: Boolean,
+      required: true,
+    },
+    consoleAvailability: {
+      type: ConsoleAvailabilitySchema,
+      default: {},
+    },
+    createdAt: {
+      type: Date,
+      required: true,
+    },
+    updatedAt: {
+      type: Date,
+      required: true,
+    },
   },
-  onlineId: {
-    type: String,
-    required: true,
-  },
-  accountId: {
-    type: String,
-    required: true,
-  },
-  npId: {
-    type: String,
-    required: true,
-  },
-  avatarUrls: {
-    type: [AvatarURLSchema],
-    required: true,
-  },
-  plus: {
-    type: Number,
-    required: true,
-  },
-  aboutMe: {
-    type: String,
-    required: true,
-  },
-  languagesUsed: {
-    type: [String],
-    required: true,
-  },
-  trophySummary: {
-    type: TrophySummary,
-    required: true,
-  },
-  isOfficiallyVerified: {
-    type: Boolean,
-    required: true,
-  },
-  personalDetail: {
-    type: PersonalDetailSchema,
-    required: true,
-  },
-  personalDetailSharing: {
-    type: String,
-    required: true,
-  },
-  personalDetailSharingRequestMessageFlag: {
-    type: Boolean,
-    required: true,
-  },
-  primaryOnlineStatus: {
-    type: String,
-    required: true,
-  },
-  presences: {
-    type: [PresenceSchema],
-    required: true,
-  },
-  friendRelation: {
-    type: String,
-    required: true,
-  },
-  requestMessageFlag: {
-    type: Boolean,
-    required: true,
-  },
-  blocking: {
-    type: Boolean,
-    required: true,
-  },
-  following: {
-    type: Boolean,
-    required: true,
-  },
-  consoleAvailability: {
-    type: ConsoleAvailabilitySchema,
-    required: true,
-  },
-});
+  { timestamps: true }
+);
 
-const Profile = mongoose.model("Profile", ProfileSchema);
+const UserProfile = mongoose.model("UserProfile", ProfileSchema);
 
-export { Profile };
+export { UserProfile };

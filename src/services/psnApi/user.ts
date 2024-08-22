@@ -19,16 +19,16 @@ import { PSN_DOMAIN } from "@/models/types/psn";
  * the standard account ID value.
  *
  * @param acessToken
- * @param psnUsername
+ * @param psnOnlineId
  * @returns
  */
 export const getPsnAccountIdFromUniversalSearch = async (
   acessToken: string,
-  psnUsername: string
+  psnOnlineId: string
 ): Promise<UniversalSearchResponse<SocialAccountResult>> => {
   const accountId = await makeUniversalSearch(
     { accessToken: acessToken },
-    psnUsername,
+    psnOnlineId,
     PSN_DOMAIN.SOCIAL_ALL_ACCOUNTS
   );
 
@@ -70,16 +70,16 @@ export const getPsnUserProfileByAccountId = async (
  * Get the user's PSN profile by Username
  *
  * @param acessToken
- * @param psnUsername
+ * @param psnOnlineId
  * @returns
  */
 export const getPsnUserProfileByUsername = async (
   acessToken: string,
-  psnUsername: string
+  psnOnlineId: string
 ): Promise<ProfileFromUserNameResponse> => {
   const userProfile = await getProfileFromUserName(
     { accessToken: acessToken },
-    psnUsername
+    psnOnlineId
   );
 
   return new Promise((resolve, reject) => {

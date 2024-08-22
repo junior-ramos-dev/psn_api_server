@@ -1,9 +1,10 @@
 import {
+  ConvertIUserProfile,
   IAvatarURL,
   IConsoleAvailability,
   IPersonalDetail,
   IPresence,
-  IProfile,
+  IUserProfile,
 } from "./profile";
 import { IUser, IUserGames } from "./user";
 
@@ -12,7 +13,9 @@ export type {
   IConsoleAvailability,
   IPersonalDetail,
   IPresence,
-  IProfile,
   IUser,
   IUserGames,
+  IUserProfile,
 };
+
+export { ConvertIUserProfile };

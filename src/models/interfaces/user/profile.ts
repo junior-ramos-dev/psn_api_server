@@ -1,14 +1,14 @@
 // To parse this data:
 //
-//   import { ConvertIPsnProfile, IProfile } from "./file";
+//   import { ConvertIUserProfile, IUserProfile } from "./file";
 //
-//   const iPsnProfile = ConvertIPsnProfile.fromJson(json);
+//   const iUserProfile = ConvertIUserProfile.fromJson(json);
 
 import { Types } from "mongoose";
 
 import { ITrophySummary } from "../trophy";
 
-export interface IProfile {
+export interface IUserProfile {
   userId: Types.ObjectId;
   onlineId: string;
   accountId: string;
@@ -29,6 +29,8 @@ export interface IProfile {
   blocking: boolean;
   following: boolean;
   consoleAvailability: IConsoleAvailability;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface IAvatarURL {
@@ -52,12 +54,12 @@ export interface IConsoleAvailability {
 }
 
 // Converts JSON strings to/from your types
-export class ConvertIPsnProfile {
-  public static fromJson(json: string): IProfile {
+export class ConvertIUserProfile {
+  public static fromJson(json: string): IUserProfile {
     return JSON.parse(json);
   }
 
-  public static toJson(value: IProfile): string {
+  public static toJson(value: IUserProfile): string {
     return JSON.stringify(value);
   }
 }
