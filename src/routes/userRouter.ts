@@ -9,11 +9,11 @@ import {
 
 const userRouter = express.Router();
 
-userRouter.get("/:psnUsername/profile", getPsnUserProfileByUsername);
+userRouter.get("/:psnOnlineId/profile", getPsnUserProfileByUsername);
 
 userRouter.get("/:accountId/profile", getPsnUserProfileByAccountId);
 
-userRouter.get("/:psnUsername/accountId", getPsnUserAccountId);
+userRouter.get("/:psnOnlineId/accountId", getPsnUserAccountId);
 
 userRouter.get("/:id", getAppUser);
 

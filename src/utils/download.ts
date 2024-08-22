@@ -51,28 +51,4 @@ export const dolwnloadImgToDisk = async (
       console.log("Failure downloading image file to disk]");
       console.log(err);
     });
-
-  // fetch(imgUrl, {
-  //   headers: {
-  //     "Content-Type": "image/png",
-  //     // "Accept-Encoding": "base64",
-  //   },
-  // })
-  //   .then((res) => {
-  //     console.log(res);
-  //     console.log(res.status);
-  //     try {
-  //       let data;
-  //       data = res.blob();
-  //       fs.writeFileSync("test1.jpg", data, {
-  //         encoding: "base64",
-  //       });
-  //     } catch (err) {
-  //       console.log(err);
-  //     }
-  //   })
-  //   .catch((err) => {
-  //     console.log("======failure=======");
-  //     console.log(err);
-  //   });
 };
