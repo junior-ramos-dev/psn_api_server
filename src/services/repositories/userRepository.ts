@@ -1,6 +1,7 @@
 import { MongooseError, Types } from "mongoose";
 
 import { PSN_AUTH } from "@/controllers/authController";
+import { IUserAndProfile } from "@/models/interfaces/user";
 import { User, UserProfile } from "@/models/schemas/user";
 
 import { getPsnUserProfileByUsername } from "../psnApi/user";
@@ -17,7 +18,7 @@ export const createDbUserAndProfile = async (
   psnOnlineId: string,
   email: string,
   password: string
-) => {
+): Promise<IUserAndProfile | MongooseError> => {
   const session = await User.startSession();
   session.startTransaction();
   try {
@@ -30,13 +31,10 @@ export const createDbUserAndProfile = async (
 
     // Get the credentials used by psn_api
     const { accessToken } = PSN_AUTH.getCredentials();
-
     const userPsnProfile = await getPsnUserProfileByUsername(
       accessToken,
       psnOnlineId
     );
-
-    console.log(userPsnProfile.profile.aboutMe);
 
     const userId = userDb._id;
     const createdAt = new Date();
@@ -49,19 +47,22 @@ export const createDbUserAndProfile = async (
       updatedAt,
     };
 
-    console.log(userProfile);
-
     const userProfileDb = await new UserProfile(userProfile).save(opts);
+
+    const data: IUserAndProfile = { userDb, userProfileDb };
 
     await session.commitTransaction();
     session.endSession();
-    return { userDb, userProfileDb };
-  } catch (error) {
+
+    return data;
+  } catch (error: unknown) {
     // If an error occurred, abort the whole transaction and
     // undo any changes that might have happened
     await session.abortTransaction();
     session.endSession();
-    throw error;
+    console.log(error);
+
+    return error as MongooseError;
   }
 };
 
@@ -78,20 +79,19 @@ export const createDbUser = async (
   email: string,
   password: string
 ) => {
-  let user = undefined;
-
   try {
-    user = await User.create({
+    const user = await User.create({
       psnOnlineId,
       email,
       password,
     });
+    return user;
   } catch (error: unknown) {
     if (error instanceof MongooseError) {
       console.log(error);
+      return error;
     }
   }
-  return user;
 };
 
 /**
@@ -105,22 +105,66 @@ export const createDbUserProfile = async (
   userId: Types.ObjectId,
   psnOnlineId: string
 ) => {
-  let userDbProfile = undefined;
-
   try {
     // Get the credentials used by psn_api
     const { accessToken } = PSN_AUTH.getCredentials();
-
     const userPsnProfile = await getPsnUserProfileByUsername(
       accessToken,
       psnOnlineId
     );
 
-    userDbProfile = await UserProfile.create({ userId, ...userPsnProfile });
+    const userDbProfile = await UserProfile.create({
+      userId,
+      ...userPsnProfile,
+    });
+
+    return userDbProfile;
   } catch (error: unknown) {
     if (error instanceof MongooseError) {
       console.log(error);
+      return error;
     }
   }
-  return userDbProfile;
+};
+
+/**
+ * Get the user data from DB
+ *
+ * @param userId
+ * @returns
+ */
+export const getDbUser = async (userId: Types.ObjectId) => {
+  try {
+    const user = await User.findById({
+      userId: userId,
+    });
+
+    return user;
+  } catch (error: unknown) {
+    if (error instanceof MongooseError) {
+      console.log(error);
+      return error;
+    }
+  }
+};
+
+/**
+ * Get the user profile data from DB
+ *
+ * @param userId
+ * @returns
+ */
+export const getDbUserProfile = async (userId: Types.ObjectId) => {
+  try {
+    const userProfile = await UserProfile.findById({
+      userId: userId,
+    });
+
+    return userProfile;
+  } catch (error: unknown) {
+    if (error instanceof MongooseError) {
+      console.log(error);
+      return error;
+    }
+  }
 };

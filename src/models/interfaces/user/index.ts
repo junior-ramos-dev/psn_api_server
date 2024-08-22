@@ -6,7 +6,7 @@ import {
   IPresence,
   IUserProfile,
 } from "./profile";
-import { IUser, IUserGames } from "./user";
+import { IUser, IUserAndProfile, IUserGames } from "./user";
 
 export type {
   IAvatarURL,
@@ -14,6 +14,7 @@ export type {
   IPersonalDetail,
   IPresence,
   IUser,
+  IUserAndProfile,
   IUserGames,
   IUserProfile,
 };

@@ -4,11 +4,11 @@
 //
 //   const iUserProfile = ConvertIUserProfile.fromJson(json);
 
-import { Types } from "mongoose";
+import mongoose, { Types } from "mongoose";
 
 import { ITrophySummary } from "../trophy";
 
-export interface IUserProfile {
+export interface IUserProfile extends mongoose.Document {
   userId: Types.ObjectId;
   onlineId: string;
   accountId: string;

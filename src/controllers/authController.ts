@@ -9,7 +9,7 @@ import { getBearerTokenFromHeader } from "@/utils/http";
 let PSN_AUTH: PsnAuth;
 
 const generateToken = (res: Response, userId: string) => {
-  const jwtSecret = process.env.JWT_SECRET || "";
+  const jwtSecret = process.env.JWT_SECRET ?? "";
   const token = jwt.sign({ userId }, jwtSecret, {
     expiresIn: "1h",
   });
@@ -48,20 +48,17 @@ const registerUser = async (req: Request, res: Response) => {
   }
 
   const authorization = req.headers["authorization"];
-  console.log(authorization);
+
   // Check if NPSSO exists
   if (authorization) {
     const NPSSO = getBearerTokenFromHeader(authorization);
     // Initialize the PSN credentials for using with psn_api
     PSN_AUTH = await PsnAuth.createPsnAuth(NPSSO).then((psnAuth) => psnAuth);
 
-    const { userDb, userProfileDb } = await createDbUserAndProfile(
-      psnOnlineId,
-      email,
-      password
-    );
+    const data = await createDbUserAndProfile(psnOnlineId, email, password);
 
-    if (userDb && userProfileDb) {
+    if ("userDb" in data) {
+      const { userDb } = data;
       generateToken(res, String(userDb._id));
       res.status(201).json({
         id: userDb._id,
@@ -87,7 +84,6 @@ const authenticateUser = async (req: Request, res: Response) => {
   if (user && (await user.comparePassword(password))) {
     // Get the PSN credentials for using with psn_api
     const authorization = req.headers["authorization"];
-    console.log(authorization);
 
     if (authorization) {
       const NPSSO = getBearerTokenFromHeader(authorization);

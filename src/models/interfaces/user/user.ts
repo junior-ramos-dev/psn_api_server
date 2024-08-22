@@ -1,8 +1,15 @@
-import { Types } from "mongoose";
+import mongoose, { Types } from "mongoose";
 
-import { IGame } from "../game";
+import { IGame, IGameTrophies } from "../game";
 
-export interface IUser extends Document {
+import { IUserProfile } from "./profile";
+
+export interface IUserAndProfile {
+  userDb: IUser;
+  userProfileDb: IUserProfile;
+}
+
+export interface IUser extends mongoose.Document {
   psnOnlineId: string;
   email: string;
   password: string;
@@ -12,6 +19,13 @@ export interface IUser extends Document {
 export interface IUserGames {
   userId: Types.ObjectId;
   games: IGame[];
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface IUserGamesTrophies {
+  userId: Types.ObjectId;
+  gamesTrophies: IGameTrophies[];
   createdAt: Date;
   updatedAt: Date;
 }
