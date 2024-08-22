@@ -16,7 +16,7 @@ export interface IUser extends mongoose.Document {
   comparePassword: (enteredPassword: string) => boolean;
 }
 
-export interface IUserGames {
+export interface IUserGames extends mongoose.Document {
   userId: Types.ObjectId;
   games: IGame[];
   createdAt: Date;

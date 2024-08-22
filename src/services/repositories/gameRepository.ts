@@ -1,7 +1,8 @@
 import { MongooseError, Types } from "mongoose";
 
 import { PSN_AUTH } from "@/controllers/authController";
-import { Convert, IGame } from "@/models/interfaces/game";
+import { Convert } from "@/models/interfaces/game";
+import { IUserGames } from "@/models/interfaces/user";
 import { GameIcon } from "@/models/schemas/game";
 import { UserGames } from "@/models/schemas/user";
 import { getTrophyTitles } from "@/services/psnApi/games";
@@ -21,14 +22,14 @@ export const createDbGamesByUser = async (userId: Types.ObjectId) => {
 
     const gamesList = Convert.toIGameArray(psnApiGames);
 
-    await UserGames.create({
+    const userGames = await UserGames.create({
       userId: userId,
       games: gamesList,
       createdAt: new Date(),
       updatedAt: new Date(),
     });
 
-    return gamesList;
+    return userGames as IUserGames;
   } catch (error: unknown) {
     if (error instanceof MongooseError) {
       console.log(error);
@@ -43,10 +44,12 @@ export const createDbGamesByUser = async (userId: Types.ObjectId) => {
  * @param userId
  * @returns
  */
-export const getDbGamesByUser = async (userId: Types.ObjectId) => {
+export const getDbGamesByUserId = async (
+  userId: Types.ObjectId
+): Promise<IUserGames | undefined | MongooseError> => {
   try {
     const userGames = await UserGames.findOne({
-      userId: userId,
+      userId,
     });
     // .populate({
     //   path: "games.gameIconBin",
@@ -54,9 +57,7 @@ export const getDbGamesByUser = async (userId: Types.ObjectId) => {
     //   // model: "gameiscons",
     // });
 
-    const gamesList = Convert.toIGameArray(userGames!.games);
-
-    return gamesList;
+    return userGames as IUserGames;
   } catch (error: unknown) {
     if (error instanceof MongooseError) {
       console.log(error);
@@ -71,7 +72,9 @@ export const getDbGamesByUser = async (userId: Types.ObjectId) => {
  * @param userId
  * @returns
  */
-export const updateDbGamesByUser = async (userId: Types.ObjectId) => {
+export const updateDbGamesByUser = async (
+  userId: Types.ObjectId
+): Promise<IUserGames | undefined | MongooseError> => {
   try {
     // Get the credentials used by psn_api
     const { accessToken, accountId } = PSN_AUTH.getCredentials();
@@ -92,7 +95,7 @@ export const updateDbGamesByUser = async (userId: Types.ObjectId) => {
 
     await userGames?.save();
 
-    return gamesList;
+    return userGames as IUserGames;
   } catch (error: unknown) {
     if (error instanceof MongooseError) {
       console.log(error);
@@ -149,9 +152,11 @@ export const getDbGameIconBinByListOfGamesIds = async (
  * Download the game icon (if not exists yet) and insert as binary data in the collection "gamesicons"
  * aside from the "usergames" collection.
  */
-export const createDbGameIconBin = async (games: IGame[]) => {
+export const createDbGameIconBin = async (userGames: IUserGames) => {
   try {
     let count = 1;
+
+    const games = userGames.games;
 
     for (const game of games) {
       const gamesIconExists = await GameIcon.findOne({

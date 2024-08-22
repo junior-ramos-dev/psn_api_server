@@ -1,7 +1,7 @@
 import { MongooseError, Types } from "mongoose";
 
 import { PSN_AUTH } from "@/controllers/authController";
-import { IUserAndProfile } from "@/models/interfaces/user";
+import { IUser, IUserAndProfile, IUserProfile } from "@/models/interfaces/user";
 import { User, UserProfile } from "@/models/schemas/user";
 
 import { getPsnUserProfileByUsername } from "../psnApi/user";
@@ -133,13 +133,13 @@ export const createDbUserProfile = async (
  * @param userId
  * @returns
  */
-export const getDbUser = async (userId: Types.ObjectId) => {
+export const getDbUser = async (
+  userId: string
+): Promise<IUser | undefined | MongooseError> => {
   try {
-    const user = await User.findById({
-      userId: userId,
-    });
+    const user = await User.findById(userId);
 
-    return user;
+    return user as IUser;
   } catch (error: unknown) {
     if (error instanceof MongooseError) {
       console.log(error);
@@ -154,13 +154,15 @@ export const getDbUser = async (userId: Types.ObjectId) => {
  * @param userId
  * @returns
  */
-export const getDbUserProfile = async (userId: Types.ObjectId) => {
+export const getDbUserProfile = async (
+  userId: Types.ObjectId
+): Promise<IUserProfile | undefined | MongooseError> => {
   try {
     const userProfile = await UserProfile.findById({
       userId: userId,
     });
 
-    return userProfile;
+    return userProfile as IUserProfile;
   } catch (error: unknown) {
     if (error instanceof MongooseError) {
       console.log(error);
