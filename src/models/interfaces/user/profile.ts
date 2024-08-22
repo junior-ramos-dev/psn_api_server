@@ -4,48 +4,51 @@
 //
 //   const iPsnProfile = ConvertIPsnProfile.fromJson(json);
 
+import { Types } from "mongoose";
+
 import { ITrophySummary } from "../trophy";
 
 export interface IProfile {
+  userId: Types.ObjectId;
   onlineId: string;
   accountId: string;
   npId: string;
-  avatarUrls: AvatarURL[];
+  avatarUrls: IAvatarURL[];
   plus: number;
   aboutMe: string;
   languagesUsed: string[];
   trophySummary: ITrophySummary;
   isOfficiallyVerified: boolean;
-  personalDetail: PersonalDetail;
+  personalDetail: IPersonalDetail;
   personalDetailSharing: string;
   personalDetailSharingRequestMessageFlag: boolean;
   primaryOnlineStatus: string;
-  presences: Presence[];
+  presences: IPresence[];
   friendRelation: string;
   requestMessageFlag: boolean;
   blocking: boolean;
   following: boolean;
-  consoleAvailability: ConsoleAvailability;
+  consoleAvailability: IConsoleAvailability;
 }
 
-export interface AvatarURL {
+export interface IAvatarURL {
   size: string;
   avatarUrl: string;
 }
 
-export interface ConsoleAvailability {
-  availabilityStatus: string;
-}
-
-export interface PersonalDetail {
+export interface IPersonalDetail {
   firstName: string;
   lastName: string;
 }
 
-export interface Presence {
+export interface IPresence {
   onlineStatus: string;
   hasBroadcastData: boolean;
   lastOnlineDate: Date;
+}
+
+export interface IConsoleAvailability {
+  availabilityStatus: string;
 }
 
 // Converts JSON strings to/from your types

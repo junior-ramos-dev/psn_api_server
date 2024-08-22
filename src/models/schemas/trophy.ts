@@ -1,6 +1,10 @@
 import { Schema } from "mongoose";
 
-import { ITrophy, ITrophyCount } from "@/models/interfaces/trophy";
+import {
+  ITrophy,
+  ITrophyCount,
+  ITrophySummary,
+} from "@/models/interfaces/trophy";
 
 export const TrophySchema = new Schema<ITrophy>({
   trophyId: {
@@ -76,6 +80,21 @@ export const TrophyCount = new Schema<ITrophyCount>({
   },
   platinum: {
     type: Number,
+    required: true,
+  },
+});
+
+export const TrophySummary = new Schema<ITrophySummary>({
+  level: {
+    type: Number,
+    required: true,
+  },
+  progress: {
+    type: Number,
+    required: true,
+  },
+  earnedTrophies: {
+    type: TrophyCount,
     required: true,
   },
 });
