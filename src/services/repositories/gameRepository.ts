@@ -14,26 +14,27 @@ import { dolwnloadFileToBase64 } from "@/utils/download";
  * @returns
  */
 export const createDbGamesByUser = async (userId: Types.ObjectId) => {
-  // Get the credentials used by psn_api
-  const { accessToken, accountId } = PSN_AUTH.getCredentials();
-  const psnApiGames = await getTrophyTitles(accessToken, accountId);
-
-  const gamesList = Convert.toIGameArray(psnApiGames);
-
   try {
+    // Get the credentials used by psn_api
+    const { accessToken, accountId } = PSN_AUTH.getCredentials();
+    const psnApiGames = await getTrophyTitles(accessToken, accountId);
+
+    const gamesList = Convert.toIGameArray(psnApiGames);
+
     await UserGames.create({
       userId: userId,
       games: gamesList,
       createdAt: new Date(),
       updatedAt: new Date(),
     });
+
+    return gamesList;
   } catch (error: unknown) {
     if (error instanceof MongooseError) {
       console.log(error);
+      return error;
     }
   }
-
-  return gamesList;
 };
 
 /**
@@ -43,18 +44,25 @@ export const createDbGamesByUser = async (userId: Types.ObjectId) => {
  * @returns
  */
 export const getDbGamesByUser = async (userId: Types.ObjectId) => {
-  const userGames = await UserGames.findOne({
-    userId: userId,
-  });
-  // .populate({
-  //   path: "games.gameIconBin",
-  //   select: "iconBinaryData",
-  //   // model: "gameiscons",
-  // });
+  try {
+    const userGames = await UserGames.findOne({
+      userId: userId,
+    });
+    // .populate({
+    //   path: "games.gameIconBin",
+    //   select: "iconBinaryData",
+    //   // model: "gameiscons",
+    // });
 
-  const gamesList = Convert.toIGameArray(userGames!.games);
+    const gamesList = Convert.toIGameArray(userGames!.games);
 
-  return gamesList;
+    return gamesList;
+  } catch (error: unknown) {
+    if (error instanceof MongooseError) {
+      console.log(error);
+      return error;
+    }
+  }
 };
 
 /**
@@ -64,13 +72,13 @@ export const getDbGamesByUser = async (userId: Types.ObjectId) => {
  * @returns
  */
 export const updateDbGamesByUser = async (userId: Types.ObjectId) => {
-  // Get the credentials used by psn_api
-  const { accessToken, accountId } = PSN_AUTH.getCredentials();
-  const psnApiGames = await getTrophyTitles(accessToken, accountId);
-
-  const gamesList = Convert.toIGameArray(psnApiGames);
-
   try {
+    // Get the credentials used by psn_api
+    const { accessToken, accountId } = PSN_AUTH.getCredentials();
+    const psnApiGames = await getTrophyTitles(accessToken, accountId);
+
+    const gamesList = Convert.toIGameArray(psnApiGames);
+
     const userGames = await UserGames.findOneAndUpdate(
       userId,
       {
@@ -83,13 +91,14 @@ export const updateDbGamesByUser = async (userId: Types.ObjectId) => {
     );
 
     await userGames?.save();
+
+    return gamesList;
   } catch (error: unknown) {
     if (error instanceof MongooseError) {
       console.log(error);
+      return error;
     }
   }
-
-  return gamesList;
 };
 
 /**
@@ -99,11 +108,18 @@ export const updateDbGamesByUser = async (userId: Types.ObjectId) => {
  * @returns
  */
 export const getDbGameIconBin = async (npCommunicationId: string) => {
-  const gameIconBin = await GameIcon.findOne({
-    npCommunicationId: npCommunicationId,
-  });
+  try {
+    const gameIconBin = await GameIcon.findOne({
+      npCommunicationId: npCommunicationId,
+    });
 
-  return gameIconBin;
+    return gameIconBin;
+  } catch (error: unknown) {
+    if (error instanceof MongooseError) {
+      console.log(error);
+      return error;
+    }
+  }
 };
 
 /**
@@ -115,11 +131,18 @@ export const getDbGameIconBin = async (npCommunicationId: string) => {
 export const getDbGameIconBinByListOfGamesIds = async (
   npCommIdList: string[]
 ) => {
-  const gameIconBinList = await GameIcon.find({
-    npCommunicationId: { $in: [...npCommIdList] },
-  });
+  try {
+    const gameIconBinList = await GameIcon.find({
+      npCommunicationId: { $in: [...npCommIdList] },
+    });
 
-  return gameIconBinList;
+    return gameIconBinList;
+  } catch (error: unknown) {
+    if (error instanceof MongooseError) {
+      console.log(error);
+      return error;
+    }
+  }
 };
 
 /**
@@ -161,6 +184,7 @@ export const createDbGameIconBin = async (games: IGame[]) => {
   } catch (error: unknown) {
     if (error instanceof MongooseError) {
       console.log(error);
+      return error;
     }
   }
 };
