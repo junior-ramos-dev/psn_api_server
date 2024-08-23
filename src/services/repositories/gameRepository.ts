@@ -1,4 +1,4 @@
-import { MongooseError, Types } from "mongoose";
+import { MongooseError } from "mongoose";
 
 import { PSN_AUTH } from "@/controllers/authController";
 import { Convert } from "@/models/interfaces/game";
@@ -14,7 +14,7 @@ import { dolwnloadFileToBase64 } from "@/utils/download";
  * @param userId
  * @returns
  */
-export const createDbGamesByUser = async (userId: Types.ObjectId) => {
+export const createDbGamesByUser = async (userId: string) => {
   try {
     // Get the credentials used by psn_api
     const { accessToken, accountId } = PSN_AUTH.getCredentials();
@@ -45,12 +45,10 @@ export const createDbGamesByUser = async (userId: Types.ObjectId) => {
  * @returns
  */
 export const getDbGamesByUserId = async (
-  userId: Types.ObjectId
+  userId: string
 ): Promise<IUserGames | undefined | MongooseError> => {
   try {
-    const userGames = await UserGames.findOne({
-      userId,
-    });
+    const userGames = await UserGames.findOne({ userId: userId });
     // .populate({
     //   path: "games.gameIconBin",
     //   select: "iconBinaryData",
@@ -73,7 +71,7 @@ export const getDbGamesByUserId = async (
  * @returns
  */
 export const updateDbGamesByUser = async (
-  userId: Types.ObjectId
+  userId: string
 ): Promise<IUserGames | undefined | MongooseError> => {
   try {
     // Get the credentials used by psn_api
@@ -83,7 +81,7 @@ export const updateDbGamesByUser = async (
     const gamesList = Convert.toIGameArray(psnApiGames);
 
     const userGames = await UserGames.findOneAndUpdate(
-      userId,
+      { userId: userId },
       {
         $set: { games: gamesList, updatedAt: new Date() },
       },

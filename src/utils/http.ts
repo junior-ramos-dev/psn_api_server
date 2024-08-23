@@ -1,6 +1,9 @@
 import chalk from "chalk";
+import etag from "etag";
 import { Request, Response } from "express";
 import fresh from "fresh";
+
+const poll = chalk.blueBright;
 
 enum VERBS {
   GET = "GET",
@@ -65,9 +68,29 @@ export const getBearerTokenFromHeader = (authToken: string) => {
   return authToken.split(" ")[1];
 };
 
-// Helper function to check if Etag is new
-export const isFreshEtagHeader = (req: Request, res: Response) => {
+/**
+ * Helper function to check if Etag is new
+ *
+ * The ETag (or entity tag) HTTP response header is an identifier for a specific version of a resource.
+ * It lets caches be more efficient and save bandwidth, as a web server does not need to resend a full response
+ * if the content was not changed.
+ *
+ * See https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/ETag
+ *
+ * @param req
+ * @param res
+ * @param jsonObj
+ * @returns
+ */
+export const isFreshEtagHeader = (
+  req: Request,
+  res: Response,
+  jsonObj: object
+) => {
   try {
+    res.setHeader("etag", etag(Buffer.from(JSON.stringify(jsonObj))));
+    res.setHeader("if-none-match", etag(Buffer.from(JSON.stringify(jsonObj))));
+
     const resHeader = {
       etag: JSON.parse(res.get("etag")!),
       "if-none-match": JSON.parse(res.get("if-none-match")!),
@@ -84,4 +107,33 @@ export const isFreshEtagHeader = (req: Request, res: Response) => {
   } catch (error) {
     console.log(error);
   }
+};
+
+/**
+ * Set the interval in hours to retrieve data from psn_api
+ *
+ * @param objUpdatedAt
+ * @param intervalHours
+ * @returns
+ */
+export const setPsnApiPollingInterval = (
+  objUpdatedAt: Date,
+  intervalHours: number
+) => {
+  // Interval in hours to request data from psnApi;
+  const psnApiPollingInterval = intervalHours; //hours
+  const currentDate = new Date();
+  const updatedAt = objUpdatedAt;
+
+  // Check the "updatedAt" from UserGames schema to retrieve new data from psnApi after 2 hours
+  const diffHours =
+    Math.abs(currentDate.getTime() - updatedAt.getTime()) / 3600000;
+
+  console.log(poll(`Current Date: ${currentDate.toUTCString()}`));
+  console.log(poll(`Last Update: ${updatedAt.toUTCString()}`));
+  console.log(
+    poll(`Poll interval: ${Math.round(diffHours)}/${psnApiPollingInterval}Hs`)
+  );
+
+  return { diffHours, psnApiPollingInterval };
 };
