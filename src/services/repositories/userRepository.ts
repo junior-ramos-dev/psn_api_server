@@ -175,7 +175,6 @@ export const getDbUserProfile = async (
   }
 };
 
-//TODO
 /**
  * Update the user profile with data from psn_api
  *
@@ -189,5 +188,32 @@ export const updateDbUserProfile = async (
 ): Promise<IUserProfile | undefined | MongooseError> => {
   console.log(userId, onlineId);
 
-  return;
+  try {
+    // Get the credentials used by psn_api
+    const { accessToken } = PSN_AUTH.getCredentials();
+    const userPsnProfile = await getPsnUserProfileByUsername(
+      accessToken,
+      onlineId
+    );
+
+    const updatedProfile = await UserProfile.findOneAndUpdate(
+      { userId: userId },
+      {
+        $set: { ...userPsnProfile, updatedAt: new Date() },
+      },
+      {
+        new: true,
+        timestamps: { createdAt: false, updatedAt: true },
+      }
+    );
+
+    await updatedProfile?.save();
+
+    return updatedProfile as IUserProfile;
+  } catch (error: unknown) {
+    if (error instanceof MongooseError) {
+      console.log(error);
+      return error;
+    }
+  }
 };
