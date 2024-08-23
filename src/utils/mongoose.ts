@@ -1,3 +1,3 @@
 export const isValidId = (id: string) => {
-  return id.match(/^[0-9a-fA-F]{24}$/);
+  return RegExp(/^[0-9a-fA-F]{24}$/).exec(id);
 };

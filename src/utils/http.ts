@@ -132,7 +132,7 @@ export const setPsnApiPollingInterval = (
   console.log(poll(`Current Date: ${currentDate.toUTCString()}`));
   console.log(poll(`Last Update: ${updatedAt.toUTCString()}`));
   console.log(
-    poll(`Poll interval: ${Math.round(diffHours)}/${psnApiPollingInterval}Hs`)
+    poll(`Poll interval: ${Math.round(diffHours)}/${psnApiPollingInterval} Hs`)
   );
 
   return { diffHours, psnApiPollingInterval };
