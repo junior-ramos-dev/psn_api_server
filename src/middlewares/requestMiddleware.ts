@@ -25,8 +25,12 @@ export const validateReq = (method: REQUEST_PROPERTY) => {
 const validateHeaders = [
   header("etag")
     .exists({ values: "undefined" })
-    .withMessage("Missing ETag Header") // you can specify the message to show if a validation has failed
+    .withMessage("Missing 'ETag' Header") // you can specify the message to show if a validation has failed
     .bail(), // not necessary, but it stops execution if previous validation failed
+  header("if-none-match")
+    .exists({ values: "undefined" })
+    .withMessage("Missing 'If-None-Match' Header")
+    .bail(),
   // header("authorization")
   //   .exists({ values: "undefined" })
   //   .withMessage("Missing Authorization Header")
