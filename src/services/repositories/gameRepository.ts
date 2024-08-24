@@ -44,7 +44,7 @@ export const createDbGamesByUser = async (userId: string) => {
  * @param userId
  * @returns
  */
-export const getDbGamesByUserId = async (
+export const getDbGamesListByUserId = async (
   userId: string
 ): Promise<IUserGames | undefined | MongooseError> => {
   try {
@@ -92,6 +92,33 @@ export const updateDbGamesByUser = async (
     );
 
     await userGames?.save();
+
+    return userGames as IUserGames;
+  } catch (error: unknown) {
+    if (error instanceof MongooseError) {
+      console.log(error);
+      return error;
+    }
+  }
+};
+
+/**
+ * Update the lsit of games by user
+ *
+ * @param userId
+ * @returns
+ */
+export const getDbUserGame = async (
+  userId: string,
+  npCommunicationId: string
+): Promise<IUserGames | undefined | MongooseError> => {
+  try {
+    const userGames = await UserGames.findOne({
+      userId: userId,
+      games: {
+        $elemMatch: { npCommunicationId: npCommunicationId },
+      },
+    });
 
     return userGames as IUserGames;
   } catch (error: unknown) {

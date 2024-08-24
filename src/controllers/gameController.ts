@@ -7,7 +7,7 @@ import {
   createDbGamesByUser,
   getDbGameIconBin,
   getDbGameIconBinByListOfGamesIds,
-  getDbGamesByUserId,
+  getDbGamesListByUserId,
   updateDbGamesByUser,
 } from "@/services/repositories/gameRepository";
 import { isFreshEtagHeader, setPsnApiPollingInterval } from "@/utils/http";
@@ -33,20 +33,19 @@ const getGamesByUser = async (req: Request, res: Response) => {
     const userId = req.params["userId"];
 
     if (isValidId(userId)) {
-      const gamesByUser = await getDbGamesByUserId(userId);
+      const gamesByUser = await getDbGamesListByUserId(userId);
 
       if (gamesByUser && !(gamesByUser instanceof MongooseError)) {
         // Interval in hours to request data from psnApi;
-        //TODO Set the diff to 2 hours for prod
-        const { diffHours, psnApiPollingInterval } = setPsnApiPollingInterval(
+        const { diffHours, pollingInterval } = setPsnApiPollingInterval(
           gamesByUser.updatedAt,
-          1000
+          2
         );
 
         const isFreshEtag = isFreshEtagHeader(req, res, gamesByUser);
         console.log("isFreshEtag: ", isFreshEtag);
 
-        if (isFreshEtag && diffHours > psnApiPollingInterval) {
+        if (isFreshEtag && diffHours > pollingInterval) {
           const updatedGames = await updateDbGamesByUser(userId);
 
           if (updatedGames && !(updatedGames instanceof MongooseError)) {
@@ -57,7 +56,7 @@ const getGamesByUser = async (req: Request, res: Response) => {
             console.log("updated userGames on DB");
             res.json(gamesByUser);
           }
-        } else if (isFreshEtag && diffHours < psnApiPollingInterval) {
+        } else if (isFreshEtag && diffHours < pollingInterval) {
           console.log(
             "Not Modified. You can continue using the same cached version of user games list."
           );
