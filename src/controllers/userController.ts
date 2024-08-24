@@ -30,8 +30,7 @@ const getUserById = async (req: Request, res: Response) => {
     }
   } catch (error) {
     console.log(error);
-    res.status(400).json({ error: `MongoDB: User not found: ${error}` });
-    return;
+    return res.status(400).json({ error: `MongoDB: User not found: ${error}` });
   }
 };
 
@@ -47,8 +46,7 @@ const getUserProfileById = async (req: Request, res: Response) => {
   const errors = validationResult(req);
 
   if (!errors.isEmpty()) {
-    res.status(422).json({ errors: errors.array() });
-    return;
+    return res.status(422).json({ errors: errors.array() });
   }
 
   try {
@@ -75,28 +73,26 @@ const getUserProfileById = async (req: Request, res: Response) => {
 
           if (updatedProfile && !(updatedProfile instanceof MongooseError)) {
             console.log("updated userGames on DB");
-            res.json(updatedProfile);
+            return res.json(updatedProfile);
           }
         } else if (isFreshEtag && diffHours < pollingInterval) {
           console.log(
             "Not Modified. You can continue using the same cached version of user profile."
           );
-          res.status(304).send();
+          return res.status(304).send();
         } else if (!isFreshEtag) {
           console.log("returned userGames from DB");
-          res.status(200).json(userProfile);
+          return res.status(200).json(userProfile);
         }
       }
     } else {
-      res.status(400).json({ error: "MongoDB: Invalid user id" });
-      return;
+      return res.status(400).json({ error: "MongoDB: Invalid user id" });
     }
   } catch (error) {
     console.log(error);
-    res
+    return res
       .status(400)
       .json({ error: `MongoDB: User profile not found: ${error}` });
-    return;
   }
 };
 

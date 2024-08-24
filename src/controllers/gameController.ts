@@ -54,7 +54,7 @@ const getGamesByUser = async (req: Request, res: Response) => {
             await createDbGameIconBin(updatedGames);
 
             console.log("updated userGames on DB");
-            res.json(gamesByUser);
+            return res.json(gamesByUser);
           }
         } else if (isFreshEtag && diffHours < pollingInterval) {
           console.log(
@@ -63,7 +63,7 @@ const getGamesByUser = async (req: Request, res: Response) => {
           res.status(304).send();
         } else if (!isFreshEtag) {
           console.log("returned userGames from DB");
-          res.json(gamesByUser);
+          return res.json(gamesByUser);
         }
       } else {
         //TODO Retrieve games from psn_api and persit into DB on register
@@ -75,19 +75,17 @@ const getGamesByUser = async (req: Request, res: Response) => {
           await createDbGameIconBin(createdGames);
 
           console.log("created userGames on DB");
-          res.json(createdGames);
+          return res.json(createdGames);
         }
       }
     } else {
-      res.status(400).json({ error: "MongoDB: Invalid user id" });
-      return;
+      return res.status(400).json({ error: "MongoDB: Invalid user id" });
     }
   } catch (error) {
     console.log(error);
-    res
+    return res
       .status(400)
       .json({ error: `MongoDB: Error getting games by user: ${error}` });
-    return;
   }
 };
 

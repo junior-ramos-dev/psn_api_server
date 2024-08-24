@@ -36,16 +36,14 @@ const registerUser = async (req: Request, res: Response) => {
   const userEmailExists = await User.findOne({ email });
 
   if (usernameExists) {
-    res.status(400).json({
+    return res.status(400).json({
       message: `An account with PSN Username '${psnOnlineId}' already exists!`,
     });
-    return;
   }
   if (userEmailExists) {
-    res
+    return res
       .status(400)
       .json({ message: `An account with email '${email}' already exists!` });
-    return;
   }
 
   const authorization = req.headers["authorization"];
@@ -61,13 +59,13 @@ const registerUser = async (req: Request, res: Response) => {
     if ("userDb" in data) {
       const { userDb } = data;
       generateToken(res, String(userDb._id));
-      res.status(201).json({
+      return res.status(201).json({
         id: userDb._id,
         psnOnlineId: userDb.psnOnlineId,
         email: userDb.email,
       });
     } else {
-      res
+      return res
         .status(400)
         .json({ message: "An error occurred in creating the account" });
     }
@@ -96,13 +94,15 @@ const authenticateUser = async (req: Request, res: Response) => {
     }
 
     generateToken(res, String(user._id));
-    res.status(201).json({
+    return res.status(201).json({
       id: user._id,
       psnOnlineId: user.psnOnlineId,
       email: user.email,
     });
   } else {
-    res.status(401).json({ message: "User not found / password incorrect" });
+    return res
+      .status(401)
+      .json({ message: "User not found / password incorrect" });
   }
 };
 
@@ -111,7 +111,7 @@ const logoutUser = async (req: Request, res: Response) => {
   PSN_AUTH = PsnAuth.clearPsnAuth(PSN_AUTH);
 
   clearToken(res);
-  res.status(200).json({ message: "User logged out" });
+  return res.status(200).json({ message: "User logged out" });
 };
 
 export { authenticateUser, logoutUser, PSN_AUTH, registerUser };

@@ -52,10 +52,10 @@ const getTrophiesByGame = async (req: Request, res: Response) => {
           // await createDbGameIconBin(trophiesByGame);
 
           console.log("updated trophy list by game on DB");
-          res.json(updatedGameTrophies);
+          return res.json(updatedGameTrophies);
         } else if (diffHours < pollingInterval) {
           console.log("returned trophy list by game from DB");
-          res.json(gameTrophies);
+          return res.json(gameTrophies);
         }
       } else {
         const userGamesTrophies = await getOrCreateDbUserGamesTrophies(userId);
@@ -73,11 +73,11 @@ const getTrophiesByGame = async (req: Request, res: Response) => {
           // await createDbGameIconBin(trophiesByGame);
 
           console.log("created trophy list by game on DB");
-          res.json(createdTrophyListByGame);
+          return res.json(createdTrophyListByGame);
         }
       }
     } else {
-      res
+      return res
         .status(400)
         .json({ message: "Unable to get trophy list. Game not found." });
     }
@@ -87,12 +87,12 @@ const getTrophiesByGame = async (req: Request, res: Response) => {
 };
 
 /**
- * Get the list of trophies info for all games from a user (bulk).
+ * Get the list of trophies info for all games from a user (batch).
  *
  * @param req
  * @param res
  */
-const createOrUpdateAllGamesTrophiesBulk = async (
+const createOrUpdateAllGamesTrophiesBatch = async (
   req: Request,
   res: Response
 ) => {
@@ -117,16 +117,10 @@ const createOrUpdateAllGamesTrophiesBulk = async (
 
       if (gameTrophiesExists) {
         // Interval in hours to request data from psnApi;
-        const pollingInterval = 2; //hours
-        const currentDate = new Date();
-        const updatedAt = gameTrophiesExists.updatedAt;
-
-        // Check the "updatedAt" from UserGamesTrophies schema to retrieve new data from psnApi after 2 hours
-        const diffHours =
-          Math.abs(currentDate.getTime() - updatedAt.getTime()) / 3600000;
-
-        console.log(currentDate, updatedAt);
-        console.log(diffHours);
+        const { diffHours, pollingInterval } = setPsnApiPollingInterval(
+          gameTrophies.updatedAt,
+          2
+        );
 
         if (diffHours > pollingInterval) {
           await updateDbUserGamesTrophies(
@@ -149,10 +143,10 @@ const createOrUpdateAllGamesTrophiesBulk = async (
       }
     });
 
-    res.status(200).send("Trophies Lists created/upadted with success.");
+    return res.status(200).send("Trophies Lists created/upadted with success.");
   } catch (error) {
     console.log(error);
   }
 };
 
-export { createOrUpdateAllGamesTrophiesBulk, getTrophiesByGame };
+export { createOrUpdateAllGamesTrophiesBatch, getTrophiesByGame };
