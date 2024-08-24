@@ -17,7 +17,7 @@ import { dolwnloadFileToBase64 } from "@/utils/download";
 export const createDbGamesByUser = async (userId: string) => {
   try {
     // Get the credentials used by psn_api
-    const { accessToken, accountId } = PSN_AUTH.getCredentials();
+    const { accessToken, accountId } = await PSN_AUTH.getCredentials();
     const psnApiGames = await getTrophyTitles(accessToken, accountId);
 
     const gamesList = Convert.toIGameArray(psnApiGames);
@@ -75,7 +75,7 @@ export const updateDbGamesByUser = async (
 ): Promise<IUserGames | undefined | MongooseError> => {
   try {
     // Get the credentials used by psn_api
-    const { accessToken, accountId } = PSN_AUTH.getCredentials();
+    const { accessToken, accountId } = await PSN_AUTH.getCredentials();
     const psnApiGames = await getTrophyTitles(accessToken, accountId);
 
     const gamesList = Convert.toIGameArray(psnApiGames);

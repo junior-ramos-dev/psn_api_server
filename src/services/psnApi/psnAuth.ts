@@ -5,6 +5,8 @@ import {
   exchangeRefreshTokenForAuthTokens,
 } from "psn-api";
 
+import { PsnAuthError } from "@/middlewares/errorMiddleware";
+
 import "dotenv/config";
 
 // const error = chalk.red;
@@ -68,16 +70,20 @@ export class PsnAuth {
    *
    * @returns `PsnApiCredentials`
    */
-  getCredentials = () => {
-    if (this.accessTokenHasExpired()) {
-      this.psnAuthFactory();
-    }
-    const psnApiCredentials: PsnApiCredentials = {
-      accessToken: this.psnAuthTokensResponse.accessToken,
-      accountId: this.accountId,
-    };
+  getCredentials = async () => {
+    try {
+      if (this.accessTokenHasExpired()) {
+        await this.psnAuthFactory();
+      }
+      const psnApiCredentials: PsnApiCredentials = {
+        accessToken: this.psnAuthTokensResponse.accessToken,
+        accountId: this.accountId,
+      };
 
-    return psnApiCredentials;
+      return psnApiCredentials;
+    } catch (error) {
+      throw new PsnAuthError(`${error}`);
+    }
   };
 
   /**
@@ -142,7 +148,7 @@ export class PsnAuth {
 
     return new Promise((resolve, reject) => {
       if (!this.psnAuthTokensResponse && this.isAccessTokenExpired) {
-        return reject(new Error("Failed to get PSN access token."));
+        return reject(new PsnAuthError("Failed to get PSN access token."));
       }
 
       return resolve(this);
@@ -219,7 +225,7 @@ const authenticatePsn = async (
 
   return new Promise((resolve, reject) => {
     if (!iPsnAuthTokensResponse)
-      return reject(new Error("Invalid PSN auth credentials."));
+      return reject(new PsnAuthError("Invalid PSN auth credentials."));
 
     return resolve(iPsnAuthTokensResponse);
   });

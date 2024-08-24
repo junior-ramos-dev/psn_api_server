@@ -30,7 +30,7 @@ export const createDbUserAndProfile = async (
     }).save(opts);
 
     // Get the credentials used by psn_api
-    const { accessToken } = PSN_AUTH.getCredentials();
+    const { accessToken } = await PSN_AUTH.getCredentials();
     const userPsnProfile = await getPsnUserProfileByUsername(
       accessToken,
       psnOnlineId
@@ -107,7 +107,7 @@ export const createDbUserProfile = async (
 ) => {
   try {
     // Get the credentials used by psn_api
-    const { accessToken } = PSN_AUTH.getCredentials();
+    const { accessToken } = await PSN_AUTH.getCredentials();
     const userPsnProfile = await getPsnUserProfileByUsername(
       accessToken,
       psnOnlineId
@@ -190,7 +190,7 @@ export const updateDbUserProfile = async (
 
   try {
     // Get the credentials used by psn_api
-    const { accessToken } = PSN_AUTH.getCredentials();
+    const { accessToken } = await PSN_AUTH.getCredentials();
     const userPsnProfile = await getPsnUserProfileByUsername(
       accessToken,
       onlineId
