@@ -4,6 +4,7 @@ import jwt from "jsonwebtoken";
 import { User } from "@/models/schemas/user";
 import { PsnAuth } from "@/services/psnApi/psnAuth";
 import { createDbUserAndProfile } from "@/services/repositories/userRepository";
+import { IS_NODE_ENV_PRODUCTION } from "@/utils/env";
 import { getBearerTokenFromHeader } from "@/utils/http";
 
 let PSN_AUTH: PsnAuth;
@@ -16,7 +17,7 @@ const generateToken = (res: Response, userId: string) => {
 
   res.cookie("jwt", token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV !== "development",
+    secure: IS_NODE_ENV_PRODUCTION,
     sameSite: "strict",
     maxAge: 60 * 60 * 1000,
   });
