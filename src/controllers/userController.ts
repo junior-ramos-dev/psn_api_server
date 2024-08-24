@@ -59,16 +59,15 @@ const getUserProfileById = async (req: Request, res: Response) => {
 
       if (userProfile && !(userProfile instanceof MongooseError)) {
         // Interval in hours to request data from psnApi;
-        //TODO Set the diff to 2 hours for prod
-        const { diffHours, psnApiPollingInterval } = setPsnApiPollingInterval(
+        const { diffHours, pollingInterval } = setPsnApiPollingInterval(
           userProfile.updatedAt,
-          1000
+          2
         );
 
         const isFreshEtag = isFreshEtagHeader(req, res, userProfile);
         console.log("isFreshEtag: ", isFreshEtag);
 
-        if (isFreshEtag && diffHours > psnApiPollingInterval) {
+        if (isFreshEtag && diffHours > pollingInterval) {
           const updatedProfile = await updateDbUserProfile(
             userId,
             userProfile.onlineId
@@ -78,7 +77,7 @@ const getUserProfileById = async (req: Request, res: Response) => {
             console.log("updated userGames on DB");
             res.json(updatedProfile);
           }
-        } else if (isFreshEtag && diffHours < psnApiPollingInterval) {
+        } else if (isFreshEtag && diffHours < pollingInterval) {
           console.log(
             "Not Modified. You can continue using the same cached version of user profile."
           );
