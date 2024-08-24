@@ -11,6 +11,7 @@ export const GameSchema = new Schema<IGame>(
       type: String,
       required: true,
       unique: true,
+      index: true,
     },
     npServiceName: {
       type: String,
@@ -86,6 +87,7 @@ const GameIconSchema = new Schema<IGameIcon>(
       type: String,
       required: true,
       unique: true,
+      index: true,
     },
     trophyTitleName: {
       type: String,
@@ -112,18 +114,18 @@ const GameIconSchema = new Schema<IGameIcon>(
 );
 
 // Model for the list of trophies from a game
-const GameTrophiesSchema = new Schema<IGameTrophies>(
+export const GameTrophiesSchema = new Schema<IGameTrophies>(
   {
-    userId: {
-      type: Schema.Types.ObjectId,
-      ref: "User",
-    },
     npCommunicationId: {
       type: String,
       required: true,
       unique: true,
+      index: true,
     },
-    trophies: [TrophySchema],
+    trophies: {
+      type: [TrophySchema],
+      required: true,
+    },
     createdAt: {
       type: Date,
       required: true,
@@ -136,7 +138,10 @@ const GameTrophiesSchema = new Schema<IGameTrophies>(
   { timestamps: true }
 );
 
-const GameIcon = mongoose.model("GameIcon", GameIconSchema);
-const GameTrophies = mongoose.model("GameTrophies", GameTrophiesSchema);
+const GameIcon = mongoose.model<IGameIcon>("GameIcon", GameIconSchema);
+const GameTrophies = mongoose.model<IGameTrophies>(
+  "GameTrophies",
+  GameTrophiesSchema
+);
 
 export { GameIcon, GameTrophies };

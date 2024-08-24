@@ -1,4 +1,4 @@
-import { Types } from "mongoose";
+import mongoose from "mongoose";
 
 import { ITrophy, ITrophyCount } from "./trophy";
 
@@ -19,8 +19,7 @@ export interface IGame {
   lastUpdatedDateTime: Date;
 }
 
-export interface IGameTrophies {
-  userId: Types.ObjectId;
+export interface IGameTrophies extends mongoose.Document {
   npCommunicationId: string;
   trophies: ITrophy[];
   createdAt: Date;

@@ -1,4 +1,4 @@
 import { UserProfile } from "./profile";
-import { User, UserGames } from "./user";
+import { User, UserGames, UserGamesTrophies } from "./user";
 
-export { User, UserGames, UserProfile };
+export { User, UserGames, UserGamesTrophies, UserProfile };

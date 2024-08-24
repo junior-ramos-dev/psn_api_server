@@ -1,11 +1,15 @@
 import bcrypt from "bcryptjs";
 import mongoose, { Schema } from "mongoose";
 
-import { IUser, IUserGames } from "@/models/interfaces/user/user";
+import {
+  IUser,
+  IUserGames,
+  IUserGamesTrophies,
+} from "@/models/interfaces/user/user";
 
-import { GameSchema } from "../game";
+import { GameSchema, GameTrophiesSchema } from "../game";
 
-const userSchema = new Schema<IUser>({
+const UserSchema = new Schema<IUser>({
   psnOnlineId: {
     type: String,
     required: true,
@@ -22,7 +26,7 @@ const userSchema = new Schema<IUser>({
   },
 });
 
-userSchema.pre("save", async function (next) {
+UserSchema.pre("save", async function (next) {
   if (!this.isModified("password")) {
     next();
   }
@@ -31,7 +35,7 @@ userSchema.pre("save", async function (next) {
   this.password = await bcrypt.hash(this.password, salt);
 });
 
-userSchema.methods.comparePassword = async function (enteredPassword: string) {
+UserSchema.methods.comparePassword = async function (enteredPassword: string) {
   return await bcrypt.compare(enteredPassword, this.password);
 };
 
@@ -41,6 +45,8 @@ const UserGamesSchema = new Schema<IUserGames>(
     userId: {
       type: Schema.Types.ObjectId,
       ref: "User",
+      userId: true,
+      index: true,
     },
     games: [GameSchema],
     createdAt: {
@@ -55,7 +61,36 @@ const UserGamesSchema = new Schema<IUserGames>(
   { timestamps: true }
 );
 
-const User = mongoose.model("User", userSchema);
-const UserGames = mongoose.model("UserGames", UserGamesSchema);
+// Model for all game's trophy list from a user
+const UserGamesTrophiesSchema = new Schema<IUserGamesTrophies>(
+  {
+    userId: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      unique: true,
+      index: true,
+    },
+    gamesTrophies: {
+      type: [GameTrophiesSchema],
+      default: [],
+    },
+    createdAt: {
+      type: Date,
+      required: true,
+    },
+    updatedAt: {
+      type: Date,
+      required: true,
+    },
+  },
+  { timestamps: true }
+);
 
-export { User, UserGames };
+const User = mongoose.model<IUser>("User", UserSchema);
+const UserGames = mongoose.model<IUserGames>("UserGames", UserGamesSchema);
+const UserGamesTrophies = mongoose.model<IUserGamesTrophies>(
+  "UserGamesTrophies",
+  UserGamesTrophiesSchema
+);
+
+export { User, UserGames, UserGamesTrophies };

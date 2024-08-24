@@ -59,11 +59,14 @@ const ProfileSchema = new Schema<IUserProfile>(
     userId: {
       type: Schema.Types.ObjectId,
       ref: "User",
+      unique: true,
+      index: true,
     },
     onlineId: {
       type: String,
       required: true,
       unique: true,
+      index: true,
     },
     accountId: {
       type: String,
