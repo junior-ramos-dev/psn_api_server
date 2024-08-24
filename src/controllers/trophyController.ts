@@ -1,12 +1,14 @@
 import { Request, Response } from "express";
 
-import { GameTrophies } from "@/models/schemas/game";
-import { User, UserGames } from "@/models/schemas/user";
+import { UserGames, UserGamesTrophies } from "@/models/schemas/user";
+import { getDbUserGame } from "@/services/repositories/gameRepository";
 import {
-  createDbTrophiesByGame,
-  getDbTrophiesByGame,
-  updateDbTrophiesByGame,
+  createDbTrophyListByGame,
+  getDbTrophyListByGame,
+  getOrCreateDbUserGamesTrophies,
+  updateDbUserGamesTrophies,
 } from "@/services/repositories/trophyRepository";
+import { setPsnApiPollingInterval } from "@/utils/http";
 
 /**
  * Get trophy list by Game ID and Game Platform
@@ -20,63 +22,64 @@ const getTrophiesByGame = async (req: Request, res: Response) => {
     const userId = req.params["userId"];
     const npCommunicationId = req.params["npCommunicationId"];
     const trophyTitlePlatform = req.params["trophyTitlePlatform"];
-    const user = await User.findById(userId);
+    // const user = await User.findById(userId);
 
-    const gameTrophiesExists = await GameTrophies.findOne({
-      userId: user!._id,
-      npCommunicationId: npCommunicationId,
-    }).lean();
+    const userGame = await getDbUserGame(userId, npCommunicationId);
 
-    let trophiesByGame;
+    if (userGame) {
+      const gameTrophies = await getDbTrophyListByGame(
+        userId,
+        npCommunicationId
+      );
 
-    if (gameTrophiesExists) {
-      trophiesByGame = await getDbTrophiesByGame(user!._id, npCommunicationId);
-
-      // Interval in hours to request data from psnApi;
-      //TODO Set the diff to 2 hours for prod
-      const psnApiPollingInterval = 1000; //hours
-      const currentDate = new Date();
-      const updatedAt = gameTrophiesExists.updatedAt;
-
-      // Check the "updatedAt" from GameTrophies schema to retrieve new data from psnApi after 2 hours
-      const diffHours =
-        Math.abs(currentDate.getTime() - updatedAt.getTime()) / 3600000;
-
-      console.log(currentDate, updatedAt);
-      console.log(diffHours);
-
-      if (diffHours > psnApiPollingInterval) {
-        trophiesByGame = await updateDbTrophiesByGame(
-          user!._id,
-          npCommunicationId,
-          trophyTitlePlatform
+      if (gameTrophies) {
+        // Interval in hours to request data from psnApi;
+        const { diffHours, pollingInterval } = setPsnApiPollingInterval(
+          gameTrophies.updatedAt,
+          2
         );
 
-        // Download and update (if not exists yet) the trophy image (trophyIconUrl)
-        // and insert as binary data in the collection "trophiesicons"
-        //TODO Update to create trophies icons
-        // await createDbGameIconBin(trophiesByGame);
+        if (diffHours > pollingInterval) {
+          const updatedGameTrophies = await updateDbUserGamesTrophies(
+            userId,
+            npCommunicationId,
+            trophyTitlePlatform
+          );
 
-        console.log("updated gameTrophies on DB");
-        res.json(trophiesByGame);
-      } else if (diffHours < psnApiPollingInterval) {
-        console.log("returned gameTrophies from DB");
-        res.json(trophiesByGame);
+          // Download and update (if not exists yet) the trophy image (trophyIconUrl)
+          // and insert as binary data in the collection "trophiesicons"
+          //TODO Update to create trophies icons
+          // await createDbGameIconBin(trophiesByGame);
+
+          console.log("updated trophy list by game on DB");
+          res.json(updatedGameTrophies);
+        } else if (diffHours < pollingInterval) {
+          console.log("returned trophy list by game from DB");
+          res.json(gameTrophies);
+        }
+      } else {
+        const userGamesTrophies = await getOrCreateDbUserGamesTrophies(userId);
+
+        if (userGamesTrophies) {
+          const createdTrophyListByGame = await createDbTrophyListByGame(
+            userId,
+            npCommunicationId,
+            trophyTitlePlatform
+          );
+
+          // Download and create (if not exists yet) the trophy image (trophyIconUrl)
+          // and insert as binary data in the collection "trophiesicons"
+          //TODO Update to create trophies icons
+          // await createDbGameIconBin(trophiesByGame);
+
+          console.log("created trophy list by game on DB");
+          res.json(createdTrophyListByGame);
+        }
       }
     } else {
-      trophiesByGame = await createDbTrophiesByGame(
-        user!._id,
-        npCommunicationId,
-        trophyTitlePlatform
-      );
-      console.log("created gameTrophies on DB");
-
-      // Download and create (if not exists yet) the trophy image (trophyIconUrl)
-      // and insert as binary data in the collection "trophiesicons"
-      //TODO Update to create trophies icons
-      // await createDbGameIconBin(trophiesByGame);
-
-      res.json(trophiesByGame);
+      res
+        .status(400)
+        .json({ message: "Unable to get trophy list. Game not found." });
     }
   } catch (error) {
     console.log(error);
@@ -95,10 +98,10 @@ const createOrUpdateAllGamesTrophiesBulk = async (
 ) => {
   try {
     const userId = req.params["userId"];
-    const user = await User.findById(userId);
+    // const user = await User.findById(userId);
 
     const trophiesListParams = await UserGames.findOne({
-      userId: user!._id,
+      userId: userId,
     }).select({
       userId: 1,
       "games.npCommunicationId": 1,
@@ -107,27 +110,27 @@ const createOrUpdateAllGamesTrophiesBulk = async (
     // res.send(trohiesListParams);
 
     trophiesListParams?.games.forEach(async (params) => {
-      const gameTrophiesExists = await GameTrophies.findOne({
-        userId: user!._id,
+      const gameTrophiesExists = await UserGamesTrophies.findOne({
+        userId: userId,
         npCommunicationId: params.npCommunicationId,
       }).lean();
 
       if (gameTrophiesExists) {
         // Interval in hours to request data from psnApi;
-        const psnApiPollingInterval = 2; //hours
+        const pollingInterval = 2; //hours
         const currentDate = new Date();
         const updatedAt = gameTrophiesExists.updatedAt;
 
-        // Check the "updatedAt" from GameTrophies schema to retrieve new data from psnApi after 2 hours
+        // Check the "updatedAt" from UserGamesTrophies schema to retrieve new data from psnApi after 2 hours
         const diffHours =
           Math.abs(currentDate.getTime() - updatedAt.getTime()) / 3600000;
 
         console.log(currentDate, updatedAt);
         console.log(diffHours);
 
-        if (diffHours > psnApiPollingInterval) {
-          await updateDbTrophiesByGame(
-            user!._id,
+        if (diffHours > pollingInterval) {
+          await updateDbUserGamesTrophies(
+            userId,
             params.npCommunicationId,
             params.trophyTitlePlatform
           );
@@ -135,11 +138,12 @@ const createOrUpdateAllGamesTrophiesBulk = async (
           console.log(`Updated ${params.npCommunicationId} gameTrophies on DB`);
         }
       } else {
-        await createDbTrophiesByGame(
-          user!._id,
-          params.npCommunicationId,
-          params.trophyTitlePlatform
-        );
+        //TODO Fixme
+        // await getOrCreateDbUserGamesTrophies(
+        //   userId,
+        //   params.npCommunicationId,
+        //   params.trophyTitlePlatform
+        // );
 
         console.log(`Created ${params.npCommunicationId} gameTrophies on DB`);
       }

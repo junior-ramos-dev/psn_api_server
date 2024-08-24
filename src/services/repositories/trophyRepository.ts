@@ -2,6 +2,7 @@ import { MongooseError, Types } from "mongoose";
 
 import { PSN_AUTH } from "@/controllers/authController";
 import { GameTrophies } from "@/models/schemas/game";
+import { UserGamesTrophies } from "@/models/schemas/user/user";
 import { getGameTrophiesInfo } from "@/services/psnApi/trophies";
 
 /**
@@ -12,38 +13,130 @@ import { getGameTrophiesInfo } from "@/services/psnApi/trophies";
  * @param trophyTitlePlatform
  * @returns
  */
-export const createDbTrophiesByGame = async (
-  userId: Types.ObjectId,
+export const getOrCreateDbUserGamesTrophies = async (userId: string) => {
+  try {
+    const userGamesTrophies = await UserGamesTrophies.findOne({
+      userId: userId,
+    });
+
+    if (userGamesTrophies) {
+      return userGamesTrophies;
+    } else {
+      const createdUserGamesTrophies = await UserGamesTrophies.create({
+        userId: userId,
+        gamesTrophies: [],
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+
+      return createdUserGamesTrophies;
+    }
+  } catch (error: unknown) {
+    if (error instanceof MongooseError) {
+      console.log(error);
+      return error;
+    }
+  }
+};
+
+/**
+ * Create the list of trophies by game
+ *
+ * @param userId
+ * @param npCommunicationId
+ * @param trophyTitlePlatform
+ * @returns
+ */
+export const createDbTrophyListByGame = async (
+  userId: string,
   npCommunicationId: string,
   trophyTitlePlatform: string
 ) => {
-  // Get the credentials used by psn_api
-  const { accessToken, accountId } = PSN_AUTH.getCredentials();
-  const psnApiTrophyList = await getGameTrophiesInfo(
-    accessToken,
-    accountId,
-    npCommunicationId,
-    trophyTitlePlatform
-  );
-  // const gamesList = Convert.toIGameArray(psnApiGames);
-
-  let gameTrophiesList;
-
   try {
-    gameTrophiesList = await GameTrophies.create({
-      userId: userId,
+    // Get the credentials used by psn_api
+    const { accessToken, accountId } = await PSN_AUTH.getCredentials();
+    const psnApiTrophyList = await getGameTrophiesInfo(
+      accessToken,
+      accountId,
+      npCommunicationId,
+      trophyTitlePlatform
+    );
+
+    const gameTrophyList = new GameTrophies({
       npCommunicationId: npCommunicationId,
       trophies: psnApiTrophyList,
       createdAt: new Date(),
       updatedAt: new Date(),
     });
+
+    const query = {
+      userId: userId,
+      "gamesTrophies.npCommunicationId": { $ne: npCommunicationId },
+    };
+
+    const update = { $push: { gamesTrophies: gameTrophyList } };
+    // const options = { upsert: true, new: true, setDefaultsOnInsert: true };
+    await UserGamesTrophies.findOneAndUpdate(query, update);
+
+    return gameTrophyList;
   } catch (error: unknown) {
     if (error instanceof MongooseError) {
       console.log(error);
+      return error;
     }
   }
+};
 
-  return gameTrophiesList;
+/**
+ * Update the list of trophies by game
+ *
+ * @param userId
+ * @param npCommunicationId
+ * @param trophyTitlePlatform
+ * @returns
+ */
+export const updateDbUserGamesTrophies = async (
+  userId: string,
+  npCommunicationId: string,
+  trophyTitlePlatform: string
+) => {
+  try {
+    // Get the credentials used by psn_api
+    const { accessToken, accountId } = await PSN_AUTH.getCredentials();
+    const psnApiTrophyList = await getGameTrophiesInfo(
+      accessToken,
+      accountId,
+      npCommunicationId,
+      trophyTitlePlatform
+    );
+
+    const gameTrophiesList = await UserGamesTrophies.findOneAndUpdate(
+      {
+        userId: userId,
+      },
+      {
+        $set: {
+          "gamesTrophies.$[e1].trophies": psnApiTrophyList,
+          updatedAt: new Date(),
+        },
+      },
+      {
+        upsert: true,
+        new: true,
+        arrayFilters: [{ "e1.npCommunicationId": npCommunicationId }],
+        timestamps: { createdAt: false, updatedAt: true },
+      }
+    );
+
+    await gameTrophiesList?.save();
+
+    return gameTrophiesList;
+  } catch (error: unknown) {
+    if (error instanceof MongooseError) {
+      console.log(error);
+      return error;
+    }
+  }
 };
 
 /**
@@ -53,99 +146,58 @@ export const createDbTrophiesByGame = async (
  * @param npCommunicationId
  * @returns
  */
-export const getDbTrophiesByGame = async (
-  userId: Types.ObjectId,
+export const getDbTrophyListByGame = async (
+  userId: string,
   npCommunicationId: string
 ) => {
-  const gameTrophiesList = await GameTrophies.findOne({
-    userId: userId,
-    npCommunicationId: npCommunicationId,
-  });
-  // const gamesList = Convert.toIGameArray(userGames!.games);
-
-  return gameTrophiesList;
-};
-
-export const updateDbTrophiesByGame = async (
-  userId: Types.ObjectId,
-  npCommunicationId: string,
-  trophyTitlePlatform: string
-) => {
-  // Get the credentials used by psn_api
-  const { accessToken, accountId } = PSN_AUTH.getCredentials();
-  const psnApiTrophyList = await getGameTrophiesInfo(
-    accessToken,
-    accountId,
-    npCommunicationId,
-    trophyTitlePlatform
-  );
-  // const gamesList = Convert.toIGameArray(psnApiGames);
-  let gameTrophiesList;
-
   try {
-    gameTrophiesList = await GameTrophies.findOneAndUpdate(
-      { userId: userId, npCommunicationId: npCommunicationId },
+    const gameTrophies = await UserGamesTrophies.aggregate([
+      // Match the documents by query
       {
-        $set: { games: psnApiTrophyList, updatedAt: new Date() },
+        $match: {
+          userId: new Types.ObjectId(userId),
+          "gamesTrophies.npCommunicationId": npCommunicationId,
+        },
+      },
+      // De-normalize nested array
+      {
+        $unwind: "$gamesTrophies",
       },
       {
-        new: true,
-        timestamps: { createdAt: false, updatedAt: true },
-      }
-    );
+        $unwind: "$gamesTrophies.trophies",
+      },
+      // Group the intermediate result.
+      {
+        $group: {
+          _id: "$gamesTrophies._id",
+          userId: {
+            $first: "$userId",
+          },
+          npCommunicationId: {
+            $first: "$gamesTrophies.npCommunicationId",
+          },
+          trophies: {
+            $push: "$gamesTrophies.trophies",
+          },
+          createdAt: {
+            $first: "$gamesTrophies.createdAt",
+          },
+          updatedAt: {
+            $first: "$gamesTrophies.updatedAt",
+          },
+        },
+      },
+    ]).then((result) => result[0]);
 
-    await gameTrophiesList?.save();
+    return gameTrophies;
   } catch (error: unknown) {
     if (error instanceof MongooseError) {
       console.log(error);
+      return error;
     }
   }
-
-  return gameTrophiesList;
 };
 
 //TODO Get the list of trophies stats for each of the user's titles (bulk).
 // Get the list of trophies stats for each of the user's titles.
-// const getAllGamesTrophiesInfoList = async (): Promise<GameStats[]> => {
-//   let mergedTrophiesList: GameStats[] = [];
-
-//   for (const game of trophyTitles) {
-//     const gameTrophies = await getGameTrophiesList(
-//       accessToken,
-//       npCommunicationId,
-//       trophyTitlePlatform
-//     );
-
-//     const gameEarnedTrophies = await getGameTrophiesEarnedList(
-//       accessToken,
-//       accountId,
-//       npCommunicationId,
-//       trophyTitlePlatform
-//     );
-
-//     if (gameTrophies !== undefined && gameEarnedTrophies !== undefined) {
-//       const mergedTrophies = mergeTrophyLists(gameTrophies, gameEarnedTrophies);
-
-//       const trophyList = new Array<TrophyInfo>();
-
-//       mergedTrophies.forEach((obj) => {
-//         let item = JSON.stringify(obj);
-//         let trophyItem = ConvertTrophyInfo.toTrophyInfo(item);
-//         trophyList.push(trophyItem);
-//       });
-
-//       const gameStats = new GameStats(
-//         game.trophyTitleName,
-//         game.trophyTitlePlatform,
-//         game.definedTrophies,
-//         game.earnedTrophies,
-//         trophyList
-//       );
-
-//       mergedTrophiesList.push(gameStats);
-//     }
-//   }
-//   return new Promise((resolve, reject) => {
-//     return resolve(mergedTrophiesList);
-//   });
-// };
+// const getAllGamesTrophiesInfoList = async (): Promise<GameStats[]> => {};
