@@ -2,9 +2,10 @@ import { NextFunction, Request, Response } from "express";
 import asyncHandler from "express-async-handler";
 import jwt, { JwtPayload } from "jsonwebtoken";
 
+import { PSN_AUTH } from "@/controllers/authController";
 import { User } from "@/models/schemas/user";
 
-import { AuthenticationError } from "./errorMiddleware";
+import { AuthenticationError, PsnAuthError } from "./errorMiddleware";
 
 const authenticate = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -28,10 +29,18 @@ const authenticate = asyncHandler(
         throw new AuthenticationError("User not found");
       }
 
+      if (!PSN_AUTH) {
+        throw new PsnAuthError("Failed retrieving PSN API credentials");
+      }
+
       req.user = user;
       next();
     } catch (error) {
-      throw new AuthenticationError(`Invalid token: ${error}`);
+      if (error instanceof AuthenticationError) {
+        throw new AuthenticationError(`Invalid token: ${error}`);
+      } else if (error instanceof PsnAuthError) {
+        throw new PsnAuthError(`Invalid credentials: ${error.message}`);
+      }
     }
   }
 );
