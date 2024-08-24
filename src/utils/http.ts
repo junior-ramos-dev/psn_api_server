@@ -3,6 +3,8 @@ import etag from "etag";
 import { Request, Response } from "express";
 import fresh from "fresh";
 
+import { IS_NODE_ENV_PRODUCTION } from "./env";
+
 const poll = chalk.blueBright;
 
 enum VERBS {
@@ -120,8 +122,12 @@ export const setPsnApiPollingInterval = (
   objUpdatedAt: Date,
   intervalHours: number
 ) => {
+  const developmentInterval = 1000; //hours
+
   // Interval in hours to request data from psnApi;
-  const psnApiPollingInterval = intervalHours; //hours
+  const pollingInterval = IS_NODE_ENV_PRODUCTION
+    ? intervalHours
+    : developmentInterval;
   const currentDate = new Date();
   const updatedAt = objUpdatedAt;
 
@@ -132,8 +138,8 @@ export const setPsnApiPollingInterval = (
   console.log(poll(`Current Date: ${currentDate.toUTCString()}`));
   console.log(poll(`Last Update: ${updatedAt.toUTCString()}`));
   console.log(
-    poll(`Poll interval: ${Math.round(diffHours)}/${psnApiPollingInterval} Hs`)
+    poll(`Poll interval: ${Math.round(diffHours)}/${pollingInterval} Hs`)
   );
 
-  return { diffHours, psnApiPollingInterval };
+  return { diffHours, pollingInterval };
 };
