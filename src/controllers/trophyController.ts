@@ -1,14 +1,18 @@
 import { Request, Response } from "express";
+import _ from "lodash";
+import { MongooseError } from "mongoose";
 
-import { UserGames, UserGamesTrophies } from "@/models/schemas/user";
+import { UserGames } from "@/models/schemas/user";
 import { getDbUserGame } from "@/services/repositories/gameRepository";
 import {
   createDbTrophyListByGame,
+  execUpsertBulkTrophiesList,
   getDbTrophyListByGame,
   getOrCreateDbUserGamesTrophies,
   updateDbUserGamesTrophies,
 } from "@/services/repositories/trophyRepository";
 import { setPsnApiPollingInterval } from "@/utils/http";
+import { isValidId } from "@/utils/mongoose";
 
 /**
  * Get trophy list by Game ID and Game Platform
@@ -24,62 +28,68 @@ const getTrophiesByGame = async (req: Request, res: Response) => {
     const trophyTitlePlatform = req.params["trophyTitlePlatform"];
     // const user = await User.findById(userId);
 
-    const userGame = await getDbUserGame(userId, npCommunicationId);
+    if (isValidId(userId)) {
+      const userGame = await getDbUserGame(userId, npCommunicationId);
 
-    if (userGame) {
-      const gameTrophies = await getDbTrophyListByGame(
-        userId,
-        npCommunicationId
-      );
-
-      if (gameTrophies) {
-        // Interval in hours to request data from psnApi;
-        const { diffHours, pollingInterval } = setPsnApiPollingInterval(
-          gameTrophies.updatedAt,
-          2
+      if (userGame) {
+        const gameTrophies = await getDbTrophyListByGame(
+          userId,
+          npCommunicationId
         );
 
-        if (diffHours > pollingInterval) {
-          const updatedGameTrophies = await updateDbUserGamesTrophies(
-            userId,
-            npCommunicationId,
-            trophyTitlePlatform
+        if (gameTrophies) {
+          // Interval in hours to request data from psnApi;
+          const { diffHours, pollingInterval } = setPsnApiPollingInterval(
+            gameTrophies.updatedAt,
+            2
           );
 
-          // Download and update (if not exists yet) the trophy image (trophyIconUrl)
-          // and insert as binary data in the collection "trophiesicons"
-          //TODO Update to create trophies icons
-          // await createDbGameIconBin(trophiesByGame);
+          if (diffHours > pollingInterval) {
+            const updatedGameTrophies = await updateDbUserGamesTrophies(
+              userId,
+              npCommunicationId,
+              trophyTitlePlatform
+            );
 
-          console.log("updated trophy list by game on DB");
-          return res.json(updatedGameTrophies);
-        } else if (diffHours < pollingInterval) {
-          console.log("returned trophy list by game from DB");
-          return res.json(gameTrophies);
+            // Download and update (if not exists yet) the trophy image (trophyIconUrl)
+            // and insert as binary data in the collection "trophiesicons"
+            //TODO Update to create trophies icons
+            // await createDbGameIconBin(trophiesByGame);
+
+            console.log("updated trophy list by game on DB");
+            return res.json(updatedGameTrophies);
+          } else if (diffHours < pollingInterval) {
+            console.log("returned trophy list by game from DB");
+            return res.json(gameTrophies);
+          }
+        } else {
+          const userGamesTrophies = await getOrCreateDbUserGamesTrophies(
+            userId
+          );
+
+          if (userGamesTrophies) {
+            const createdTrophyListByGame = await createDbTrophyListByGame(
+              userId,
+              npCommunicationId,
+              trophyTitlePlatform
+            );
+
+            // Download and create (if not exists yet) the trophy image (trophyIconUrl)
+            // and insert as binary data in the collection "trophiesicons"
+            //TODO Update to create trophies icons
+            // await createDbGameIconBin(trophiesByGame);
+
+            console.log("created trophy list by game on DB");
+            return res.json(createdTrophyListByGame);
+          }
         }
       } else {
-        const userGamesTrophies = await getOrCreateDbUserGamesTrophies(userId);
-
-        if (userGamesTrophies) {
-          const createdTrophyListByGame = await createDbTrophyListByGame(
-            userId,
-            npCommunicationId,
-            trophyTitlePlatform
-          );
-
-          // Download and create (if not exists yet) the trophy image (trophyIconUrl)
-          // and insert as binary data in the collection "trophiesicons"
-          //TODO Update to create trophies icons
-          // await createDbGameIconBin(trophiesByGame);
-
-          console.log("created trophy list by game on DB");
-          return res.json(createdTrophyListByGame);
-        }
+        return res
+          .status(400)
+          .json({ message: "Unable to get trophy list. Game not found." });
       }
     } else {
-      return res
-        .status(400)
-        .json({ message: "Unable to get trophy list. Game not found." });
+      return res.status(400).json({ error: "MongoDB: Invalid user id" });
     }
   } catch (error) {
     console.log(error);
@@ -87,66 +97,101 @@ const getTrophiesByGame = async (req: Request, res: Response) => {
 };
 
 /**
- * Get the list of trophies info for all games from a user (batch).
+ * Insert or Update the list of trophies for all games from a user (bulk).
  *
  * @param req
  * @param res
  */
-const createOrUpdateAllGamesTrophiesBatch = async (
-  req: Request,
-  res: Response
-) => {
+const upsertTrophiesForAllGamesBulk = async (req: Request, res: Response) => {
   try {
     const userId = req.params["userId"];
-    // const user = await User.findById(userId);
 
-    const trophiesListParams = await UserGames.findOne({
-      userId: userId,
-    }).select({
-      userId: 1,
-      "games.npCommunicationId": 1,
-      "games.trophyTitlePlatform": 1,
-    });
-    // res.send(trohiesListParams);
+    if (isValidId(userId)) {
+      const userGamesTrophies = await getOrCreateDbUserGamesTrophies(userId);
 
-    trophiesListParams?.games.forEach(async (params) => {
-      const gameTrophiesExists = await UserGamesTrophies.findOne({
-        userId: userId,
-        npCommunicationId: params.npCommunicationId,
-      }).lean();
-
-      if (gameTrophiesExists) {
+      if (userGamesTrophies && !(userGamesTrophies instanceof MongooseError)) {
         // Interval in hours to request data from psnApi;
         const { diffHours, pollingInterval } = setPsnApiPollingInterval(
-          gameTrophies.updatedAt,
+          userGamesTrophies.updatedAt,
           2
         );
 
-        if (diffHours > pollingInterval) {
-          await updateDbUserGamesTrophies(
-            userId,
-            params.npCommunicationId,
-            params.trophyTitlePlatform
-          );
+        const userGames = await UserGames.findOne({
+          userId: userId,
+        }).select({
+          userId: 1,
+          "games.npCommunicationId": 1,
+          "games.trophyTitlePlatform": 1,
+          "games.trophyTitleName": 1,
+        });
 
-          console.log(`Updated ${params.npCommunicationId} gameTrophies on DB`);
+        if (userGames) {
+          const gamesTrohpies = userGamesTrophies.gamesTrophies;
+
+          if (gamesTrohpies.length && diffHours > pollingInterval) {
+            console.log(
+              `[${new Date().toISOString()}] Started updating trophies list bulk...`
+            );
+
+            const bulkResponse = await execUpsertBulkTrophiesList(
+              userGames,
+              userId
+            );
+
+            console.log(
+              `[${new Date().toISOString()}] Finished updating trophies list bulk.`
+            );
+
+            if (!bulkResponse.isError) {
+              return res.status(200).send(bulkResponse);
+            } else {
+              return res.status(400).send(bulkResponse);
+            }
+          } else if (!gamesTrohpies.length) {
+            console.log(
+              `[${new Date().toISOString()}] Started inserting trophies list bulk...`
+            );
+
+            const bulkResponse = await execUpsertBulkTrophiesList(
+              userGames,
+              userId
+            );
+            console.log(
+              `[${new Date().toISOString()}] Finished inserting trophies list bulk.`
+            );
+
+            if (!bulkResponse.isError) {
+              return res.status(200).send(bulkResponse);
+            } else {
+              return res.status(400).send(bulkResponse);
+            }
+          } else {
+            const nextUpdate = _.round((pollingInterval - diffHours) * 60);
+
+            res.status(200).send({
+              message: `Trophies lists are updated. Next update in ${nextUpdate} Mins`,
+            });
+          }
+        } else {
+          console.log("MongoDB: Collection userGames not found.");
+          return res
+            .status(400)
+            .json({ error: "MongoDB: Collection userGames not found." });
         }
       } else {
-        //TODO Fixme
-        // await getOrCreateDbUserGamesTrophies(
-        //   userId,
-        //   params.npCommunicationId,
-        //   params.trophyTitlePlatform
-        // );
-
-        console.log(`Created ${params.npCommunicationId} gameTrophies on DB`);
+        return res
+          .status(400)
+          .json({ error: "MongoDB: Collection userGamesTrophies not found" });
       }
-    });
-
-    return res.status(200).send("Trophies Lists created/upadted with success.");
+    } else {
+      return res.status(400).json({ error: "MongoDB: Invalid user id" });
+    }
   } catch (error) {
-    console.log(error);
+    console.log(`MongoDB: Error running games trohies list bulk: ${error}`);
+    return res.status(400).json({
+      error: `MongoDB: Error running games trohies list bulk: ${error}`,
+    });
   }
 };
 
-export { createOrUpdateAllGamesTrophiesBatch, getTrophiesByGame };
+export { getTrophiesByGame, upsertTrophiesForAllGamesBulk };
