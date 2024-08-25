@@ -2,6 +2,7 @@ import chalk from "chalk";
 import etag from "etag";
 import { Request, Response } from "express";
 import fresh from "fresh";
+import _ from "lodash";
 
 import { IS_NODE_ENV_PRODUCTION } from "./env";
 
@@ -138,7 +139,7 @@ export const setPsnApiPollingInterval = (
   console.log(poll(`Current Date: ${currentDate.toUTCString()}`));
   console.log(poll(`Last Update: ${updatedAt.toUTCString()}`));
   console.log(
-    poll(`Poll interval: ${Math.round(diffHours)}/${pollingInterval} Hs`)
+    poll(`Poll interval: ${_.round(diffHours, 2)}/${pollingInterval} Hs`)
   );
 
   return { diffHours, pollingInterval };
