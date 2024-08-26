@@ -2,7 +2,7 @@ import _ from "lodash";
 import { MongooseError } from "mongoose";
 
 import { PSN_AUTH } from "@/controllers/authController";
-import { IBulkResponse } from "@/models/interfaces/common";
+import { IBulkResponse } from "@/models/interfaces/common/bulk";
 import { IGamesTrophiesBulk } from "@/models/interfaces/game";
 import { IUserGames } from "@/models/interfaces/user";
 import { UserGamesTrophies } from "@/models/schemas/user";

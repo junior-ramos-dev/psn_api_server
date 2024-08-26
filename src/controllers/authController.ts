@@ -13,7 +13,6 @@ import { getBearerTokenFromHeader } from "@/utils/http";
 
 //TODO Error handling / return response
 
-// let psnAuth: PsnAuth = new PsnAuth("");
 let PSN_AUTH: PsnAuth;
 
 const generateToken = (res: Response, userId: string) => {
@@ -125,7 +124,5 @@ const logoutUser = async (req: Request, res: Response) => {
   clearToken(res);
   return res.status(200).json({ message: "User logged out" });
 };
-
-// const PSN_AUTH = PsnAuth.isAccessTokenIssued(psnAuth);
 
 export { authenticateUser, logoutUser, PSN_AUTH, registerUser };

@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { MongooseError } from "mongoose";
 
-import { IBulkResponse } from "@/models/interfaces/common";
+import { IBulkResponse } from "@/models/interfaces/common/bulk";
 import { IUserGames } from "@/models/interfaces/user";
 import { upsertTrophiesForAllGamesBulk } from "@/services/repositories/bulk/trophy";
 import { getDbUseGameByNpCommunicationId } from "@/services/repositories/gameRepository";

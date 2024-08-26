@@ -37,8 +37,4 @@ const validateHeaders = [
   //   .bail()
   //   .contains("Bearer")
   //   .withMessage("Authorization Token is not Bearer"),
-  // header("accountid")
-  //   .exists({ values: "undefined" })
-  //   .withMessage("Missing AccountId Header")
-  //   .bail(),
 ];
