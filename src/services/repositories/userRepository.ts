@@ -128,12 +128,12 @@ export const createDbUserProfile = async (
 };
 
 /**
- * Get the user data from DB
+ * Get the user by id from DB
  *
  * @param userId
  * @returns
  */
-export const getDbUser = async (
+export const getDbUserById = async (
   userId: string
 ): Promise<IUser | undefined | MongooseError> => {
   try {
@@ -153,12 +153,54 @@ export const getDbUser = async (
 };
 
 /**
+ * Get the user by email from DB
+ *
+ * @param email
+ * @returns
+ */
+export const getDbUserByEmail = async (
+  email: string
+): Promise<IUser | undefined | MongooseError> => {
+  try {
+    const user = await User.findOne({ email });
+
+    return user as IUser;
+  } catch (error: unknown) {
+    if (error instanceof MongooseError) {
+      console.log(error);
+      return error;
+    }
+  }
+};
+
+/**
+ * Get the user by psnOnlineId from DB
+ *
+ * @param psnOnlineId
+ * @returns
+ */
+export const getDbUserByPsnOnlineId = async (
+  psnOnlineId: string
+): Promise<IUser | undefined | MongooseError> => {
+  try {
+    const user = await User.findOne({ psnOnlineId });
+
+    return user as IUser;
+  } catch (error: unknown) {
+    if (error instanceof MongooseError) {
+      console.log(error);
+      return error;
+    }
+  }
+};
+
+/**
  * Get the user profile data from DB
  *
  * @param userId
  * @returns
  */
-export const getDbUserProfile = async (
+export const getDbUserByIdProfile = async (
   userId: string
 ): Promise<IUserProfile | undefined | MongooseError> => {
   try {

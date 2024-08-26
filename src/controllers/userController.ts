@@ -2,9 +2,10 @@ import { Request, Response } from "express";
 import { validationResult } from "express-validator";
 import { MongooseError } from "mongoose";
 
+import { IUserProfile } from "@/models/interfaces/user";
 import {
-  getDbUser,
-  getDbUserProfile,
+  getDbUserById,
+  getDbUserByIdProfile,
   updateDbUserProfile,
 } from "@/services/repositories/userRepository";
 import { isFreshEtagHeader, setPsnApiPollingInterval } from "@/utils/http";
@@ -21,7 +22,7 @@ const getUserById = async (req: Request, res: Response) => {
     const userId = req.params["userId"];
 
     if (isValidId(userId)) {
-      const user = await getDbUser(userId);
+      const user = await getDbUserById(userId);
 
       res.status(200).json(user);
     } else {
@@ -53,37 +54,11 @@ const getUserProfileById = async (req: Request, res: Response) => {
     const userId = req.params["userId"];
 
     if (isValidId(userId)) {
-      const userProfile = await getDbUserProfile(userId);
+      const userProfile = await getDbUserByIdProfile(userId);
 
       if (userProfile && !(userProfile instanceof MongooseError)) {
-        // Interval in hours to request data from psnApi;
-        const { diffHours, pollingInterval } = setPsnApiPollingInterval(
-          userProfile.updatedAt,
-          2
-        );
-
-        const isFreshEtag = isFreshEtagHeader(req, res, userProfile);
-        console.log("isFreshEtag: ", isFreshEtag);
-
-        if (isFreshEtag && diffHours > pollingInterval) {
-          const updatedProfile = await updateDbUserProfile(
-            userId,
-            userProfile.onlineId
-          );
-
-          if (updatedProfile && !(updatedProfile instanceof MongooseError)) {
-            console.log("updated userGames on DB");
-            return res.json(updatedProfile);
-          }
-        } else if (isFreshEtag && diffHours < pollingInterval) {
-          console.log(
-            "Not Modified. You can continue using the same cached version of user profile."
-          );
-          return res.status(304).send();
-        } else if (!isFreshEtag) {
-          console.log("returned userGames from DB");
-          return res.status(200).json(userProfile);
-        }
+        // Get updated user profile from DB
+        await getUpdatedDbUserProfile(req, res, userProfile);
       }
     } else {
       return res.status(400).json({ error: "MongoDB: Invalid user id" });
@@ -93,6 +68,49 @@ const getUserProfileById = async (req: Request, res: Response) => {
     return res
       .status(400)
       .json({ error: `MongoDB: User profile not found: ${error}` });
+  }
+};
+
+/**
+ * Get updated user profile from DB
+ *
+ * @param req
+ * @param res
+ * @param userProfile
+ * @returns
+ */
+const getUpdatedDbUserProfile = async (
+  req: Request,
+  res: Response,
+  userProfile: IUserProfile
+) => {
+  // Interval in hours to request data from psnApi;
+  const { diffHours, pollingInterval } = setPsnApiPollingInterval(
+    userProfile.updatedAt,
+    2
+  );
+
+  const isFreshEtag = isFreshEtagHeader(req, res, userProfile);
+  console.log("isFreshEtag: ", isFreshEtag);
+
+  if (isFreshEtag && diffHours > pollingInterval) {
+    const updatedProfile = await updateDbUserProfile(
+      userProfile.userId.toString(),
+      userProfile.onlineId
+    );
+
+    if (updatedProfile && !(updatedProfile instanceof MongooseError)) {
+      console.log("updated userGames on DB");
+      return res.json(updatedProfile);
+    }
+  } else if (isFreshEtag && diffHours < pollingInterval) {
+    console.log(
+      "Not Modified. You can continue using the same cached version of user profile."
+    );
+    return res.status(304).send();
+  } else if (!isFreshEtag) {
+    console.log("returned userGames from DB");
+    return res.status(200).json(userProfile);
   }
 };
 
