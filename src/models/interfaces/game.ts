@@ -35,6 +35,11 @@ export interface IGameIcon {
   updatedAt: Date;
 }
 
+export interface IGamesTrophiesBulk {
+  npCommunicationId: string;
+  trophies: ITrophy[];
+}
+
 // Converts JSON strings to/from your types
 export class Convert {
   public static toIGame(json: string): IGame {
