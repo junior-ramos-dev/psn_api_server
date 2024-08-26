@@ -17,12 +17,6 @@ export const validateReq = (method: REQUEST_PROPERTY) => {
     case REQUEST_PROPERTY.HEADERS: {
       return validateHeaders;
     }
-    // case REQUEST_PROPERTY.BODY: {
-    //   return;
-    // }
-    // case REQUEST_PROPERTY.PARAMS: {
-    //   return;
-    // }
     default:
       return validateHeaders;
   }
@@ -46,10 +40,4 @@ const validateHeaders = [
     .exists({ values: "undefined" })
     .withMessage("Missing 'If-None-Match' Header")
     .bail(),
-  // header("authorization")
-  //   .exists({ values: "undefined" })
-  //   .withMessage("Missing Authorization Header")
-  //   .bail()
-  //   .contains("Bearer")
-  //   .withMessage("Authorization Token is not Bearer"),
 ];
