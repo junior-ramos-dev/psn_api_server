@@ -108,7 +108,7 @@ export const updateDbGamesByUser = async (
  * @param userId
  * @returns
  */
-export const getDbUserGame = async (
+export const getDbUseGameByNpCommunicationId = async (
   userId: string,
   npCommunicationId: string
 ): Promise<IUserGames | undefined | MongooseError> => {
