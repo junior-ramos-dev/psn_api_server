@@ -1,6 +1,7 @@
 import { header } from "express-validator";
 
 export enum REQUEST_PROPERTY {
+  AUTH_HEADERS = "authHeaders",
   HEADERS = "headers",
   BODY = "body",
   PARAMS = "params",
@@ -10,17 +11,31 @@ export enum REQUEST_PROPERTY {
 // so you can be 100% sure that the header is present with validations you created.
 export const validateReq = (method: REQUEST_PROPERTY) => {
   switch (method) {
+    case REQUEST_PROPERTY.AUTH_HEADERS: {
+      return validateAuthHeaders;
+    }
     case REQUEST_PROPERTY.HEADERS: {
       return validateHeaders;
     }
-    case REQUEST_PROPERTY.BODY: {
-      return;
-    }
-    case REQUEST_PROPERTY.PARAMS: {
-      return;
-    }
+    // case REQUEST_PROPERTY.BODY: {
+    //   return;
+    // }
+    // case REQUEST_PROPERTY.PARAMS: {
+    //   return;
+    // }
+    default:
+      return validateHeaders;
   }
 };
+
+const validateAuthHeaders = [
+  header("authorization")
+    .exists({ values: "undefined" })
+    .withMessage("Missing Authorization Header")
+    .bail()
+    .contains("Bearer")
+    .withMessage("Authorization Token is not Bearer"),
+];
 
 const validateHeaders = [
   header("etag")

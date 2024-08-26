@@ -11,7 +11,7 @@ const gameRouter = express.Router();
 
 gameRouter.get(
   "/:userId/list",
-  validateReq(REQUEST_PROPERTY.HEADERS)!,
+  validateReq(REQUEST_PROPERTY.HEADERS),
   getGamesByUser
 );
 

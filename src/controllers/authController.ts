@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { validationResult } from "express-validator";
 import jwt from "jsonwebtoken";
 import { MongooseError } from "mongoose";
 
@@ -37,6 +38,15 @@ const clearToken = (res: Response) => {
 };
 
 const registerUser = async (req: Request, res: Response) => {
+  // Validate Request Headers
+  // Find and validate the request properties
+  const errors = validationResult(req);
+
+  if (!errors.isEmpty()) {
+    res.status(422).json({ errors: errors.array() });
+    return;
+  }
+
   const { psnOnlineId, email, password } = req.body;
   const onlineIdExists = await getDbUserByPsnOnlineId(psnOnlineId);
   const userEmailExists = await getDbUserByEmail(email);
@@ -84,6 +94,15 @@ const registerUser = async (req: Request, res: Response) => {
 };
 
 const authenticateUser = async (req: Request, res: Response) => {
+  // Validate Request Headers
+  // Find and validate the request properties
+  const errors = validationResult(req);
+
+  if (!errors.isEmpty()) {
+    res.status(422).json({ errors: errors.array() });
+    return;
+  }
+
   const { email, password } = req.body;
   const user = await getDbUserByEmail(email);
 
