@@ -11,7 +11,8 @@ import {
 import { IS_NODE_ENV_PRODUCTION } from "@/utils/env";
 import { getBearerTokenFromHeader } from "@/utils/http";
 
-let psnAuth: PsnAuth = new PsnAuth("");
+// let psnAuth: PsnAuth = new PsnAuth("");
+let PSN_AUTH: PsnAuth;
 
 const generateToken = (res: Response, userId: string) => {
   const jwtSecret = process.env.JWT_SECRET ?? "";
@@ -56,7 +57,7 @@ const registerUser = async (req: Request, res: Response) => {
   if (authorization) {
     const NPSSO = getBearerTokenFromHeader(authorization);
     // Initialize the PSN credentials for using with psn_api
-    psnAuth = await PsnAuth.createPsnAuth(NPSSO).then((psnAuth) => psnAuth);
+    PSN_AUTH = await PsnAuth.createPsnAuth(NPSSO).then((psnAuth) => psnAuth);
 
     // Create user profile
     const data = await createDbUserAndProfile(psnOnlineId, email, password);
@@ -95,7 +96,7 @@ const authenticateUser = async (req: Request, res: Response) => {
 
     if (authorization) {
       const NPSSO = getBearerTokenFromHeader(authorization);
-      psnAuth = await PsnAuth.createPsnAuth(NPSSO).then((psnAuth) => psnAuth);
+      PSN_AUTH = await PsnAuth.createPsnAuth(NPSSO).then((psnAuth) => psnAuth);
     } else {
       return res
         .status(401)
@@ -117,12 +118,12 @@ const authenticateUser = async (req: Request, res: Response) => {
 
 const logoutUser = async (req: Request, res: Response) => {
   // Unset the PSN credentials used with psn_api
-  psnAuth = PsnAuth.clearPsnAuth(psnAuth);
+  PSN_AUTH = PsnAuth.clearPsnAuth(PSN_AUTH);
 
   clearToken(res);
   return res.status(200).json({ message: "User logged out" });
 };
 
-const PSN_AUTH = PsnAuth.isAccessTokenIssued(psnAuth);
+// const PSN_AUTH = PsnAuth.isAccessTokenIssued(psnAuth);
 
 export { authenticateUser, logoutUser, PSN_AUTH, registerUser };
