@@ -6,6 +6,12 @@ import { GameTrophies } from "@/models/schemas/game";
 import { UserGamesTrophies } from "@/models/schemas/user/user";
 import { getGameTrophiesInfo } from "@/services/psnApi/trophies";
 
+//TODO Check if need to get the list of trophies stats.
+// Get the list of trophies stats for each of the user's titles.
+// const getAllGamesTrophiesInfoList = async (): Promise<GameStats[]> => {};
+
+//TODO Error handling / return response
+
 /**
  * Create the list of trophies by game
  *
@@ -198,7 +204,3 @@ export const getDbTrophyListByGame = async (
     }
   }
 };
-
-//TODO Get the list of trophies stats for each of the user's titles (batch).
-// Get the list of trophies stats for each of the user's titles.
-// const getAllGamesTrophiesInfoList = async (): Promise<GameStats[]> => {};

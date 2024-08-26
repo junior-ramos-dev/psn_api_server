@@ -11,6 +11,8 @@ import {
 import { IS_NODE_ENV_PRODUCTION } from "@/utils/env";
 import { getBearerTokenFromHeader } from "@/utils/http";
 
+//TODO Error handling / return response
+
 // let psnAuth: PsnAuth = new PsnAuth("");
 let PSN_AUTH: PsnAuth;
 

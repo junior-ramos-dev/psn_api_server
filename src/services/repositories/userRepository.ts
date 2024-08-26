@@ -6,6 +6,8 @@ import { User, UserProfile } from "@/models/schemas/user";
 
 import { getPsnUserProfileByUsername } from "../psnApi/user";
 
+//TODO Error handling / return response
+
 /**
  * Create Db User And Profile
  *

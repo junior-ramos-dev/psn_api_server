@@ -5,7 +5,7 @@ import {
   exchangeRefreshTokenForAuthTokens,
 } from "psn-api";
 
-import { PsnAuthError } from "@/middlewares/errorMiddleware";
+import { PsnAuthError } from "@/models/interfaces/common/error";
 
 import "dotenv/config";
 
@@ -16,7 +16,7 @@ const info = chalk.green;
 // When querying the titles associated with yourself (the authentication context),
 // the numeric accountId can be substituted with "me".
 // To find a user's accountId, the makeUniversalSearch() function can be used.
-const ACCOUNT_ID = "me"; //TODO Use "me". Check if needs use the accountId number for some endpoint.
+const ACCOUNT_ID = "me"; //TODO Check if needs use the accountId number for some endpoint instead of "me".
 
 /**
  *

@@ -11,6 +11,8 @@ import {
 import { isFreshEtagHeader, setPsnApiPollingInterval } from "@/utils/http";
 import { isValidId } from "@/utils/mongoose";
 
+//TODO Error handling / return response
+
 /**
  * Get the user basic info
  *

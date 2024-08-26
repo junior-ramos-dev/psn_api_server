@@ -14,6 +14,11 @@ import {
 import { setPsnApiPollingInterval } from "@/utils/http";
 import { isValidId } from "@/utils/mongoose";
 
+//TODO Check if needs to create trophies icons
+// const createDbTrophyIconBin = (trophiesByGame) => {};
+
+//TODO Error handling / return response
+
 /**
  * Get trophy list by Game ID and Game Platform
  *
@@ -46,11 +51,6 @@ const getTrophiesByGame = async (req: Request, res: Response) => {
             npCommunicationId,
             trophyTitlePlatform
           );
-
-          // Download and create (if not exists yet) the trophy image (trophyIconUrl)
-          // and insert as binary data in the collection "trophiesicons"
-          //TODO Update to create trophies icons
-          // await createDbGameIconBin(trophiesByGame);
 
           console.log("created trophy list by game on DB");
           return res.json(createdTrophyListByGame);
@@ -96,11 +96,6 @@ const getUpdatedDbTrophyList = async (
         npCommunicationId,
         trophyTitlePlatform
       );
-
-      // Download and update (if not exists yet) the trophy image (trophyIconUrl)
-      // and insert as binary data in the collection "trophiesicons"
-      //TODO Update to create trophies icons
-      // await createDbGameIconBin(trophiesByGame);
 
       console.log("updated trophy list by game on DB");
       return res.json(updatedGameTrophies);

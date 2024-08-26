@@ -8,6 +8,8 @@ import { UserGames } from "@/models/schemas/user";
 import { getTrophyTitles } from "@/services/psnApi/games";
 import { dolwnloadFileToBase64 } from "@/utils/download";
 
+//TODO Error handling / return response
+
 /**
  * Create the list of games by user
  *
@@ -38,6 +40,8 @@ export const createDbGamesByUser = async (userId: string) => {
   }
 };
 
+type GetGamesResponse = IUserGames | undefined | MongooseError;
+
 /**
  * Get games by user and add (populate) the virtual reference from GameIcon schema
  *
@@ -46,7 +50,7 @@ export const createDbGamesByUser = async (userId: string) => {
  */
 export const getDbGamesListByUserId = async (
   userId: string
-): Promise<IUserGames | undefined | MongooseError> => {
+): Promise<GetGamesResponse> => {
   try {
     const userGames = await UserGames.findOne({ userId: userId });
     // .populate({
