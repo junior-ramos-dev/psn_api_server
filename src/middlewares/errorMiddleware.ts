@@ -1,6 +1,11 @@
 import { Request, Response } from "express";
 
-const errorHandler = (
+import {
+  AuthenticationError,
+  PsnAuthError,
+} from "@/models/interfaces/common/error";
+
+export const errorHandler = (
   err: Error,
   req: Request,
   res: Response
@@ -14,19 +19,3 @@ const errorHandler = (
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
-
-class AuthenticationError extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = "AuthenticationError";
-  }
-}
-
-class PsnAuthError extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = "PSN Error";
-  }
-}
-
-export { AuthenticationError, errorHandler, PsnAuthError };

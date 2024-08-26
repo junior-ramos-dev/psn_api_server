@@ -3,9 +3,11 @@ import asyncHandler from "express-async-handler";
 import jwt, { JwtPayload } from "jsonwebtoken";
 
 import { PSN_AUTH } from "@/controllers/authController";
+import {
+  AuthenticationError,
+  PsnAuthError,
+} from "@/models/interfaces/common/error";
 import { User } from "@/models/schemas/user";
-
-import { AuthenticationError, PsnAuthError } from "./errorMiddleware";
 
 const authenticate = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
