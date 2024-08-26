@@ -8,6 +8,7 @@ import {
   UniversalSearchResponse,
 } from "psn-api";
 
+import { PSN_AUTH } from "@/controllers/authController";
 import { PSN_DOMAIN } from "@/models/types/psn";
 
 /**
@@ -23,11 +24,13 @@ import { PSN_DOMAIN } from "@/models/types/psn";
  * @returns
  */
 export const getPsnAccountIdFromUniversalSearch = async (
-  acessToken: string,
   psnOnlineId: string
 ): Promise<UniversalSearchResponse<SocialAccountResult>> => {
+  // Get the credentials used by psn_api
+  const { accessToken } = await PSN_AUTH.getCredentials();
+
   const accountId = await makeUniversalSearch(
-    { accessToken: acessToken },
+    { accessToken: accessToken },
     psnOnlineId,
     PSN_DOMAIN.SOCIAL_ALL_ACCOUNTS
   );
@@ -50,11 +53,13 @@ export const getPsnAccountIdFromUniversalSearch = async (
  * @returns
  */
 export const getPsnUserProfileByAccountId = async (
-  acessToken: string,
   accountId: string
 ): Promise<ProfileFromAccountIdResponse> => {
+  // Get the credentials used by psn_api
+  const { accessToken } = await PSN_AUTH.getCredentials();
+
   const userProfile = await getProfileFromAccountId(
-    { accessToken: acessToken },
+    { accessToken: accessToken },
     accountId
   );
 
@@ -78,11 +83,13 @@ export const getPsnUserProfileByAccountId = async (
  * @returns
  */
 export const getPsnUserProfileByUsername = async (
-  acessToken: string,
   psnOnlineId: string
 ): Promise<ProfileFromUserNameResponse> => {
+  // Get the credentials used by psn_api
+  const { accessToken } = await PSN_AUTH.getCredentials();
+
   const userProfile = await getProfileFromUserName(
-    { accessToken: acessToken },
+    { accessToken: accessToken },
     psnOnlineId
   );
 

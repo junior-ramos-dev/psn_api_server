@@ -5,7 +5,7 @@ import { MongooseError } from "mongoose";
 import { IUserProfile } from "@/models/interfaces/user";
 import {
   getDbUserById,
-  getDbUserByIdProfile,
+  getDbUserProfileByUserId,
   updateDbUserProfile,
 } from "@/services/repositories/userRepository";
 import { isFreshEtagHeader, setPsnApiPollingInterval } from "@/utils/http";
@@ -56,7 +56,7 @@ const getUserProfileById = async (req: Request, res: Response) => {
     const userId = req.params["userId"];
 
     if (isValidId(userId)) {
-      const userProfile = await getDbUserByIdProfile(userId);
+      const userProfile = await getDbUserProfileByUserId(userId);
 
       if (userProfile && !(userProfile instanceof MongooseError)) {
         // Get updated user profile from DB

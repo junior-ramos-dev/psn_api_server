@@ -1,6 +1,5 @@
 import { MongooseError, Types } from "mongoose";
 
-import { PSN_AUTH } from "@/controllers/authController";
 import { IUser, IUserAndProfile, IUserProfile } from "@/models/interfaces/user";
 import { User, UserProfile } from "@/models/schemas/user";
 
@@ -31,12 +30,8 @@ export const createDbUserAndProfile = async (
       password,
     }).save(opts);
 
-    // Get the credentials used by psn_api
-    const { accessToken } = await PSN_AUTH.getCredentials();
-    const userPsnProfile = await getPsnUserProfileByUsername(
-      accessToken,
-      psnOnlineId
-    );
+    // Get user profile from psn_api
+    const userPsnProfile = await getPsnUserProfileByUsername(psnOnlineId);
 
     const userId = userDb._id;
     const createdAt = new Date();
@@ -108,12 +103,8 @@ export const createDbUserProfile = async (
   psnOnlineId: string
 ) => {
   try {
-    // Get the credentials used by psn_api
-    const { accessToken } = await PSN_AUTH.getCredentials();
-    const userPsnProfile = await getPsnUserProfileByUsername(
-      accessToken,
-      psnOnlineId
-    );
+    // Get user profile from psn_api
+    const userPsnProfile = await getPsnUserProfileByUsername(psnOnlineId);
 
     const userDbProfile = await UserProfile.create({
       userId,
@@ -202,7 +193,7 @@ export const getDbUserByPsnOnlineId = async (
  * @param userId
  * @returns
  */
-export const getDbUserByIdProfile = async (
+export const getDbUserProfileByUserId = async (
   userId: string
 ): Promise<IUserProfile | undefined | MongooseError> => {
   try {
@@ -223,22 +214,18 @@ export const getDbUserByIdProfile = async (
  * Update the user profile with data from psn_api
  *
  * @param userId
- * @param onlineId
+ * @param psnOnlineId
  * @returns
  */
 export const updateDbUserProfile = async (
   userId: string,
-  onlineId: string
+  psnOnlineId: string
 ): Promise<IUserProfile | undefined | MongooseError> => {
-  console.log(userId, onlineId);
+  console.log(userId, psnOnlineId);
 
   try {
-    // Get the credentials used by psn_api
-    const { accessToken } = await PSN_AUTH.getCredentials();
-    const userPsnProfile = await getPsnUserProfileByUsername(
-      accessToken,
-      onlineId
-    );
+    // Get user profile from psn_api
+    const userPsnProfile = await getPsnUserProfileByUsername(psnOnlineId);
 
     const updatedProfile = await UserProfile.findOneAndUpdate(
       { userId: userId },

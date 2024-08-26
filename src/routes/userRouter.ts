@@ -9,7 +9,7 @@ userRouter.get("/:userId", getUserById);
 
 userRouter.get(
   "/:userId/profile",
-  validateReq(REQUEST_PROPERTY.HEADERS)!,
+  validateReq(REQUEST_PROPERTY.HEADERS),
   getUserProfileById
 );
 
