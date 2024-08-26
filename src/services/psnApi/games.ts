@@ -1,12 +1,14 @@
 import { getUserTitles, TrophyTitle } from "psn-api";
 
+import { PSN_AUTH } from "@/controllers/authController";
+
 // Get the user's list of titles (games).
-export const getTrophyTitles = async (
-  acessToken: string,
-  accountId: string
-): Promise<TrophyTitle[]> => {
+export const getTrophyTitles = async (): Promise<TrophyTitle[]> => {
+  // Get the credentials used by psn_api
+  const { accessToken, accountId } = await PSN_AUTH.getCredentials();
+
   const { trophyTitles } = await getUserTitles(
-    { accessToken: acessToken },
+    { accessToken: accessToken },
     accountId,
     { limit: 150 }
   );

@@ -1,6 +1,5 @@
 import { MongooseError } from "mongoose";
 
-import { PSN_AUTH } from "@/controllers/authController";
 import { Convert } from "@/models/interfaces/game";
 import { IUserGames } from "@/models/interfaces/user";
 import { GameIcon } from "@/models/schemas/game";
@@ -18,9 +17,8 @@ import { dolwnloadFileToBase64 } from "@/utils/download";
  */
 export const createDbGamesByUser = async (userId: string) => {
   try {
-    // Get the credentials used by psn_api
-    const { accessToken, accountId } = await PSN_AUTH.getCredentials();
-    const psnApiGames = await getTrophyTitles(accessToken, accountId);
+    // Get the user's list of titles (games) from psn_api
+    const psnApiGames = await getTrophyTitles();
 
     const gamesList = Convert.toIGameArray(psnApiGames);
 
@@ -78,9 +76,8 @@ export const updateDbGamesByUser = async (
   userId: string
 ): Promise<IUserGames | undefined | MongooseError> => {
   try {
-    // Get the credentials used by psn_api
-    const { accessToken, accountId } = await PSN_AUTH.getCredentials();
-    const psnApiGames = await getTrophyTitles(accessToken, accountId);
+    // Get the user's list of titles (games) from psn_api
+    const psnApiGames = await getTrophyTitles();
 
     const gamesList = Convert.toIGameArray(psnApiGames);
 
