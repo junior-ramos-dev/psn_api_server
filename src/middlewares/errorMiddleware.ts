@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 
 import {
   AuthenticationError,
-  PsnAuthError,
+  PsnApiError,
 } from "@/models/interfaces/common/error";
 
 export const errorHandler = (
@@ -13,7 +13,7 @@ export const errorHandler = (
 ) => {
   console.error(err.stack);
 
-  if (err instanceof AuthenticationError || err instanceof PsnAuthError) {
+  if (err instanceof AuthenticationError || err instanceof PsnApiError) {
     res.status(401).json({ message: "Unauthorized: " + err.message });
   } else {
     res.status(500).json({ message: "Internal Server Error" });

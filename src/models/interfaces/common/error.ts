@@ -5,11 +5,11 @@ class AuthenticationError extends Error {
   }
 }
 
-class PsnAuthError extends Error {
+class PsnApiError extends Error {
   constructor(message: string) {
     super(message);
     this.name = "PSN Error";
   }
 }
 
-export { AuthenticationError, PsnAuthError };
+export { AuthenticationError, PsnApiError };

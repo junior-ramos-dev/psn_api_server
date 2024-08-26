@@ -5,7 +5,7 @@ import {
   exchangeRefreshTokenForAuthTokens,
 } from "psn-api";
 
-import { PsnAuthError } from "@/models/interfaces/common/error";
+import { PsnApiError } from "@/models/interfaces/common/error";
 
 import "dotenv/config";
 
@@ -83,7 +83,7 @@ export class PsnAuth {
 
       return psnApiCredentials;
     } catch (error) {
-      throw new PsnAuthError(`${error}`);
+      throw new PsnApiError(`${error}`);
     }
   };
 
@@ -151,7 +151,7 @@ export class PsnAuth {
 
     return new Promise((resolve, reject) => {
       if (!this.psnAuthTokensResponse && this.isAccessTokenExpired) {
-        return reject(new PsnAuthError("Failed to get PSN access token."));
+        return reject(new PsnApiError("Failed to get PSN access token."));
       }
 
       return resolve(this);
@@ -239,7 +239,7 @@ const authenticatePsn = async (
 
   return new Promise((resolve, reject) => {
     if (!iPsnAuthTokensResponse)
-      return reject(new PsnAuthError("Invalid PSN auth credentials."));
+      return reject(new PsnApiError("Invalid PSN auth credentials."));
 
     return resolve(iPsnAuthTokensResponse);
   });
