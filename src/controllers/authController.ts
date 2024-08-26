@@ -1,13 +1,17 @@
 import { Request, Response } from "express";
 import jwt from "jsonwebtoken";
+import { MongooseError } from "mongoose";
 
-import { User } from "@/models/schemas/user";
 import { PsnAuth } from "@/services/psnApi/psnAuth";
-import { createDbUserAndProfile } from "@/services/repositories/userRepository";
+import {
+  createDbUserAndProfile,
+  getDbUserByEmail,
+  getDbUserByPsnOnlineId,
+} from "@/services/repositories/userRepository";
 import { IS_NODE_ENV_PRODUCTION } from "@/utils/env";
 import { getBearerTokenFromHeader } from "@/utils/http";
 
-let PSN_AUTH: PsnAuth;
+let psnAuth: PsnAuth = new PsnAuth("");
 
 const generateToken = (res: Response, userId: string) => {
   const jwtSecret = process.env.JWT_SECRET ?? "";
@@ -32,15 +36,15 @@ const clearToken = (res: Response) => {
 
 const registerUser = async (req: Request, res: Response) => {
   const { psnOnlineId, email, password } = req.body;
-  const usernameExists = await User.findOne({ psnOnlineId });
-  const userEmailExists = await User.findOne({ email });
+  const onlineIdExists = await getDbUserByPsnOnlineId(psnOnlineId);
+  const userEmailExists = await getDbUserByEmail(email);
 
-  if (usernameExists) {
+  if (onlineIdExists && !(onlineIdExists instanceof MongooseError)) {
     return res.status(400).json({
       message: `An account with PSN Username '${psnOnlineId}' already exists!`,
     });
   }
-  if (userEmailExists) {
+  if (userEmailExists && !(userEmailExists instanceof MongooseError)) {
     return res
       .status(400)
       .json({ message: `An account with email '${email}' already exists!` });
@@ -52,8 +56,9 @@ const registerUser = async (req: Request, res: Response) => {
   if (authorization) {
     const NPSSO = getBearerTokenFromHeader(authorization);
     // Initialize the PSN credentials for using with psn_api
-    PSN_AUTH = await PsnAuth.createPsnAuth(NPSSO).then((psnAuth) => psnAuth);
+    psnAuth = await PsnAuth.createPsnAuth(NPSSO).then((psnAuth) => psnAuth);
 
+    // Create user profile
     const data = await createDbUserAndProfile(psnOnlineId, email, password);
 
     if ("userDb" in data) {
@@ -78,15 +83,19 @@ const registerUser = async (req: Request, res: Response) => {
 
 const authenticateUser = async (req: Request, res: Response) => {
   const { email, password } = req.body;
-  const user = await User.findOne({ email });
+  const user = await getDbUserByEmail(email);
 
-  if (user && (await user.comparePassword(password))) {
+  if (
+    user &&
+    !(user instanceof MongooseError) &&
+    (await user.comparePassword(password))
+  ) {
     // Get the PSN credentials for using with psn_api
     const authorization = req.headers["authorization"];
 
     if (authorization) {
       const NPSSO = getBearerTokenFromHeader(authorization);
-      PSN_AUTH = await PsnAuth.createPsnAuth(NPSSO).then((psnAuth) => psnAuth);
+      psnAuth = await PsnAuth.createPsnAuth(NPSSO).then((psnAuth) => psnAuth);
     } else {
       return res
         .status(401)
@@ -108,10 +117,12 @@ const authenticateUser = async (req: Request, res: Response) => {
 
 const logoutUser = async (req: Request, res: Response) => {
   // Unset the PSN credentials used with psn_api
-  PSN_AUTH = PsnAuth.clearPsnAuth(PSN_AUTH);
+  psnAuth = PsnAuth.clearPsnAuth(psnAuth);
 
   clearToken(res);
   return res.status(200).json({ message: "User logged out" });
 };
+
+const PSN_AUTH = PsnAuth.isAccessTokenIssued(psnAuth);
 
 export { authenticateUser, logoutUser, PSN_AUTH, registerUser };

@@ -60,6 +60,7 @@ export class PsnAuth {
   };
   private tokenCreatedAt = new Date();
   private isAccessTokenExpired = false;
+  private hasAccessToken = false;
 
   constructor(npsso: string) {
     this.npsso = npsso;
@@ -128,6 +129,7 @@ export class PsnAuth {
 
       console.log(info("PSN access token was issued."));
 
+      this.hasAccessToken = true;
       this.tokenCreatedAt = new Date();
       // Like above, we can now convert `this.psnAuthTokensResponse.expiresIn` to
       // an ISO date string to be ready for a future `isAccessTokenExpired` comparison.
@@ -141,6 +143,7 @@ export class PsnAuth {
       this.psnAuthTokensResponse = await authenticatePsn(this.npsso);
 
       console.log(info("PSN access token was issued."));
+      this.hasAccessToken = true;
       this.tokenCreatedAt = new Date();
     } else if (!this.isAccessTokenExpired) {
       console.log(info("Valid PSN access token is active."));
@@ -183,10 +186,21 @@ export class PsnAuth {
       scope: "",
       tokenType: "",
     };
+    psnAuth.hasAccessToken = false;
     psnAuth.tokenCreatedAt = new Date(0);
     psnAuth.isAccessTokenExpired = false;
 
     return psnAuth;
+  };
+
+  /**
+   * Create a PsnAuth instance
+   *
+   * @param npsso
+   * @returns Promise<PsnAuth>
+   */
+  static isAccessTokenIssued = (psnAuth: PsnAuth): PsnAuth => {
+    return psnAuth.hasAccessToken ? psnAuth : new PsnAuth("");
   };
 }
 
