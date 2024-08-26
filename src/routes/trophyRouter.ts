@@ -1,8 +1,8 @@
 import express from "express";
 
 import {
+  createTrophiesListForAllGamesBulk,
   getTrophiesByGame,
-  upsertTrophiesForAllGamesBulk,
 } from "@/controllers/trophyController";
 
 const trophyRouter = express.Router();
@@ -14,6 +14,6 @@ trophyRouter.get(
 );
 
 // Get the list of trohpies for all games by user
-trophyRouter.get("/:userId/bulk", upsertTrophiesForAllGamesBulk);
+trophyRouter.get("/:userId/bulk", createTrophiesListForAllGamesBulk);
 
 export default trophyRouter;
