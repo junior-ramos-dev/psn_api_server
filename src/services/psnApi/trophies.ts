@@ -6,6 +6,7 @@ import {
 import type { TitleThinTrophy } from "psn-api/dist/models/title-thin-trophy.model";
 import { ITrophy } from "src/models/interfaces/trophy";
 
+import { PSN_AUTH } from "@/controllers/authController";
 import {
   NP_SERVICE_NAME,
   TROPHY_GROUP_ID,
@@ -26,7 +27,7 @@ import {
  * @param trophyGroupId
  * @returns
  */
-const getGameTrophiesList = async (
+const getPsnGameTrophiesList = async (
   accessToken: string,
   npCommunicationId: string,
   trophyTitlePlatform: string,
@@ -56,7 +57,7 @@ const getGameTrophiesList = async (
  * @param trophyGroupId
  * @returns
  */
-const getGameTrophiesEarnedList = async (
+const getPsnGameEarnedTrophiesList = async (
   accessToken: string,
   accountId: string,
   npCommunicationId: string,
@@ -78,81 +79,35 @@ const getGameTrophiesEarnedList = async (
 };
 
 /**
- * Get the list of trophies info for a single game
- *
- * @param accessToken
- * @param accountId
- * @param npCommunicationId
- * @param trophyTitlePlatform
- * @param trophyGroupId
- * @returns
- */
-const getGameTrophiesInfo = async (
-  accessToken: string,
-  accountId: string,
-  npCommunicationId: string,
-  trophyTitlePlatform: string,
-  trophyGroupId?: string
-): Promise<ITrophy[]> => {
-  const gameTrophies = await getGameTrophiesList(
-    accessToken,
-    npCommunicationId,
-    trophyTitlePlatform,
-    trophyGroupId
-  );
-
-  const gameEarnedTrophies = await getGameTrophiesEarnedList(
-    accessToken,
-    accountId,
-    npCommunicationId,
-    trophyTitlePlatform,
-    trophyGroupId
-  );
-
-  let mergedTrophies = new Array<ITrophy>();
-
-  if (gameTrophies !== undefined && gameEarnedTrophies !== undefined) {
-    mergedTrophies = mergeTrophyLists(gameTrophies, gameEarnedTrophies);
-  }
-  return new Promise((resolve, reject) => {
-    try {
-      return resolve(mergedTrophies);
-    } catch (error) {
-      return reject(error);
-    }
-  });
-};
-
-/**
  *  Merge the lists for "gameTrophies" and "gameEarnedTrophies" and parse to a list of ITrophy objects
  *
  * @param titleTrophies
  * @param earnedTrophies
  * @returns
  */
-const mergeTrophyLists = (
+const mergePsnTrophyLists = (
   titleTrophies: Trophy[],
   earnedTrophies: Trophy[]
 ) => {
-  const mergedTrophies: ITrophy[] = [];
+  const parsedTrophies: ITrophy[] = [];
 
   for (const earnedTrophy of earnedTrophies) {
     const foundTitleTrophy = titleTrophies.find(
       (t) => t.trophyId === earnedTrophy.trophyId
     );
 
-    mergedTrophies.push(
-      normalizeTrophy({ ...earnedTrophy, ...foundTitleTrophy })
+    parsedTrophies.push(
+      parsePsnTrophyToITrophy({ ...earnedTrophy, ...foundTitleTrophy })
     );
   }
 
-  return mergedTrophies;
+  return parsedTrophies;
 };
 
-const normalizeTrophy = (trophy: Trophy) => {
+const parsePsnTrophyToITrophy = (trophy: Trophy) => {
   const nonEarnedDateTime = new Date(0).toISOString();
 
-  const trophyNormalized: ITrophy = {
+  const trophyParsed: ITrophy = {
     trophyId: trophy.trophyId,
     trophyHidden: trophy.trophyHidden,
     isEarned: trophy.earned,
@@ -169,7 +124,50 @@ const normalizeTrophy = (trophy: Trophy) => {
     points: POINTS_MAP[trophy.trophyType ?? 0],
   };
 
-  return trophyNormalized;
+  return trophyParsed;
 };
 
-export { getGameTrophiesInfo };
+/**
+ * Get the list of trophies for a single game
+ *
+ * @param npCommunicationId
+ * @param trophyTitlePlatform
+ * @param trophyGroupId
+ * @returns
+ */
+export const getPsnGameParsedTrophies = async (
+  npCommunicationId: string,
+  trophyTitlePlatform: string,
+  trophyGroupId?: string
+): Promise<ITrophy[]> => {
+  // Get the credentials used by psn_api
+  const { accessToken, accountId } = await PSN_AUTH.getCredentials();
+
+  const gameTrophies = await getPsnGameTrophiesList(
+    accessToken,
+    npCommunicationId,
+    trophyTitlePlatform,
+    trophyGroupId
+  );
+
+  const gameEarnedTrophies = await getPsnGameEarnedTrophiesList(
+    accessToken,
+    accountId,
+    npCommunicationId,
+    trophyTitlePlatform,
+    trophyGroupId
+  );
+
+  let parsedTrophies = new Array<ITrophy>();
+
+  if (gameTrophies !== undefined && gameEarnedTrophies !== undefined) {
+    parsedTrophies = mergePsnTrophyLists(gameTrophies, gameEarnedTrophies);
+  }
+  return new Promise((resolve, reject) => {
+    try {
+      return resolve(parsedTrophies);
+    } catch (error) {
+      return reject(error);
+    }
+  });
+};

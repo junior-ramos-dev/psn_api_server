@@ -1,10 +1,9 @@
 import { MongooseError, Types } from "mongoose";
 
-import { PSN_AUTH } from "@/controllers/authController";
 import { IUserGamesTrophies } from "@/models/interfaces/user/user";
 import { GameTrophies } from "@/models/schemas/game";
 import { UserGamesTrophies } from "@/models/schemas/user/user";
-import { getGameTrophiesInfo } from "@/services/psnApi/trophies";
+import { getPsnGameParsedTrophies } from "@/services/psnApi/trophies";
 
 //TODO Check if need to get the list of trophies stats.
 // Get the list of trophies stats for each of the user's titles.
@@ -60,11 +59,8 @@ export const createDbTrophyListByGame = async (
   trophyTitlePlatform: string
 ) => {
   try {
-    // Get the credentials used by psn_api
-    const { accessToken, accountId } = await PSN_AUTH.getCredentials();
-    const psnApiTrophyList = await getGameTrophiesInfo(
-      accessToken,
-      accountId,
+    // Get the list of trophies by game from psn_api
+    const psnApiTrophyList = await getPsnGameParsedTrophies(
       npCommunicationId,
       trophyTitlePlatform
     );
@@ -108,11 +104,8 @@ export const updateDbUserGamesTrophies = async (
   trophyTitlePlatform: string
 ) => {
   try {
-    // Get the credentials used by psn_api
-    const { accessToken, accountId } = await PSN_AUTH.getCredentials();
-    const psnApiTrophyList = await getGameTrophiesInfo(
-      accessToken,
-      accountId,
+    // Get the list of trophies by game from psn_api
+    const psnApiTrophyList = await getPsnGameParsedTrophies(
       npCommunicationId,
       trophyTitlePlatform
     );

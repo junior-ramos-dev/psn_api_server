@@ -1,12 +1,11 @@
 import _ from "lodash";
 import { MongooseError } from "mongoose";
 
-import { PSN_AUTH } from "@/controllers/authController";
 import { IBulkResponse } from "@/models/interfaces/common/bulk";
 import { IGamesTrophiesBulk } from "@/models/interfaces/game";
 import { IUserGames } from "@/models/interfaces/user";
 import { UserGamesTrophies } from "@/models/schemas/user";
-import { getGameTrophiesInfo } from "@/services/psnApi/trophies";
+import { getPsnGameParsedTrophies } from "@/services/psnApi/trophies";
 import { setPsnApiPollingInterval } from "@/utils/http";
 
 import { getDbGamesListByUserId } from "../gameRepository";
@@ -37,11 +36,8 @@ const getBulkTrophiesList = async (userId: string, userGames: IUserGames) => {
       const trophyTitlePlatform = game.trophyTitlePlatform;
       const trophyTitleName = game.trophyTitleName.toUpperCase();
 
-      // Get the credentials used by psn_api
-      const { accessToken, accountId } = await PSN_AUTH.getCredentials();
-      const psnApiTrophyList = await getGameTrophiesInfo(
-        accessToken,
-        accountId,
+      // Get the list of trophies by game from psn_api
+      const psnApiTrophyList = await getPsnGameParsedTrophies(
         npCommunicationId,
         trophyTitlePlatform
       );
