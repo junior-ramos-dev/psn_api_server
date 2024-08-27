@@ -9,14 +9,14 @@ import { PsnApiError } from "@/models/interfaces/common/error";
 
 import "dotenv/config";
 
-// const error = chalk.red;
+const logError = chalk.red;
 const warning = chalk.yellow;
 const info = chalk.green;
 
 // When querying the titles associated with yourself (the authentication context),
 // the numeric accountId can be substituted with "me".
 // To find a user's accountId, the makeUniversalSearch() function can be used.
-const ACCOUNT_ID = "me"; //TODO Check if needs use the accountId number for some endpoint instead of "me".
+const ACCOUNT_ID = "me";
 
 /**
  *
@@ -38,7 +38,7 @@ type PsnAuthTokensResponse = {
 /**
  *
  */
-type PsnApiCredentials = {
+export type PsnApiCredentials = {
   accessToken: string;
   accountId: string;
 };
@@ -109,45 +109,50 @@ export class PsnAuth {
    * @returns Promise<PsnAuth>
    */
   private psnAuthFactory = async (): Promise<PsnAuth> => {
-    if (
-      this.psnAuthTokensResponse.refreshToken &&
-      this.psnAuthTokensResponse.expiresIn &&
-      this.isAccessTokenExpired
-    ) {
-      // We'll use our refresh token to get a new access token.
-      // Assuming success, this function returns an auth object
-      // with the same shape as the response from `exchangeCodeForAccessToken()`.
-      console.log(warning("PSN access token is expired!"));
-      console.log("Refreshing PSN access token...");
-      this.psnAuthTokensResponse = await exchangeRefreshTokenForAuthTokens(
-        this.psnAuthTokensResponse.refreshToken
-      );
+    try {
+      if (
+        this.psnAuthTokensResponse.refreshToken &&
+        this.psnAuthTokensResponse.expiresIn &&
+        this.isAccessTokenExpired
+      ) {
+        // We'll use our refresh token to get a new access token.
+        // Assuming success, this function returns an auth object
+        // with the same shape as the response from `exchangeCodeForAccessToken()`.
+        console.log(warning("PSN access token is expired!"));
+        console.log("Refreshing PSN access token...");
+        this.psnAuthTokensResponse = await exchangeRefreshTokenForAuthTokens(
+          this.psnAuthTokensResponse.refreshToken
+        );
 
-      console.log(info("PSN access token was issued."));
+        console.log(info("PSN access token was issued."));
 
-      this.hasAccessToken = true;
-      this.tokenCreatedAt = new Date();
-      // Like above, we can now convert `this.psnAuthTokensResponse.expiresIn` to
-      // an ISO date string to be ready for a future `isAccessTokenExpired` comparison.
-    } else if (
-      !this.psnAuthTokensResponse.refreshToken ||
-      !this.psnAuthTokensResponse.expiresIn
-    ) {
-      console.log(warning("No valid PSN access token is active!"));
-      console.log("Retrieving PSN access token...");
+        this.hasAccessToken = true;
+        this.tokenCreatedAt = new Date();
+        // Like above, we can now convert `this.psnAuthTokensResponse.expiresIn` to
+        // an ISO date string to be ready for a future `isAccessTokenExpired` comparison.
+      } else if (
+        !this.psnAuthTokensResponse.refreshToken ||
+        !this.psnAuthTokensResponse.expiresIn
+      ) {
+        console.log(warning("No valid PSN access token is active!"));
+        console.log("Retrieving PSN access token...");
 
-      this.psnAuthTokensResponse = await authenticatePsn(this.npsso);
+        this.psnAuthTokensResponse = await authenticatePsn(this.npsso);
 
-      console.log(info("PSN access token was issued."));
-      this.hasAccessToken = true;
-      this.tokenCreatedAt = new Date();
-    } else if (!this.isAccessTokenExpired) {
-      console.log(info("Valid PSN access token is active."));
-    } else if (
-      !this.psnAuthTokensResponse.accessToken &&
-      this.isAccessTokenExpired
-    ) {
-      throw new PsnApiError("Get PSN access token failed.");
+        console.log(info("PSN access token was issued."));
+        this.hasAccessToken = true;
+        this.tokenCreatedAt = new Date();
+      } else if (!this.isAccessTokenExpired) {
+        console.log(info("Valid PSN access token is active."));
+      } else if (
+        !this.psnAuthTokensResponse.accessToken &&
+        this.isAccessTokenExpired
+      ) {
+        throw new PsnApiError("Get PSN access token failed.");
+      }
+    } catch (error) {
+      console.log(logError("psnAuthFactory", String(error)));
+      throw new PsnApiError("psnAuthFactory", String(error));
     }
 
     return this;
@@ -159,7 +164,7 @@ export class PsnAuth {
    * @param npsso
    * @returns Promise<PsnAuth>
    */
-  static createPsnAuth = async (npsso: string): Promise<PsnAuth> => {
+  static readonly createPsnAuth = async (npsso: string): Promise<PsnAuth> => {
     return await new PsnAuth(npsso).psnAuthFactory().then((psnAuth) => psnAuth);
   };
 
@@ -169,7 +174,7 @@ export class PsnAuth {
    * @param psnAuth
    * @returns
    */
-  static clearPsnAuth = (psnAuth: PsnAuth): PsnAuth => {
+  static readonly clearPsnAuth = (psnAuth: PsnAuth): PsnAuth => {
     psnAuth.npsso = "";
     psnAuth.accountId = "";
     psnAuth.psnAuthTokensResponse = {
@@ -194,7 +199,7 @@ export class PsnAuth {
    * @param npsso
    * @returns Promise<PsnAuth>
    */
-  static isAccessTokenIssued = (psnAuth: PsnAuth): PsnAuth => {
+  static readonly isAccessTokenIssued = (psnAuth: PsnAuth): PsnAuth => {
     return psnAuth.hasAccessToken ? psnAuth : new PsnAuth("");
   };
 }
