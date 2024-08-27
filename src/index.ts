@@ -3,8 +3,8 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import dotenv from "dotenv";
 import express, { Request, Response } from "express";
+import session from "express-session";
 import helmet from "helmet";
-import { Types } from "mongoose";
 import morgan from "morgan";
 
 import connectMongoDB from "@/connections/mongoDB";
@@ -15,6 +15,8 @@ import gameRouter from "@/routes/gameRouter";
 import trophyRouter from "@/routes/trophyRouter";
 import userRouter from "@/routes/userRouter";
 
+import { IAuthUser } from "./models/interfaces/user";
+import { IS_NODE_ENV_PRODUCTION } from "./utils/env";
 import {
   applyColorToHttpMethod,
   applyColorToHttpStatusCode,
@@ -24,18 +26,19 @@ import "express-async-errors";
 
 dotenv.config();
 
-interface AuthUSer {
-  _id: Types.ObjectId | string;
-  name: string;
-  email: string;
-}
-
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace Express {
     interface Request {
-      user?: AuthUSer | null;
+      user?: IAuthUser | null;
     }
+  }
+}
+
+declare module "express-session" {
+  export interface SessionData {
+    user: IAuthUser;
+    npsso: string;
   }
 }
 
@@ -70,6 +73,20 @@ const corsDefaultConfig = {
 app.use(cors(corsDefaultConfig));
 
 app.use(cookieParser());
+
+app.use(
+  session({
+    secret: process.env.JWT_SECRET!,
+    resave: false,
+    saveUninitialized: true,
+    cookie: {
+      httpOnly: true,
+      secure: IS_NODE_ENV_PRODUCTION,
+      sameSite: "strict",
+      maxAge: 60 * 60 * 1000,
+    },
+  })
+);
 
 app.use(bodyParser.json()); // To recognize the req obj as a json obj
 app.use(bodyParser.urlencoded({ extended: true })); // To recognize the req obj as strings or arrays. extended true to handle nested objects also
