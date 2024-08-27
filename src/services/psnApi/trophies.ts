@@ -7,6 +7,7 @@ import type { TitleThinTrophy } from "psn-api/dist/models/title-thin-trophy.mode
 import { ITrophy } from "src/models/interfaces/trophy";
 
 import { PSN_AUTH } from "@/controllers/authController";
+import { PsnApiError } from "@/models/interfaces/common/error";
 import {
   NP_SERVICE_NAME,
   TROPHY_GROUP_ID,
@@ -44,6 +45,9 @@ const getPsnGameTrophiesList = async (
     }
   );
 
+  if (!gameTrophiesList.length)
+    throw new PsnApiError("Get game trohies failed.");
+
   return gameTrophiesList;
 };
 
@@ -75,6 +79,10 @@ const getPsnGameEarnedTrophiesList = async (
         : NP_SERVICE_NAME.PS5_TROPHY,
     }
   );
+
+  if (!gameEarnedTrophies.length)
+    throw new PsnApiError("Get game earned trohies failed.");
+
   return gameEarnedTrophies;
 };
 
@@ -88,23 +96,26 @@ const getPsnGameEarnedTrophiesList = async (
 const mergePsnTrophyLists = (
   titleTrophies: Trophy[],
   earnedTrophies: Trophy[]
-) => {
-  const parsedTrophies: ITrophy[] = [];
+): ITrophy[] => {
+  const mergedTrophies: ITrophy[] = [];
 
   for (const earnedTrophy of earnedTrophies) {
     const foundTitleTrophy = titleTrophies.find(
       (t) => t.trophyId === earnedTrophy.trophyId
     );
 
-    parsedTrophies.push(
+    mergedTrophies.push(
       parsePsnTrophyToITrophy({ ...earnedTrophy, ...foundTitleTrophy })
     );
   }
 
-  return parsedTrophies;
+  if (!mergedTrophies.length)
+    throw new PsnApiError("Merge game trohies lists failed.");
+
+  return mergedTrophies;
 };
 
-const parsePsnTrophyToITrophy = (trophy: Trophy) => {
+const parsePsnTrophyToITrophy = (trophy: Trophy): ITrophy => {
   const nonEarnedDateTime = new Date(0).toISOString();
 
   const trophyParsed: ITrophy = {
@@ -163,11 +174,9 @@ export const getPsnGameParsedTrophies = async (
   if (gameTrophies !== undefined && gameEarnedTrophies !== undefined) {
     parsedTrophies = mergePsnTrophyLists(gameTrophies, gameEarnedTrophies);
   }
-  return new Promise((resolve, reject) => {
-    try {
-      return resolve(parsedTrophies);
-    } catch (error) {
-      return reject(error);
-    }
-  });
+
+  if (!parsedTrophies)
+    throw new PsnApiError("Get PSN game parsed trophies failed.");
+
+  return parsedTrophies;
 };

@@ -71,20 +71,16 @@ export class PsnAuth {
    *
    * @returns `PsnApiCredentials`
    */
-  getCredentials = async () => {
-    try {
-      if (this.accessTokenHasExpired()) {
-        await this.psnAuthFactory();
-      }
-      const psnApiCredentials: PsnApiCredentials = {
-        accessToken: this.psnAuthTokensResponse.accessToken,
-        accountId: this.accountId,
-      };
-
-      return psnApiCredentials;
-    } catch (error) {
-      throw new PsnApiError(`${error}`);
+  getCredentials = async (): Promise<PsnApiCredentials> => {
+    if (this.accessTokenHasExpired()) {
+      await this.psnAuthFactory();
     }
+    const psnApiCredentials: PsnApiCredentials = {
+      accessToken: this.psnAuthTokensResponse.accessToken,
+      accountId: this.accountId,
+    };
+
+    return psnApiCredentials;
   };
 
   /**
@@ -92,7 +88,7 @@ export class PsnAuth {
    *
    * @returns boolean
    */
-  private accessTokenHasExpired = () => {
+  private accessTokenHasExpired = (): boolean => {
     // We'll take the `expiresIn` value and convert it to an ISO date string (eg- "2021-11-02T01:02:03.246Z").
     // This conversion makes the expiration date easy to store and easy to compare to the current date when used later.
     const expirationDate = new Date(
@@ -147,15 +143,14 @@ export class PsnAuth {
       this.tokenCreatedAt = new Date();
     } else if (!this.isAccessTokenExpired) {
       console.log(info("Valid PSN access token is active."));
+    } else if (
+      !this.psnAuthTokensResponse.accessToken &&
+      this.isAccessTokenExpired
+    ) {
+      throw new PsnApiError("Get PSN access token failed.");
     }
 
-    return new Promise((resolve, reject) => {
-      if (!this.psnAuthTokensResponse && this.isAccessTokenExpired) {
-        return reject(new PsnApiError("Failed to get PSN access token."));
-      }
-
-      return resolve(this);
-    });
+    return this;
   };
 
   /**
@@ -174,7 +169,7 @@ export class PsnAuth {
    * @param psnAuth
    * @returns
    */
-  static clearPsnAuth = (psnAuth: PsnAuth) => {
+  static clearPsnAuth = (psnAuth: PsnAuth): PsnAuth => {
     psnAuth.npsso = "";
     psnAuth.accountId = "";
     psnAuth.psnAuthTokensResponse = {
@@ -237,10 +232,8 @@ const authenticatePsn = async (
       .accountId;
   ----------------------------------------------------------------------- */
 
-  return new Promise((resolve, reject) => {
-    if (!iPsnAuthTokensResponse)
-      return reject(new PsnApiError("Invalid PSN auth credentials."));
+  if (!iPsnAuthTokensResponse)
+    throw new PsnApiError("Exchange code for accessToken failed.");
 
-    return resolve(iPsnAuthTokensResponse);
-  });
+  return iPsnAuthTokensResponse;
 };

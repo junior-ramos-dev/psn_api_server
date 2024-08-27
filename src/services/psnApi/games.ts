@@ -1,6 +1,7 @@
 import { getUserTitles, TrophyTitle } from "psn-api";
 
 import { PSN_AUTH } from "@/controllers/authController";
+import { PsnApiError } from "@/models/interfaces/common/error";
 
 // Get the user's list of titles (games).
 export const getTrophyTitles = async (): Promise<TrophyTitle[]> => {
@@ -10,14 +11,11 @@ export const getTrophyTitles = async (): Promise<TrophyTitle[]> => {
   const { trophyTitles } = await getUserTitles(
     { accessToken: accessToken },
     accountId,
-    { limit: 150 }
+    { limit: 150 } //TODO Add limit/offset to query
   );
 
-  return new Promise((resolve, reject) => {
-    try {
-      return resolve(trophyTitles);
-    } catch (error) {
-      return reject(error);
-    }
-  });
+  if (!trophyTitles.length)
+    throw new PsnApiError("Get trophy titles (games) failed.");
+
+  return trophyTitles;
 };
