@@ -28,7 +28,8 @@ import { isValidId } from "@/utils/mongoose";
  */
 const getTrophiesByGame = async (req: Request, res: Response) => {
   try {
-    const userId = req.params["userId"];
+    //Get user id from session
+    const userId = req.session.user!.id;
     const npCommunicationId = req.params["npCommunicationId"];
     const trophyTitlePlatform = req.params["trophyTitlePlatform"];
 
@@ -120,7 +121,8 @@ const createTrophiesListForAllGamesBulk = async (
   res: Response
 ) => {
   try {
-    const userId = req.params["userId"];
+    //Get user id from session
+    const userId = req.session.user!.id;
 
     const bulkResponse: IBulkResponse<string> = {
       name: "createTrophiesListForAllGamesBulk",

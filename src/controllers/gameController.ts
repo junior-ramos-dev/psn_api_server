@@ -33,7 +33,8 @@ const getGamesByUser = async (req: Request, res: Response) => {
   }
 
   try {
-    const userId = req.params["userId"];
+    //Get user id from session
+    const userId = req.session.user!.id;
 
     if (isValidId(userId)) {
       const gamesByUser = await getDbGamesListByUserId(userId);

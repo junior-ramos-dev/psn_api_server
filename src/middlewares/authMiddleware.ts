@@ -7,6 +7,7 @@ import {
   AuthenticationError,
   PsnApiError,
 } from "@/models/interfaces/common/error";
+import { IAuthUser } from "@/models/interfaces/user";
 import { User } from "@/models/schemas/user";
 
 const authenticate = asyncHandler(
@@ -18,14 +19,14 @@ const authenticate = asyncHandler(
         throw new AuthenticationError("Token not found");
       }
 
-      const jwtSecret = process.env.JWT_SECRET || "";
+      const jwtSecret = process.env.JWT_SECRET ?? "";
       const decoded = jwt.verify(token, jwtSecret) as JwtPayload;
 
-      if (!decoded || !decoded.userId) {
+      if (!decoded?.userId) {
         throw new AuthenticationError("UserId not found");
       }
 
-      const user = await User.findById(decoded.userId, "_id name email");
+      const user = await User.findById(decoded.userId, "_id psnOnlineId email");
 
       if (!user) {
         throw new AuthenticationError("User not found");
@@ -35,7 +36,13 @@ const authenticate = asyncHandler(
         throw new PsnApiError("Failed retrieving PSN API credentials");
       }
 
-      req.user = user;
+      // req.user = user;
+      const authUser: IAuthUser = {
+        id: String(user._id),
+        psnOnlineId: user.psnOnlineId,
+        email: user.email,
+      };
+      req.session.user = authUser;
       next();
     } catch (error) {
       if (error instanceof AuthenticationError) {

@@ -93,16 +93,7 @@ const registerUser = async (req: Request, res: Response) => {
   }
 };
 
-const authenticateUser = async (req: Request, res: Response) => {
-  // Validate Request Headers
-  // Find and validate the request properties
-  const errors = validationResult(req);
-
-  if (!errors.isEmpty()) {
-    res.status(422).json({ errors: errors.array() });
-    return;
-  }
-
+const loginUser = async (req: Request, res: Response) => {
   const { email, password } = req.body;
   const user = await getDbUserByEmail(email);
 
@@ -144,4 +135,4 @@ const logoutUser = async (req: Request, res: Response) => {
   return res.status(200).json({ message: "User logged out" });
 };
 
-export { authenticateUser, logoutUser, PSN_AUTH, registerUser };
+export { loginUser, logoutUser, PSN_AUTH, registerUser };

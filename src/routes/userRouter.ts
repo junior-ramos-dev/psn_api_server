@@ -5,10 +5,10 @@ import { REQUEST_PROPERTY, validateReq } from "@/middlewares/requestMiddleware";
 
 const userRouter = express.Router();
 
-userRouter.get("/:userId", getUserById);
+userRouter.get("/", getUserById);
 
 userRouter.get(
-  "/:userId/profile",
+  "/profile",
   validateReq(REQUEST_PROPERTY.HEADERS),
   getUserProfileById
 );
