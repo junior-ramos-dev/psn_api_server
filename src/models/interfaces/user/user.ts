@@ -4,6 +4,41 @@ import { IGame, IGameTrophies } from "../game";
 
 import { IUserProfile } from "./profile";
 
+export interface IAuthUser {
+  /**
+   * The user's unique identifier
+   * @type {string}
+   * @memberof IAuthUser
+   * @property id
+   * @required
+   * @example
+   * "5e8d8hg8h8h8q8faf8g8f8f"
+   */
+  id: string;
+
+  /**
+   * The PSN usersname
+   * @type {string}
+   * @memberof IAuthUser
+   * @property name
+   * @required
+   * @example
+   * "JohnSmith"
+   */
+  psnOnlineId: string;
+
+  /**
+   * The user's email address
+   * @type {string}
+   * @memberof IAuthUser
+   * @property email
+   * @required
+   * @example
+   * "john.smith@welcomedeveloper.com"
+   */
+  email: string;
+}
+
 export interface IUserAndProfile {
   userDb: IUser;
   userProfileDb: IUserProfile;

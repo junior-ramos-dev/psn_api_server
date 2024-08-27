@@ -6,9 +6,10 @@ import {
   IPresence,
   IUserProfile,
 } from "./profile";
-import { IUser, IUserAndProfile, IUserGames } from "./user";
+import { IAuthUser, IUser, IUserAndProfile, IUserGames } from "./user";
 
 export type {
+  IAuthUser,
   IAvatarURL,
   IConsoleAvailability,
   IPersonalDetail,
