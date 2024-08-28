@@ -119,7 +119,7 @@ const loginUser = async (req: Request, res: Response) => {
 
 const logoutUser = async (req: Request, res: Response) => {
   // Unset the PSN credentials used with psn_api
-  PSN_AUTH = PsnAuth.clearPsnAuth(PSN_AUTH);
+  if (PSN_AUTH) PSN_AUTH = PsnAuth.clearPsnAuth(PSN_AUTH);
 
   clearToken(res);
   return res.status(200).json({ message: "User logged out" });

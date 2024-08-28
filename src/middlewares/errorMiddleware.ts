@@ -14,8 +14,6 @@ export const errorHandler = (
 ) => {
   console.error(err.stack);
 
-  console.log(err instanceof RequestError);
-
   if (err instanceof RequestError) {
     return res.status(422).json({
       message: err.message,
