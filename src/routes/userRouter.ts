@@ -1,15 +1,17 @@
 import express from "express";
 
 import { getUserById, getUserProfileById } from "@/controllers/userController";
-import { REQUEST_PROPERTY, validateReq } from "@/middlewares/requestMiddleware";
+import { authenticate } from "@/middlewares/authMiddleware";
+import { validateEtagHeader } from "@/middlewares/validations/request/defaults";
 
 const userRouter = express.Router();
 
-userRouter.get("/", getUserById);
+userRouter.get("/", authenticate, getUserById);
 
 userRouter.get(
   "/profile",
-  validateReq(REQUEST_PROPERTY.HEADERS),
+  validateEtagHeader(),
+  authenticate,
   getUserProfileById
 );
 

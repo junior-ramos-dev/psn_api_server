@@ -2,17 +2,22 @@ import { NextFunction, Request, Response } from "express";
 import asyncHandler from "express-async-handler";
 import jwt, { JwtPayload } from "jsonwebtoken";
 
-import { PSN_AUTH } from "@/controllers/authController";
 import {
   AuthenticationError,
-  PsnApiError,
+  tryCatchErrorHandler,
 } from "@/models/interfaces/common/error";
 import { IAuthUser } from "@/models/interfaces/user";
 import { User } from "@/models/schemas/user";
 
+import { validateReqProperties } from "./validations/request/validateReqMiddleware";
+
 const authenticate = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
+      // Validate Request Headers
+      // Find and validate the request properties
+      validateReqProperties(req);
+
       const token = req.cookies.jwt;
 
       if (!token) {
@@ -32,10 +37,6 @@ const authenticate = asyncHandler(
         throw new AuthenticationError("User not found");
       }
 
-      if (!PSN_AUTH) {
-        throw new PsnApiError("Failed retrieving PSN API credentials");
-      }
-
       // req.user = user;
       const authUser: IAuthUser = {
         id: String(user._id),
@@ -44,12 +45,8 @@ const authenticate = asyncHandler(
       };
       req.session.user = authUser;
       next();
-    } catch (error) {
-      if (error instanceof AuthenticationError) {
-        throw new AuthenticationError(`Invalid token: ${error}`);
-      } else if (error instanceof PsnApiError) {
-        throw new PsnApiError(`Invalid credentials: ${error.message}`);
-      }
+    } catch (error: unknown) {
+      tryCatchErrorHandler(error);
     }
   }
 );

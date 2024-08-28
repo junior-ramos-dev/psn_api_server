@@ -6,22 +6,20 @@ import {
   registerUser,
 } from "@/controllers/authController";
 import { psnAuthenticate } from "@/middlewares/psnAuthMiddleware";
-import { REQUEST_PROPERTY, validateReq } from "@/middlewares/requestMiddleware";
+import {
+  validateLoginReq,
+  validateRegisterReq,
+} from "@/middlewares/validations/request/auth";
 
 const authRouter = express.Router();
 
 authRouter.post(
   "/register",
-  validateReq(REQUEST_PROPERTY.AUTH_HEADERS),
+  validateRegisterReq(),
   psnAuthenticate,
   registerUser
 );
-authRouter.post(
-  "/login",
-  validateReq(REQUEST_PROPERTY.AUTH_HEADERS),
-  psnAuthenticate,
-  loginUser
-);
+authRouter.post("/login", validateLoginReq(), psnAuthenticate, loginUser);
 authRouter.post("/logout", logoutUser);
 
 export default authRouter;

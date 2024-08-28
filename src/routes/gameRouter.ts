@@ -5,15 +5,16 @@ import {
   getGameIconBinByListOfGamesIds,
   getGamesByUser,
 } from "@/controllers/gameController";
-import { REQUEST_PROPERTY, validateReq } from "@/middlewares/requestMiddleware";
+import { authenticate } from "@/middlewares/authMiddleware";
+import { validateEtagHeader } from "@/middlewares/validations/request/defaults";
 
 const gameRouter = express.Router();
 
-gameRouter.get("/list", validateReq(REQUEST_PROPERTY.HEADERS), getGamesByUser);
+gameRouter.get("/list", validateEtagHeader(), authenticate, getGamesByUser);
 
-gameRouter.get("/icon/:npCommunicationId", getGameIconBinByGame);
+gameRouter.get("/icon/:npCommunicationId", authenticate, getGameIconBinByGame);
 
-gameRouter.post("/icon/list", getGameIconBinByListOfGamesIds);
+gameRouter.post("/icon/list", authenticate, getGameIconBinByListOfGamesIds);
 
 // gameRouter.patch("/:id", patchGame);
 

@@ -8,7 +8,6 @@ import helmet from "helmet";
 import morgan from "morgan";
 
 import connectMongoDB from "@/connections/mongoDB";
-import { authenticate } from "@/middlewares/authMiddleware";
 import { errorHandler } from "@/middlewares/errorMiddleware";
 import authRouter from "@/routes/authRouter";
 import gameRouter from "@/routes/gameRouter";
@@ -25,15 +24,6 @@ import {
 import "express-async-errors";
 
 dotenv.config();
-
-declare global {
-  // eslint-disable-next-line @typescript-eslint/no-namespace
-  namespace Express {
-    interface Request {
-      user?: IAuthUser | null;
-    }
-  }
-}
 
 declare module "express-session" {
   export interface SessionData {
@@ -102,13 +92,13 @@ app.use("/status", (req: Request, res: Response) => res.sendStatus(200));
 app.use("/auth", authRouter);
 
 //User Routes
-app.use("/user", authenticate, userRouter);
+app.use("/user", userRouter);
 
 //Games Routes
-app.use("/game", authenticate, gameRouter);
+app.use("/game", gameRouter);
 
 //Trophies Routes
-app.use("/trophy", authenticate, trophyRouter);
+app.use("/trophy", trophyRouter);
 
 //Error Handler
 app.use(errorHandler);

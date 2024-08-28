@@ -1,5 +1,4 @@
 import { Request, Response } from "express";
-import { validationResult } from "express-validator";
 import { MongooseError } from "mongoose";
 
 import { IUserGames } from "@/models/interfaces/user";
@@ -23,15 +22,6 @@ import { isValidId } from "@/utils/mongoose";
  * @returns
  */
 const getGamesByUser = async (req: Request, res: Response) => {
-  // Validate Request Headers
-  // Find and validate the request properties
-  const errors = validationResult(req);
-
-  if (!errors.isEmpty()) {
-    res.status(422).json({ errors: errors.array() });
-    return;
-  }
-
   try {
     //Get user id from session
     const userId = req.session.user!.id;

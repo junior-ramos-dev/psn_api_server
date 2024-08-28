@@ -71,6 +71,13 @@ export const getBearerTokenFromHeader = (authToken: string) => {
   return authToken.split(" ")[1];
 };
 
+// Helper function to check npsso
+export const checkNpssoFormat = (npsso: string) => {
+  const npssoRegex = /^([a-zA-Z0-9]){64}$/;
+
+  return npssoRegex.test(npsso);
+};
+
 /**
  * Helper function to check if Etag is new
  *
@@ -105,7 +112,7 @@ export const isFreshEtagHeader = (
           : req.headers["etag"],
       "if-none-match": JSON.parse(req.headers["if-none-match"]!),
     };
-
+    console.log(reqHeader, resHeader);
     return fresh(reqHeader, resHeader);
   } catch (error) {
     console.log(error);
@@ -123,7 +130,7 @@ export const setPsnApiPollingInterval = (
   objUpdatedAt: Date,
   intervalHours: number
 ) => {
-  const developmentInterval = 1000; //hours
+  const developmentInterval = 0; //hours
 
   // Interval in hours to request data from psnApi;
   const pollingInterval = IS_NODE_ENV_PRODUCTION

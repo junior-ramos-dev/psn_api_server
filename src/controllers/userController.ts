@@ -1,5 +1,4 @@
 import { Request, Response } from "express";
-import { validationResult } from "express-validator";
 import { MongooseError } from "mongoose";
 
 import { IUserProfile } from "@/models/interfaces/user";
@@ -45,14 +44,6 @@ const getUserById = async (req: Request, res: Response) => {
  * @param res
  */
 const getUserProfileById = async (req: Request, res: Response) => {
-  // Validate Request Headers
-  // Find and validate the request properties
-  const errors = validationResult(req);
-
-  if (!errors.isEmpty()) {
-    return res.status(422).json({ errors: errors.array() });
-  }
-
   try {
     //Get user id from session
     const userId = req.session.user!.id;
