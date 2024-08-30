@@ -4,7 +4,7 @@ import jwt, { JwtPayload } from "jsonwebtoken";
 
 import {
   AuthenticationError,
-  tryCatchErrorHandler,
+  servicesErrorHandler,
 } from "@/models/interfaces/common/error";
 import { IAuthUser } from "@/models/interfaces/user";
 import { User } from "@/models/schemas/user";
@@ -46,7 +46,7 @@ const authenticate = asyncHandler(
       req.session.user = authUser;
       next();
     } catch (error: unknown) {
-      tryCatchErrorHandler(error);
+      servicesErrorHandler(error);
     }
   }
 );

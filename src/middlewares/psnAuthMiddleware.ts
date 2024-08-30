@@ -3,7 +3,7 @@ import asyncHandler from "express-async-handler";
 
 import {
   PsnApiError,
-  tryCatchErrorHandler,
+  servicesErrorHandler,
 } from "@/models/interfaces/common/error";
 import { checkNpssoFormat, getBearerTokenFromHeader } from "@/utils/http";
 
@@ -31,10 +31,8 @@ const psnAuthenticate = asyncHandler(
 
       next();
     } catch (error: unknown) {
-      // if (error instanceof PsnApiError) {
-      //   throw new PsnApiError(`Invalid NPSSO code: ${error.message}`);
-      // }
-      tryCatchErrorHandler(error);
+      //Handle the error
+      servicesErrorHandler(error);
     }
   }
 );
