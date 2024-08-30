@@ -23,7 +23,7 @@ const psnAuthenticate = asyncHandler(
 
       if (!checkNpssoFormat(npsso)) {
         throw new PsnApiError(
-          "Invalid NPSSO code. To get a NPSSO code, visit https://ca.account.sony.com/api/v1/ssocookie."
+          "Invalid NPSSO code. To get a NPSSO code, log into your PSN account and visit https://ca.account.sony.com/api/v1/ssocookie"
         );
       }
 

@@ -16,14 +16,17 @@ export const errorHandler = (
 
   if (err instanceof RequestError) {
     return res.status(422).json({
+      name: err.name,
       message: err.message,
       errors: err.errors,
     });
     // res.status(500).json({ err });
   } else if (err instanceof AuthenticationError || err instanceof PsnApiError) {
-    res.status(401).json({ message: "Unauthorized: " + err.message });
+    res
+      .status(401)
+      .json({ name: err.name, message: `Unauthorized: ${err.message}` });
   } else {
-    res.status(500).json({ message: "Internal Server Error" });
+    res.status(500).json({ name: err.name, message: "Internal Server Error" });
   }
   next();
 };

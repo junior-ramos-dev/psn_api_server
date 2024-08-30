@@ -8,6 +8,7 @@ class RequestError extends Error {
     this.name = "RequestError";
     this.errors = errors;
   }
+  self = () => this;
 }
 
 class AuthenticationError extends Error {
@@ -15,13 +16,31 @@ class AuthenticationError extends Error {
     super(message);
     this.name = "AuthenticationError";
   }
+  self = () => this;
 }
 
 class PsnApiError extends Error {
-  constructor(message: string, error?: string) {
-    super(`${message}: ${error}`);
+  constructor(message: string) {
+    super(message);
     this.name = "PsnApiError";
   }
+  self = () => this;
+}
+
+class MongoDbError extends MongooseError {
+  constructor(message: string) {
+    super(message);
+    this.name = "MongoDbError";
+  }
+  self = () => this;
+}
+
+class UnknownError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "UnknownError";
+  }
+  self = () => this;
 }
 
 // type Constructor<T = {}> = new (...args: any[]) => T;
@@ -30,23 +49,37 @@ const tryCatchErrorHandler = (catchError: unknown) => {
   console.log(catchError);
 
   let classErrorType = 0;
+  let classError;
 
-  if (catchError instanceof RequestError) classErrorType = 1;
-  if (catchError instanceof AuthenticationError) classErrorType = 2;
-  if (catchError instanceof PsnApiError) classErrorType = 3;
-  if (catchError instanceof MongooseError) classErrorType = 4;
+  if (catchError instanceof RequestError) {
+    classErrorType = 1;
+    classError = catchError.self();
+  }
+
+  if (catchError instanceof AuthenticationError) {
+    classErrorType = 2;
+    classError = catchError.self();
+  }
+  if (catchError instanceof PsnApiError) {
+    classErrorType = 3;
+    classError = catchError.self();
+  }
+  if (catchError instanceof MongoDbError) {
+    classErrorType = 4;
+    classError = catchError.self();
+  }
 
   switch (classErrorType) {
     case 1:
-      throw catchError as RequestError;
+      throw classError; //RequestError
     case 2:
-      throw catchError as AuthenticationError;
+      throw classError; //AuthenticationError
     case 3:
-      throw catchError as PsnApiError;
+      throw classError; //PsnApiError
     case 4:
-      throw catchError as MongooseError;
+      throw classError; //MongoDbError;
     default:
-      throw new Error(`UnknownError: ${catchError}`);
+      throw new UnknownError(`${catchError}`); //UnknownError
   }
 };
 
