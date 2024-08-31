@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import jwt from "jsonwebtoken";
-import { MongooseError } from "mongoose";
 
+import { ERROR_CLASS_NAME } from "@/models/interfaces/common/error";
 import { PsnAuth } from "@/services/psnApi/psnAuth";
 import {
   createDbUserAndProfile,
@@ -10,8 +10,6 @@ import {
 } from "@/services/repositories/userRepository";
 import { IS_NODE_ENV_PRODUCTION } from "@/utils/env";
 import { getBearerTokenFromHeader } from "@/utils/http";
-
-//TODO Error handling / return response
 
 let PSN_AUTH: PsnAuth;
 
@@ -41,15 +39,17 @@ const registerUser = async (req: Request, res: Response) => {
   const onlineIdExists = await getDbUserByPsnOnlineId(psnOnlineId);
   const userEmailExists = await getDbUserByEmail(email);
 
-  if (onlineIdExists && !(onlineIdExists instanceof MongooseError)) {
+  if (onlineIdExists) {
     return res.status(400).json({
+      name: ERROR_CLASS_NAME.MONGO_DB,
       message: `An account with PSN Username '${psnOnlineId}' already exists!`,
     });
   }
-  if (userEmailExists && !(userEmailExists instanceof MongooseError)) {
-    return res
-      .status(400)
-      .json({ message: `An account with email '${email}' already exists!` });
+  if (userEmailExists) {
+    return res.status(400).json({
+      name: ERROR_CLASS_NAME.MONGO_DB,
+      message: `An account with email '${email}' already exists!`,
+    });
   }
 
   const authorization = req.headers["authorization"];
@@ -63,7 +63,7 @@ const registerUser = async (req: Request, res: Response) => {
     // Create user profile
     const data = await createDbUserAndProfile(psnOnlineId, email, password);
 
-    if ("userDb" in data) {
+    if (data && "userDb" in data) {
       const { userDb } = data;
       generateToken(res, String(userDb._id));
       return res.status(201).json({
@@ -72,12 +72,14 @@ const registerUser = async (req: Request, res: Response) => {
         email: userDb.email,
       });
     } else {
-      return res
-        .status(400)
-        .json({ message: "An error occurred in creating the account" });
+      return res.status(400).json({
+        name: ERROR_CLASS_NAME.MONGO_DB,
+        message: "An error occurred in creating the account",
+      });
     }
   } else {
     return res.status(401).json({
+      name: ERROR_CLASS_NAME.PSN_API,
       message: "An error occurred in creating the account: Missing 'NPSSO'",
     });
   }
@@ -87,11 +89,7 @@ const loginUser = async (req: Request, res: Response) => {
   const { email, password } = req.body;
   const user = await getDbUserByEmail(email);
 
-  if (
-    user &&
-    !(user instanceof MongooseError) &&
-    (await user.comparePassword(password))
-  ) {
+  if (user && (await user.comparePassword(password))) {
     // Get the PSN credentials for using with psn_api
     const authorization = req.headers["authorization"];
 
@@ -99,9 +97,10 @@ const loginUser = async (req: Request, res: Response) => {
       const NPSSO = getBearerTokenFromHeader(authorization);
       PSN_AUTH = await PsnAuth.createPsnAuth(NPSSO).then((psnAuth) => psnAuth);
     } else {
-      return res
-        .status(401)
-        .json({ message: "An error occurred in login: Missing 'NPSSO'" });
+      return res.status(401).json({
+        name: ERROR_CLASS_NAME.PSN_API,
+        message: "An error occurred in login: Missing 'NPSSO'",
+      });
     }
 
     generateToken(res, String(user._id));
@@ -111,9 +110,10 @@ const loginUser = async (req: Request, res: Response) => {
       email: user.email,
     });
   } else {
-    return res
-      .status(401)
-      .json({ message: "User not found / password incorrect" });
+    return res.status(401).json({
+      name: ERROR_CLASS_NAME.MONGO_DB,
+      message: "User not found / password incorrect",
+    });
   }
 };
 
@@ -122,7 +122,9 @@ const logoutUser = async (req: Request, res: Response) => {
   if (PSN_AUTH) PSN_AUTH = PsnAuth.clearPsnAuth(PSN_AUTH);
 
   clearToken(res);
-  return res.status(200).json({ message: "User logged out" });
+  return res
+    .status(200)
+    .json({ name: "Authentication", message: "User logged out" });
 };
 
 export { loginUser, logoutUser, PSN_AUTH, registerUser };

@@ -1,5 +1,6 @@
-import { MongooseError, Types } from "mongoose";
+import { Types } from "mongoose";
 
+import { servicesErrorHandler } from "@/models/interfaces/common/error";
 import { IUser, IUserAndProfile, IUserProfile } from "@/models/interfaces/user";
 import { User, UserProfile } from "@/models/schemas/user";
 
@@ -19,7 +20,7 @@ export const createDbUserAndProfile = async (
   psnOnlineId: string,
   email: string,
   password: string
-): Promise<IUserAndProfile | MongooseError> => {
+): Promise<IUserAndProfile | undefined> => {
   const session = await User.startSession();
   session.startTransaction();
   try {
@@ -57,9 +58,8 @@ export const createDbUserAndProfile = async (
     // undo any changes that might have happened
     await session.abortTransaction();
     session.endSession();
-    console.log(error);
-
-    return error as MongooseError;
+    //Handle the error
+    servicesErrorHandler(error);
   }
 };
 
@@ -75,7 +75,7 @@ export const createDbUser = async (
   psnOnlineId: string,
   email: string,
   password: string
-) => {
+): Promise<IUser | undefined> => {
   try {
     const user = await User.create({
       psnOnlineId,
@@ -84,10 +84,8 @@ export const createDbUser = async (
     });
     return user;
   } catch (error: unknown) {
-    if (error instanceof MongooseError) {
-      console.log(error);
-      return error;
-    }
+    //Handle the error
+    servicesErrorHandler(error);
   }
 };
 
@@ -101,7 +99,7 @@ export const createDbUser = async (
 export const createDbUserProfile = async (
   userId: Types.ObjectId,
   psnOnlineId: string
-) => {
+): Promise<IUserProfile | undefined> => {
   try {
     // Get user profile from psn_api
     const userPsnProfile = await getPsnUserProfileByUsername(psnOnlineId);
@@ -113,10 +111,8 @@ export const createDbUserProfile = async (
 
     return userDbProfile;
   } catch (error: unknown) {
-    if (error instanceof MongooseError) {
-      console.log(error);
-      return error;
-    }
+    //Handle the error
+    servicesErrorHandler(error);
   }
 };
 
@@ -128,7 +124,7 @@ export const createDbUserProfile = async (
  */
 export const getDbUserById = async (
   userId: string
-): Promise<IUser | undefined | MongooseError> => {
+): Promise<IUser | undefined> => {
   try {
     const user = await User.findById(userId, {
       psnOnlineId: 1,
@@ -138,10 +134,8 @@ export const getDbUserById = async (
 
     return user as IUser;
   } catch (error: unknown) {
-    if (error instanceof MongooseError) {
-      console.log(error);
-      return error;
-    }
+    //Handle the error
+    servicesErrorHandler(error);
   }
 };
 
@@ -153,16 +147,14 @@ export const getDbUserById = async (
  */
 export const getDbUserByEmail = async (
   email: string
-): Promise<IUser | undefined | MongooseError> => {
+): Promise<IUser | undefined> => {
   try {
     const user = await User.findOne({ email });
 
     return user as IUser;
   } catch (error: unknown) {
-    if (error instanceof MongooseError) {
-      console.log(error);
-      return error;
-    }
+    //Handle the error
+    servicesErrorHandler(error);
   }
 };
 
@@ -174,16 +166,14 @@ export const getDbUserByEmail = async (
  */
 export const getDbUserByPsnOnlineId = async (
   psnOnlineId: string
-): Promise<IUser | undefined | MongooseError> => {
+): Promise<IUser | undefined> => {
   try {
     const user = await User.findOne({ psnOnlineId });
 
     return user as IUser;
   } catch (error: unknown) {
-    if (error instanceof MongooseError) {
-      console.log(error);
-      return error;
-    }
+    //Handle the error
+    servicesErrorHandler(error);
   }
 };
 
@@ -195,7 +185,7 @@ export const getDbUserByPsnOnlineId = async (
  */
 export const getDbUserProfileByUserId = async (
   userId: string
-): Promise<IUserProfile | undefined | MongooseError> => {
+): Promise<IUserProfile | undefined> => {
   try {
     const userProfile = await UserProfile.findOne({
       userId: userId,
@@ -203,10 +193,8 @@ export const getDbUserProfileByUserId = async (
 
     return userProfile as IUserProfile;
   } catch (error: unknown) {
-    if (error instanceof MongooseError) {
-      console.log(error);
-      return error;
-    }
+    //Handle the error
+    servicesErrorHandler(error);
   }
 };
 
@@ -220,7 +208,7 @@ export const getDbUserProfileByUserId = async (
 export const updateDbUserProfile = async (
   userId: string,
   psnOnlineId: string
-): Promise<IUserProfile | undefined | MongooseError> => {
+): Promise<IUserProfile | undefined> => {
   console.log(userId, psnOnlineId);
 
   try {
@@ -242,9 +230,7 @@ export const updateDbUserProfile = async (
 
     return updatedProfile as IUserProfile;
   } catch (error: unknown) {
-    if (error instanceof MongooseError) {
-      console.log(error);
-      return error;
-    }
+    //Handle the error
+    servicesErrorHandler(error);
   }
 };

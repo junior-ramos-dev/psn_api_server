@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import { MongooseError } from "mongoose";
 
+import { controllersErrorHandler } from "@/models/interfaces/common/error";
 import { IUserProfile } from "@/models/interfaces/user";
 import {
   getDbUserById,
@@ -8,9 +8,6 @@ import {
   updateDbUserProfile,
 } from "@/services/repositories/userRepository";
 import { isFreshEtagHeader, setPsnApiPollingInterval } from "@/utils/http";
-import { isValidId } from "@/utils/mongoose";
-
-//TODO Error handling / return response
 
 /**
  * Get the user basic info
@@ -23,17 +20,13 @@ const getUserById = async (req: Request, res: Response) => {
     //Get user id from session
     const userId = req.session.user!.id;
 
-    if (isValidId(userId)) {
-      const user = await getDbUserById(userId);
+    const user = await getDbUserById(userId);
 
-      res.status(200).json(user);
-    } else {
-      res.status(400).json({ error: "MongoDB: Invalid user id" });
-      return;
-    }
+    res.status(200).json(user);
   } catch (error) {
     console.log(error);
-    return res.status(400).json({ error: `MongoDB: User not found: ${error}` });
+    const resObj = controllersErrorHandler(error);
+    return res.status(resObj.status).json(resObj);
   }
 };
 
@@ -48,21 +41,16 @@ const getUserProfileById = async (req: Request, res: Response) => {
     //Get user id from session
     const userId = req.session.user!.id;
 
-    if (isValidId(userId)) {
-      const userProfile = await getDbUserProfileByUserId(userId);
+    const userProfile = await getDbUserProfileByUserId(userId);
 
-      if (userProfile && !(userProfile instanceof MongooseError)) {
-        // Get updated user profile from DB
-        await getUpdatedDbUserProfile(req, res, userProfile);
-      }
-    } else {
-      return res.status(400).json({ error: "MongoDB: Invalid user id" });
+    if (userProfile) {
+      // Get updated user profile from DB
+      await getUpdatedDbUserProfile(req, res, userProfile);
     }
   } catch (error) {
     console.log(error);
-    return res
-      .status(400)
-      .json({ error: `MongoDB: User profile not found: ${error}` });
+    const resObj = controllersErrorHandler(error);
+    return res.status(resObj.status).json(resObj);
   }
 };
 
@@ -94,7 +82,7 @@ const getUpdatedDbUserProfile = async (
       userProfile.onlineId
     );
 
-    if (updatedProfile && !(updatedProfile instanceof MongooseError)) {
+    if (updatedProfile) {
       console.log("updated userGames on DB");
       return res.json(updatedProfile);
     }
@@ -102,7 +90,10 @@ const getUpdatedDbUserProfile = async (
     console.log(
       "Not Modified. You can continue using the same cached version of user profile."
     );
-    return res.status(304).send();
+    return res.status(304).json({
+      message:
+        "Not Modified. You can continue using the same cached version of user profile.",
+    });
   } else if (!isFreshEtag) {
     console.log("returned userGames from DB");
     return res.status(200).json(userProfile);

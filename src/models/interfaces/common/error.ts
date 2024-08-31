@@ -2,6 +2,7 @@ import { ValidationError } from "express-validator";
 import { MongooseError } from "mongoose";
 
 export enum ERROR_CLASS_TYPE {
+  UNKNOWN = 0,
   REQUEST = 1,
   AUTHENTICATION = 2,
   PSN_API = 3,
@@ -14,6 +15,13 @@ export enum ERROR_CLASS_NAME {
   PSN_API = "PsnApiError",
   MONGO_DB = "MongoDbError",
   UNKNOWN = "UnknownError",
+}
+
+interface IResponseErrorObj {
+  status: number;
+  name: string;
+  message: string;
+  errors?: ValidationError[];
 }
 
 class RequestError extends Error {
@@ -43,9 +51,10 @@ class PsnApiError extends Error {
 }
 
 class MongoDbError extends MongooseError {
+  className: string;
   constructor(message: string) {
     super(message);
-    this.name = ERROR_CLASS_NAME.MONGO_DB;
+    this.className = ERROR_CLASS_NAME.MONGO_DB;
   }
   self = () => this;
 }
@@ -64,27 +73,24 @@ class UnknownError extends Error {
  * @param error
  */
 const castErrorUnknownToErrorClass = (error: unknown) => {
-  console.log(error);
-
-  let errorClassType = 0;
+  let errorClassType = -1;
   let errorClass;
 
   if (error instanceof RequestError) {
     errorClassType = ERROR_CLASS_TYPE.REQUEST;
     errorClass = error.self();
-  }
-
-  if (error instanceof AuthenticationError) {
+  } else if (error instanceof AuthenticationError) {
     errorClassType = ERROR_CLASS_TYPE.AUTHENTICATION;
     errorClass = error.self();
-  }
-  if (error instanceof PsnApiError) {
+  } else if (error instanceof PsnApiError) {
     errorClassType = ERROR_CLASS_TYPE.PSN_API;
     errorClass = error.self();
-  }
-  if (error instanceof MongoDbError) {
+  } else if (error instanceof MongooseError) {
     errorClassType = ERROR_CLASS_TYPE.MONGO_DB;
-    errorClass = error.self();
+    errorClass = new MongoDbError(error.message);
+  } else {
+    errorClassType = ERROR_CLASS_TYPE.UNKNOWN;
+    errorClass = new UnknownError(`${error}`);
   }
 
   return { errorClassType, errorClass };
@@ -110,8 +116,81 @@ const servicesErrorHandler = (error: unknown) => {
     case ERROR_CLASS_TYPE.MONGO_DB:
       throw errorClass; //MongoDbError;
     default:
-      throw new UnknownError(`${error}`); //UnknownError
+      throw errorClass; //UnknownError;
   }
 };
 
-export { AuthenticationError, PsnApiError, RequestError, servicesErrorHandler };
+const controllersErrorHandler = (error: unknown) => {
+  const { errorClassType, errorClass } = castErrorUnknownToErrorClass(error);
+  // console.error(errorClass.stack);
+
+  const resErrorObj: IResponseErrorObj = {
+    status: 400,
+    name: "Error",
+    message: "Error message",
+  };
+
+  if (errorClass) {
+    // return res.status(400).json({ error: `MongoDB: User not found: ${error}` });
+    switch (errorClassType) {
+      case ERROR_CLASS_TYPE.REQUEST: {
+        const reqError = errorClass as RequestError;
+        resErrorObj.status = 422;
+        resErrorObj.name = reqError.name;
+        resErrorObj.message = reqError.message;
+        resErrorObj.errors = reqError.errors;
+
+        break;
+      }
+
+      case ERROR_CLASS_TYPE.AUTHENTICATION: {
+        resErrorObj.status = 401;
+        resErrorObj.name = errorClass.name;
+        resErrorObj.message = `Unauthorized: ${errorClass.message}`;
+
+        break;
+      }
+
+      case ERROR_CLASS_TYPE.PSN_API: {
+        resErrorObj.status = 400;
+        resErrorObj.name = errorClass.name;
+        resErrorObj.message = `${errorClass.message}`;
+
+        break;
+      }
+
+      case ERROR_CLASS_TYPE.MONGO_DB: {
+        resErrorObj.status = 400;
+        resErrorObj.name = errorClass.name;
+        resErrorObj.message = `${errorClass.message}`;
+
+        break;
+      }
+
+      case ERROR_CLASS_TYPE.UNKNOWN: {
+        resErrorObj.status = 400;
+        resErrorObj.name = errorClass.name;
+        resErrorObj.message = `${errorClass.message}`;
+
+        break;
+      }
+
+      default: {
+        resErrorObj.status = 400;
+        resErrorObj.name = "Error";
+        resErrorObj.message = `${error}`;
+
+        break;
+      }
+    }
+  }
+  return resErrorObj;
+};
+
+export {
+  AuthenticationError,
+  controllersErrorHandler,
+  PsnApiError,
+  RequestError,
+  servicesErrorHandler,
+};
