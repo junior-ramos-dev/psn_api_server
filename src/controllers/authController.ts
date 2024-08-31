@@ -68,9 +68,11 @@ const registerUser = async (req: Request, res: Response) => {
       const { userDb, userProfileDb } = data;
       generateToken(res, String(userDb._id));
       return res.status(201).json({
-        id: userDb._id,
-        // psnOnlineId: userDb.psnOnlineId,
-        email: userDb.email,
+        user: {
+          id: userDb._id,
+          psnOnlineId: userDb.psnOnlineId,
+          email: userDb.email,
+        },
         profile: userProfileDb,
       });
     } else {
@@ -109,9 +111,11 @@ const loginUser = async (req: Request, res: Response) => {
 
     generateToken(res, String(user._id));
     return res.status(201).json({
-      id: user._id,
-      // psnOnlineId: user.psnOnlineId,
-      email: user.email,
+      user: {
+        id: user._id,
+        psnOnlineId: user.psnOnlineId,
+        email: user.email,
+      },
       profile: userDbProfile,
     });
   } else {
