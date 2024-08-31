@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import { MongooseError } from "mongoose";
 
+import { controllersErrorHandler } from "@/models/interfaces/common/error";
 import { IUserGames } from "@/models/interfaces/user";
 import {
   createDbGameIconBin,
@@ -8,14 +8,12 @@ import {
   getDbGameIconBin,
   getDbGameIconBinByListOfGamesIds,
   getDbGamesListByUserId,
-  updateDbGamesByUser,
+  updateDbGamesByUserId,
 } from "@/services/repositories/gameRepository";
 import { isFreshEtagHeader, setPsnApiPollingInterval } from "@/utils/http";
-import { isValidId } from "@/utils/mongoose";
-
-//TODO Error handling / return response
 
 /**
+ * Get the list of games of a user
  *
  * @param req
  * @param res
@@ -26,39 +24,34 @@ const getGamesByUser = async (req: Request, res: Response) => {
     //Get user id from session
     const userId = req.session.user!.id;
 
-    if (isValidId(userId)) {
-      const gamesByUser = await getDbGamesListByUserId(userId);
+    const gamesByUser = await getDbGamesListByUserId(userId);
 
-      if (gamesByUser && !(gamesByUser instanceof MongooseError)) {
-        // Return updated games list from db
-        await getUpdatedDbGamesList(req, res, gamesByUser, userId);
-      } else {
-        // Create games list into DB and return result
-        //TODO Retrieve games from psn_api and persit into DB on register
-        const createdGames = await createDbGamesByUser(userId);
-
-        if (createdGames && !(createdGames instanceof MongooseError)) {
-          // Download and create (if not exists yet) the game image (trophyTitleIconUrl)
-          // and insert as binary data in the collection "gamesicons"
-          await createDbGameIconBin(createdGames);
-
-          console.log("created userGames on DB");
-          return res.json(createdGames);
-        }
-      }
+    if (gamesByUser) {
+      // Return updated games list from db
+      await getUpdatedDbGamesList(req, res, gamesByUser, userId);
     } else {
-      return res.status(400).json({ error: "MongoDB: Invalid user id" });
+      // Create games list into DB and return result
+      //TODO Retrieve games from psn_api and persit into DB on register
+      const createdGames = await createDbGamesByUser(userId);
+
+      if (createdGames) {
+        // Download and create (if not exists yet) the game image (trophyTitleIconUrl)
+        // and insert as binary data in the collection "gamesicons"
+        await createDbGameIconBin(createdGames);
+
+        console.log("created userGames on DB");
+        return res.json(createdGames);
+      }
     }
   } catch (error) {
     console.log(error);
-    return res
-      .status(400)
-      .json({ error: `MongoDB: Error getting games by user: ${error}` });
+    const resObj = controllersErrorHandler(error);
+    return res.status(resObj.status).json(resObj);
   }
 };
 
 /**
- * Get updated games list from DB
+ * Retrieve or updated list of from DB
  *
  * @param req
  * @param res
@@ -82,9 +75,9 @@ const getUpdatedDbGamesList = async (
   console.log("isFreshEtag: ", isFreshEtag);
 
   if (isFreshEtag && diffHours > pollingInterval) {
-    const updatedGames = await updateDbGamesByUser(userId);
+    const updatedGames = await updateDbGamesByUserId(userId);
 
-    if (updatedGames && !(updatedGames instanceof MongooseError)) {
+    if (updatedGames) {
       // Download and update (if not exists yet) the game image (trophyTitleIconUrl)
       // and insert as binary data in the collection "gamesicons"
       await createDbGameIconBin(updatedGames);
@@ -104,7 +97,11 @@ const getUpdatedDbGamesList = async (
 };
 
 /**
+ * Get the icon (image) binary data from a game id (npCommunicationId)
  *
+ * @param req
+ * @param res
+ * @returns
  */
 const getGameIconBinByGame = async (req: Request, res: Response) => {
   try {
@@ -115,11 +112,16 @@ const getGameIconBinByGame = async (req: Request, res: Response) => {
     res.json(gameIconBin);
   } catch (error) {
     console.log(error);
+    const resObj = controllersErrorHandler(error);
+    return res.status(resObj.status).json(resObj);
   }
 };
 
 /**
+ * Get the icon (image) binary data from a list of game ids (npCommunicationId)
  *
+ * @param req
+ * @param res
  */
 const getGameIconBinByListOfGamesIds = async (req: Request, res: Response) => {
   try {
@@ -129,6 +131,8 @@ const getGameIconBinByListOfGamesIds = async (req: Request, res: Response) => {
     res.json(gameIconBin);
   } catch (error) {
     console.log(error);
+    const resObj = controllersErrorHandler(error);
+    return res.status(resObj.status).json(resObj);
   }
 };
 

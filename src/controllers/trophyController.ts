@@ -4,7 +4,7 @@ import { MongooseError } from "mongoose";
 import { IBulkResponse } from "@/models/interfaces/common/bulk";
 import { IUserGames } from "@/models/interfaces/user";
 import { upsertTrophiesForAllGamesBulk } from "@/services/repositories/bulk/trophy";
-import { getDbUseGameByNpCommunicationId } from "@/services/repositories/gameRepository";
+import { getDbUserGameByNpCommunicationId } from "@/services/repositories/gameRepository";
 import {
   createDbTrophyListByGame,
   getDbTrophyListByGame,
@@ -34,12 +34,12 @@ const getTrophiesByGame = async (req: Request, res: Response) => {
     const trophyTitlePlatform = req.params["trophyTitlePlatform"];
 
     if (isValidId(userId)) {
-      const userGame = await getDbUseGameByNpCommunicationId(
+      const userGame = await getDbUserGameByNpCommunicationId(
         userId,
         npCommunicationId
       );
 
-      if (userGame && !(userGame instanceof MongooseError)) {
+      if (userGame) {
         // Return updated trophies list from db
         await getUpdatedDbTrophyList(req, res, userGame);
       } else {

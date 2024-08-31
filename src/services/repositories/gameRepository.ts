@@ -1,13 +1,10 @@
-import { MongooseError } from "mongoose";
-
-import { Convert } from "@/models/interfaces/game";
+import { servicesErrorHandler } from "@/models/interfaces/common/error";
+import { Convert, IGameIcon } from "@/models/interfaces/game";
 import { IUserGames } from "@/models/interfaces/user";
 import { GameIcon } from "@/models/schemas/game";
 import { UserGames } from "@/models/schemas/user";
 import { getTrophyTitles } from "@/services/psnApi/games";
 import { dolwnloadFileToBase64 } from "@/utils/download";
-
-//TODO Error handling / return response
 
 /**
  * Create the list of games by user
@@ -15,7 +12,9 @@ import { dolwnloadFileToBase64 } from "@/utils/download";
  * @param userId
  * @returns
  */
-export const createDbGamesByUser = async (userId: string) => {
+export const createDbGamesByUser = async (
+  userId: string
+): Promise<IUserGames | undefined> => {
   try {
     // Get the user's list of titles (games) from psn_api
     const psnApiGames = await getTrophyTitles();
@@ -31,14 +30,10 @@ export const createDbGamesByUser = async (userId: string) => {
 
     return userGames as IUserGames;
   } catch (error: unknown) {
-    if (error instanceof MongooseError) {
-      console.log(error);
-      return error;
-    }
+    //Handle the error
+    servicesErrorHandler(error);
   }
 };
-
-type GetGamesResponse = IUserGames | undefined | MongooseError;
 
 /**
  * Get games by user and add (populate) the virtual reference from GameIcon schema
@@ -48,7 +43,7 @@ type GetGamesResponse = IUserGames | undefined | MongooseError;
  */
 export const getDbGamesListByUserId = async (
   userId: string
-): Promise<GetGamesResponse> => {
+): Promise<IUserGames | undefined> => {
   try {
     const userGames = await UserGames.findOne({ userId: userId });
     // .populate({
@@ -59,10 +54,8 @@ export const getDbGamesListByUserId = async (
 
     return userGames as IUserGames;
   } catch (error: unknown) {
-    if (error instanceof MongooseError) {
-      console.log(error);
-      return error;
-    }
+    //Handle the error
+    servicesErrorHandler(error);
   }
 };
 
@@ -72,9 +65,9 @@ export const getDbGamesListByUserId = async (
  * @param userId
  * @returns
  */
-export const updateDbGamesByUser = async (
+export const updateDbGamesByUserId = async (
   userId: string
-): Promise<IUserGames | undefined | MongooseError> => {
+): Promise<IUserGames | undefined> => {
   try {
     // Get the user's list of titles (games) from psn_api
     const psnApiGames = await getTrophyTitles();
@@ -96,10 +89,8 @@ export const updateDbGamesByUser = async (
 
     return userGames as IUserGames;
   } catch (error: unknown) {
-    if (error instanceof MongooseError) {
-      console.log(error);
-      return error;
-    }
+    //Handle the error
+    servicesErrorHandler(error);
   }
 };
 
@@ -109,10 +100,10 @@ export const updateDbGamesByUser = async (
  * @param userId
  * @returns
  */
-export const getDbUseGameByNpCommunicationId = async (
+export const getDbUserGameByNpCommunicationId = async (
   userId: string,
   npCommunicationId: string
-): Promise<IUserGames | undefined | MongooseError> => {
+): Promise<IUserGames | undefined> => {
   try {
     const userGames = await UserGames.findOne({
       userId: userId,
@@ -123,10 +114,8 @@ export const getDbUseGameByNpCommunicationId = async (
 
     return userGames as IUserGames;
   } catch (error: unknown) {
-    if (error instanceof MongooseError) {
-      console.log(error);
-      return error;
-    }
+    //Handle the error
+    servicesErrorHandler(error);
   }
 };
 
@@ -136,7 +125,9 @@ export const getDbUseGameByNpCommunicationId = async (
  * @param npCommunicationId
  * @returns
  */
-export const getDbGameIconBin = async (npCommunicationId: string) => {
+export const getDbGameIconBin = async (
+  npCommunicationId: string
+): Promise<IGameIcon | undefined | null> => {
   try {
     const gameIconBin = await GameIcon.findOne({
       npCommunicationId: npCommunicationId,
@@ -144,10 +135,8 @@ export const getDbGameIconBin = async (npCommunicationId: string) => {
 
     return gameIconBin;
   } catch (error: unknown) {
-    if (error instanceof MongooseError) {
-      console.log(error);
-      return error;
-    }
+    //Handle the error
+    servicesErrorHandler(error);
   }
 };
 
@@ -159,7 +148,7 @@ export const getDbGameIconBin = async (npCommunicationId: string) => {
  */
 export const getDbGameIconBinByListOfGamesIds = async (
   npCommIdList: string[]
-) => {
+): Promise<IGameIcon[] | undefined> => {
   try {
     const gameIconBinList = await GameIcon.find({
       npCommunicationId: { $in: [...npCommIdList] },
@@ -167,10 +156,8 @@ export const getDbGameIconBinByListOfGamesIds = async (
 
     return gameIconBinList;
   } catch (error: unknown) {
-    if (error instanceof MongooseError) {
-      console.log(error);
-      return error;
-    }
+    //Handle the error
+    servicesErrorHandler(error);
   }
 };
 
@@ -178,7 +165,9 @@ export const getDbGameIconBinByListOfGamesIds = async (
  * Download the game icon (if not exists yet) and insert as binary data in the collection "gamesicons"
  * aside from the "usergames" collection.
  */
-export const createDbGameIconBin = async (userGames: IUserGames) => {
+export const createDbGameIconBin = async (
+  userGames: IUserGames
+): Promise<void> => {
   try {
     let count = 1;
 
@@ -213,9 +202,7 @@ export const createDbGameIconBin = async (userGames: IUserGames) => {
       count++;
     }
   } catch (error: unknown) {
-    if (error instanceof MongooseError) {
-      console.log(error);
-      return error;
-    }
+    //Handle the error
+    servicesErrorHandler(error);
   }
 };

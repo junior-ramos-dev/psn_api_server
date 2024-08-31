@@ -11,6 +11,8 @@ import { setPsnApiPollingInterval } from "@/utils/http";
 import { getDbGamesListByUserId } from "../gameRepository";
 import { getOrCreateDbUserGamesTrophies } from "../trophyRepository";
 
+//TODO Error handling / return response
+
 /**
  * Get the params for insert trophies list bulk
  *
@@ -186,7 +188,7 @@ export const upsertTrophiesForAllGamesBulk = async (
   try {
     const userGames = await getDbGamesListByUserId(userId);
 
-    if (userGames && !(userGames instanceof MongooseError)) {
+    if (userGames) {
       const userGamesTrophies = await getOrCreateDbUserGamesTrophies(userId);
 
       if (userGamesTrophies && !(userGamesTrophies instanceof MongooseError)) {
