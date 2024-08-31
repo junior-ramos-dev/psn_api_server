@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { MongooseError } from "mongoose";
 
 import { IBulkResponse } from "@/models/interfaces/common/bulk";
+import { controllersErrorHandler } from "@/models/interfaces/common/error";
 import { IUserGames } from "@/models/interfaces/user";
 import { upsertTrophiesForAllGamesBulk } from "@/services/repositories/bulk/trophy";
 import { getDbUserGameByNpCommunicationId } from "@/services/repositories/gameRepository";
@@ -12,12 +13,9 @@ import {
   updateDbUserGamesTrophies,
 } from "@/services/repositories/trophyRepository";
 import { setPsnApiPollingInterval } from "@/utils/http";
-import { isValidId } from "@/utils/mongoose";
 
 //TODO Check if needs to create trophies icons
 // const createDbTrophyIconBin = (trophiesByGame) => {};
-
-//TODO Error handling / return response
 
 /**
  * Get trophy list by Game ID and Game Platform
@@ -33,35 +31,33 @@ const getTrophiesByGame = async (req: Request, res: Response) => {
     const npCommunicationId = req.params["npCommunicationId"];
     const trophyTitlePlatform = req.params["trophyTitlePlatform"];
 
-    if (isValidId(userId)) {
-      const userGame = await getDbUserGameByNpCommunicationId(
-        userId,
-        npCommunicationId
-      );
+    const userGame = await getDbUserGameByNpCommunicationId(
+      userId,
+      npCommunicationId
+    );
 
-      if (userGame) {
-        // Return updated trophies list from db
-        await getUpdatedDbTrophyList(req, res, userGame);
-      } else {
-        // Create trophies list into DB and return result
-        const userGamesTrophies = await getOrCreateDbUserGamesTrophies(userId);
-
-        if (userGamesTrophies) {
-          const createdTrophyListByGame = await createDbTrophyListByGame(
-            userId,
-            npCommunicationId,
-            trophyTitlePlatform
-          );
-
-          console.log("created trophy list by game on DB");
-          return res.json(createdTrophyListByGame);
-        }
-      }
+    if (userGame) {
+      // Return updated trophies list from db
+      await getUpdatedDbTrophyList(req, res, userGame);
     } else {
-      return res.status(400).json({ error: "MongoDB: Invalid user id" });
+      // Create trophies list into DB and return result
+      const userGamesTrophies = await getOrCreateDbUserGamesTrophies(userId);
+
+      if (userGamesTrophies) {
+        const createdTrophyListByGame = await createDbTrophyListByGame(
+          userId,
+          npCommunicationId,
+          trophyTitlePlatform
+        );
+
+        console.log("created trophy list by game on DB");
+        return res.json(createdTrophyListByGame);
+      }
     }
   } catch (error) {
     console.log(error);
+    const resObj = controllersErrorHandler(error);
+    return res.status(resObj.status).json(resObj);
   }
 };
 
@@ -104,10 +100,6 @@ const getUpdatedDbTrophyList = async (
       console.log("returned trophy list by game from DB");
       return res.json(gameTrophies);
     }
-  } else {
-    return res
-      .status(400)
-      .json({ message: "Unable to get trophy list. Game not found." });
   }
 };
 /**
@@ -131,30 +123,25 @@ const createTrophiesListForAllGamesBulk = async (
       isError: false,
     };
 
-    if (isValidId(userId)) {
-      const upsertTrophiesResponse = await upsertTrophiesForAllGamesBulk(
-        userId,
-        bulkResponse
-      );
+    const upsertTrophiesResponse = await upsertTrophiesForAllGamesBulk(
+      userId,
+      bulkResponse
+    );
 
-      if (
-        upsertTrophiesResponse &&
-        !(upsertTrophiesResponse instanceof MongooseError)
-      ) {
-        if (!upsertTrophiesResponse.isError) {
-          return res.status(200).send(bulkResponse);
-        } else {
-          return res.status(400).send(bulkResponse);
-        }
+    if (
+      upsertTrophiesResponse &&
+      !(upsertTrophiesResponse instanceof MongooseError)
+    ) {
+      if (!upsertTrophiesResponse.isError) {
+        return res.status(200).send(bulkResponse);
+      } else {
+        return res.status(400).send(bulkResponse);
       }
-    } else {
-      return res.status(400).json({ error: "MongoDB: Invalid user id" });
     }
   } catch (error) {
-    console.log(`MongoDB: Error running games trohies list bulk: ${error}`);
-    return res.status(400).json({
-      error: `MongoDB: Error running games trohies list bulk: ${error}`,
-    });
+    console.log(error);
+    const resObj = controllersErrorHandler(error);
+    return res.status(resObj.status).json(resObj);
   }
 };
 

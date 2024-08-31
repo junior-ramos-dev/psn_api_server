@@ -1,7 +1,7 @@
 import _ from "lodash";
-import { MongooseError } from "mongoose";
 
 import { IBulkResponse } from "@/models/interfaces/common/bulk";
+import { servicesErrorHandler } from "@/models/interfaces/common/error";
 import { IGamesTrophiesBulk } from "@/models/interfaces/game";
 import { IUserGames } from "@/models/interfaces/user";
 import { UserGamesTrophies } from "@/models/schemas/user";
@@ -191,7 +191,7 @@ export const upsertTrophiesForAllGamesBulk = async (
     if (userGames) {
       const userGamesTrophies = await getOrCreateDbUserGamesTrophies(userId);
 
-      if (userGamesTrophies && !(userGamesTrophies instanceof MongooseError)) {
+      if (userGamesTrophies) {
         // Interval in hours to request data from psnApi;
         const { diffHours, pollingInterval } = setPsnApiPollingInterval(
           userGames.updatedAt,
@@ -224,7 +224,7 @@ export const upsertTrophiesForAllGamesBulk = async (
 
     return bulkResponse;
   } catch (error) {
-    console.log(error);
-    return new MongooseError(`${error}`);
+    //Handle the error
+    servicesErrorHandler(error);
   }
 };

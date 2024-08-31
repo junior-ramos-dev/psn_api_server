@@ -1,5 +1,7 @@
-import { MongooseError, Types } from "mongoose";
+import { Types } from "mongoose";
 
+import { servicesErrorHandler } from "@/models/interfaces/common/error";
+import { IGameTrophies } from "@/models/interfaces/game";
 import { IUserGamesTrophies } from "@/models/interfaces/user/user";
 import { GameTrophies } from "@/models/schemas/game";
 import { UserGamesTrophies } from "@/models/schemas/user/user";
@@ -9,17 +11,17 @@ import { getPsnGameParsedTrophies } from "@/services/psnApi/trophies";
 // Get the list of trophies stats for each of the user's titles.
 // const getAllGamesTrophiesInfoList = async (): Promise<GameStats[]> => {};
 
-//TODO Error handling / return response
-
 /**
- * Create the list of trophies by game
+ * Get or Create (if not exists) the list of trophies by game
  *
  * @param userId
  * @param npCommunicationId
  * @param trophyTitlePlatform
  * @returns
  */
-export const getOrCreateDbUserGamesTrophies = async (userId: string) => {
+export const getOrCreateDbUserGamesTrophies = async (
+  userId: string
+): Promise<IUserGamesTrophies | undefined> => {
   try {
     const userGamesTrophies = await UserGamesTrophies.findOne({
       userId: userId,
@@ -38,10 +40,8 @@ export const getOrCreateDbUserGamesTrophies = async (userId: string) => {
       return createdUserGamesTrophies as IUserGamesTrophies;
     }
   } catch (error: unknown) {
-    if (error instanceof MongooseError) {
-      console.log(error);
-      return error;
-    }
+    //Handle the error
+    servicesErrorHandler(error);
   }
 };
 
@@ -57,7 +57,7 @@ export const createDbTrophyListByGame = async (
   userId: string,
   npCommunicationId: string,
   trophyTitlePlatform: string
-) => {
+): Promise<IGameTrophies | undefined> => {
   try {
     // Get the list of trophies by game from psn_api
     const psnApiTrophyList = await getPsnGameParsedTrophies(
@@ -81,12 +81,10 @@ export const createDbTrophyListByGame = async (
 
     await UserGamesTrophies.findOneAndUpdate(query, update);
 
-    return gameTrophyList;
+    return gameTrophyList as IGameTrophies;
   } catch (error: unknown) {
-    if (error instanceof MongooseError) {
-      console.log(error);
-      return error;
-    }
+    //Handle the error
+    servicesErrorHandler(error);
   }
 };
 
@@ -102,7 +100,7 @@ export const updateDbUserGamesTrophies = async (
   userId: string,
   npCommunicationId: string,
   trophyTitlePlatform: string
-) => {
+): Promise<IUserGamesTrophies | undefined> => {
   try {
     // Get the list of trophies by game from psn_api
     const psnApiTrophyList = await getPsnGameParsedTrophies(
@@ -130,12 +128,10 @@ export const updateDbUserGamesTrophies = async (
 
     await gameTrophiesList?.save();
 
-    return gameTrophiesList;
+    return gameTrophiesList as IUserGamesTrophies;
   } catch (error: unknown) {
-    if (error instanceof MongooseError) {
-      console.log(error);
-      return error;
-    }
+    //Handle the error
+    servicesErrorHandler(error);
   }
 };
 
@@ -149,7 +145,7 @@ export const updateDbUserGamesTrophies = async (
 export const getDbTrophyListByGame = async (
   userId: string,
   npCommunicationId: string
-) => {
+): Promise<IUserGamesTrophies | undefined> => {
   try {
     const gameTrophies = await UserGamesTrophies.aggregate([
       // Match the documents by query
@@ -189,11 +185,9 @@ export const getDbTrophyListByGame = async (
       },
     ]).then((result) => result[0]);
 
-    return gameTrophies;
+    return gameTrophies as IUserGamesTrophies;
   } catch (error: unknown) {
-    if (error instanceof MongooseError) {
-      console.log(error);
-      return error;
-    }
+    //Handle the error
+    servicesErrorHandler(error);
   }
 };
