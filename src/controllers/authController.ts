@@ -7,6 +7,7 @@ import {
   createDbUserAndProfile,
   getDbUserByEmail,
   getDbUserByPsnOnlineId,
+  getDbUserProfileByUserId,
 } from "@/services/repositories/userRepository";
 import { IS_NODE_ENV_PRODUCTION } from "@/utils/env";
 import { getBearerTokenFromHeader } from "@/utils/http";
@@ -63,13 +64,14 @@ const registerUser = async (req: Request, res: Response) => {
     // Create user profile
     const data = await createDbUserAndProfile(psnOnlineId, email, password);
 
-    if (data && "userDb" in data) {
-      const { userDb } = data;
+    if (data && "userDb" in data && "userProfileDb" in data) {
+      const { userDb, userProfileDb } = data;
       generateToken(res, String(userDb._id));
       return res.status(201).json({
         id: userDb._id,
-        psnOnlineId: userDb.psnOnlineId,
+        // psnOnlineId: userDb.psnOnlineId,
         email: userDb.email,
+        profile: userProfileDb,
       });
     } else {
       return res.status(400).json({
@@ -103,11 +105,14 @@ const loginUser = async (req: Request, res: Response) => {
       });
     }
 
+    const userDbProfile = await getDbUserProfileByUserId(String(user._id));
+
     generateToken(res, String(user._id));
     return res.status(201).json({
       id: user._id,
-      psnOnlineId: user.psnOnlineId,
+      // psnOnlineId: user.psnOnlineId,
       email: user.email,
+      profile: userDbProfile,
     });
   } else {
     return res.status(401).json({
