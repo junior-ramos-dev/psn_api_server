@@ -10,7 +10,7 @@ import {
   getDbGamesListByUserId,
   updateDbGamesByUserId,
 } from "@/services/repositories/gameRepository";
-import { isFreshEtagHeader, setPsnApiPollingInterval } from "@/utils/http";
+import { setPsnApiPollingInterval } from "@/utils/http";
 
 /**
  * Get the list of games of a user
@@ -31,7 +31,6 @@ const getGamesByUser = async (req: Request, res: Response) => {
       await getUpdatedDbGamesList(req, res, gamesByUser, userId);
     } else {
       // Create games list into DB and return result
-      //TODO Retrieve games from psn_api and persit into DB on register
       const createdGames = await createDbGamesByUser(userId);
 
       if (createdGames) {
@@ -71,10 +70,7 @@ const getUpdatedDbGamesList = async (
     2
   );
 
-  const isFreshEtag = isFreshEtagHeader(req, res, gamesByUser);
-  console.log("isFreshEtag: ", isFreshEtag);
-
-  if (isFreshEtag && diffHours > pollingInterval) {
+  if (diffHours > pollingInterval) {
     const updatedGames = await updateDbGamesByUserId(userId);
 
     if (updatedGames) {
@@ -85,12 +81,7 @@ const getUpdatedDbGamesList = async (
       console.log("updated userGames on DB");
       return res.json(gamesByUser);
     }
-  } else if (isFreshEtag && diffHours < pollingInterval) {
-    console.log(
-      "Not Modified. You can continue using the same cached version of user games list."
-    );
-    res.status(304).send();
-  } else if (!isFreshEtag) {
+  } else {
     console.log("returned userGames from DB");
     return res.json(gamesByUser);
   }

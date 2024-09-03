@@ -7,7 +7,7 @@ import {
   getDbUserProfileByUserId,
   updateDbUserProfile,
 } from "@/services/repositories/userRepository";
-import { isFreshEtagHeader, setPsnApiPollingInterval } from "@/utils/http";
+import { setPsnApiPollingInterval } from "@/utils/http";
 
 /**
  * Get the user basic info
@@ -73,10 +73,7 @@ const getUpdatedDbUserProfile = async (
     2
   );
 
-  const isFreshEtag = isFreshEtagHeader(req, res, userProfile);
-  console.log("isFreshEtag: ", isFreshEtag);
-
-  if (isFreshEtag && diffHours > pollingInterval) {
+  if (diffHours > pollingInterval) {
     const updatedProfile = await updateDbUserProfile(
       userProfile.userId.toString(),
       userProfile.onlineId
@@ -86,15 +83,7 @@ const getUpdatedDbUserProfile = async (
       console.log("updated userGames on DB");
       return res.json(updatedProfile);
     }
-  } else if (isFreshEtag && diffHours < pollingInterval) {
-    console.log(
-      "Not Modified. You can continue using the same cached version of user profile."
-    );
-    return res.status(304).json({
-      message:
-        "Not Modified. You can continue using the same cached version of user profile.",
-    });
-  } else if (!isFreshEtag) {
+  } else {
     console.log("returned userGames from DB");
     return res.status(200).json(userProfile);
   }
