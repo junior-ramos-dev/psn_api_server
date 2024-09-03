@@ -11,8 +11,6 @@ import { setPsnApiPollingInterval } from "@/utils/http";
 import { getDbGamesListByUserId } from "../gameRepository";
 import { getOrCreateDbUserGamesTrophies } from "../trophyRepository";
 
-//TODO Error handling / return response
-
 /**
  * Get the params for insert trophies list bulk
  *

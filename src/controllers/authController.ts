@@ -131,6 +131,9 @@ const logoutUser = async (req: Request, res: Response) => {
   if (PSN_AUTH) PSN_AUTH = PsnAuth.clearPsnAuth(PSN_AUTH);
 
   clearToken(res);
+  req.session.destroy((err) => {
+    if (err) console.log(`Session Destroy Error: ${err}`);
+  });
   return res
     .status(200)
     .json({ name: "Authentication", message: "User logged out" });
