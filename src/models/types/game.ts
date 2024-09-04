@@ -23,3 +23,12 @@ export enum NP_SERVICE_NAME {
 export enum TROPHY_GROUP_ID {
   ALL = "all",
 }
+
+export interface IGameIconProjecton {
+  [key: string]: number;
+}
+
+export enum IMG_TYPE {
+  PNG = "png",
+  WEBP = "webp",
+}

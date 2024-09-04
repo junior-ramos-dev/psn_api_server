@@ -3,8 +3,9 @@ import { Convert, IGameIcon } from "@/models/interfaces/game";
 import { IUserGames } from "@/models/interfaces/user";
 import { GameIcon } from "@/models/schemas/game";
 import { UserGames } from "@/models/schemas/user";
+import { IGameIconProjecton, IMG_TYPE } from "@/models/types/game";
 import { getTrophyTitles } from "@/services/psnApi/games";
-import { dolwnloadFileToBase64 } from "@/utils/download";
+import { dolwnloadImgToBase64, resizeImgToWebpBase64 } from "@/utils/download";
 
 /**
  * Create the list of games by user
@@ -141,6 +142,58 @@ export const getDbGameIconBin = async (
 };
 
 /**
+ * Get the game icon binary data by type (PNG/WEBP)
+ *
+ * @param npCommunicationId
+ * @param imgType
+ * @returns
+ */
+export const getDbGameIconBinByImgType = async (
+  npCommunicationId: string,
+  imgType: string
+): Promise<IGameIcon | undefined | null> => {
+  try {
+    const iconProjection: IGameIconProjecton = {
+      npCommunicationId: 1,
+      trophyTitleName: 1,
+      trophyTitleIconUrl: 1,
+      iconBinPng: 1,
+      iconBinWebp: 1,
+      createdAt: 1,
+      updatedAt: 1,
+    };
+
+    switch (imgType.toLowerCase()) {
+      case IMG_TYPE.PNG:
+        delete iconProjection.iconBinWebp;
+        break;
+      case IMG_TYPE.WEBP:
+        delete iconProjection.iconBinPng;
+        break;
+    }
+
+    const gameIconBin = await GameIcon.aggregate([
+      // Match the documents by query
+      {
+        $match: {
+          npCommunicationId: npCommunicationId,
+        },
+      },
+
+      // Project the result.
+      {
+        $project: iconProjection,
+      },
+    ]);
+
+    return gameIconBin[0] as IGameIcon;
+  } catch (error: unknown) {
+    //Handle the error
+    servicesErrorHandler(error);
+  }
+};
+
+/**
  * Get a list of game icon binary data from an array of "npCommunicationId"
  *
  * @param npCommIdList
@@ -186,15 +239,25 @@ export const createDbGameIconBin = async (
         console.log(
           `[${count}/${games.length}] Downloading Game Icon: ${game.trophyTitleName};`
         );
-        const iconBase64 = await dolwnloadFileToBase64(game.trophyTitleIconUrl);
 
-        console.log(iconBase64);
+        const iconPngBase64 = await dolwnloadImgToBase64(
+          game.trophyTitleIconUrl
+        );
+
+        const iconWebpBase64 = await resizeImgToWebpBase64(
+          iconPngBase64,
+          60,
+          40
+        );
+
+        // console.log(iconBase64);
 
         await GameIcon.create({
           npCommunicationId: game.npCommunicationId,
           trophyTitleName: game.trophyTitleName,
           trophyTitleIconUrl: game.trophyTitleIconUrl,
-          iconBinaryData: iconBase64,
+          iconBinPng: iconPngBase64,
+          iconBinWebp: iconWebpBase64,
           createdAt: new Date(),
           updatedAt: new Date(),
         });

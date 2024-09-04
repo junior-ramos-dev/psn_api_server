@@ -6,6 +6,7 @@ import {
   createDbGameIconBin,
   createDbGamesByUser,
   getDbGameIconBin,
+  getDbGameIconBinByImgType,
   getDbGameIconBinByListOfGamesIds,
   getDbGamesListByUserId,
   updateDbGamesByUserId,
@@ -94,11 +95,36 @@ const getUpdatedDbGamesList = async (
  * @param res
  * @returns
  */
-const getGameIconBinByGame = async (req: Request, res: Response) => {
+const getGameIconBin = async (req: Request, res: Response) => {
   try {
     const npCommunicationId = req.params["npCommunicationId"];
 
     const gameIconBin = await getDbGameIconBin(npCommunicationId);
+
+    res.json(gameIconBin);
+  } catch (error) {
+    console.log(error);
+    const resObj = controllersErrorHandler(error);
+    return res.status(resObj.status).json(resObj);
+  }
+};
+
+/**
+ * Get the PNG or WEBP icon (image) binary data from a game id (npCommunicationId)
+ *
+ * @param req
+ * @param res
+ * @returns
+ */
+const getGameIconBinByImgType = async (req: Request, res: Response) => {
+  try {
+    const npCommunicationId = req.params["npCommunicationId"];
+    const imgType = req.params["imgType"];
+
+    const gameIconBin = await getDbGameIconBinByImgType(
+      npCommunicationId,
+      imgType
+    );
 
     res.json(gameIconBin);
   } catch (error) {
@@ -127,4 +153,9 @@ const getGameIconBinByListOfGamesIds = async (req: Request, res: Response) => {
   }
 };
 
-export { getGameIconBinByGame, getGameIconBinByListOfGamesIds, getGamesByUser };
+export {
+  getGameIconBin,
+  getGameIconBinByImgType,
+  getGameIconBinByListOfGamesIds,
+  getGamesByUser,
+};

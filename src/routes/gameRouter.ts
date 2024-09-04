@@ -1,18 +1,26 @@
 import express from "express";
 
 import {
-  getGameIconBinByGame,
+  getGameIconBin,
+  getGameIconBinByImgType,
   getGameIconBinByListOfGamesIds,
   getGamesByUser,
 } from "@/controllers/gameController";
 import { authenticate } from "@/middlewares/authMiddleware";
 
 const gameRouter = express.Router();
+//TODO Fix
+gameRouter.get("/list", /* authenticate, */ getGamesByUser);
 
-gameRouter.get("/list", authenticate, getGamesByUser);
+gameRouter.get(
+  "/icon/:imgType/:npCommunicationId",
+  /* authenticate, */ getGameIconBinByImgType
+);
+gameRouter.get("/icon/:npCommunicationId", /* authenticate, */ getGameIconBin);
 
-gameRouter.get("/icon/:npCommunicationId", authenticate, getGameIconBinByGame);
-
-gameRouter.post("/icon/list", authenticate, getGameIconBinByListOfGamesIds);
+gameRouter.post(
+  "/icon/list",
+  /* authenticate, */ getGameIconBinByListOfGamesIds
+);
 
 export default gameRouter;
