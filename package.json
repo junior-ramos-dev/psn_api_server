@@ -32,6 +32,7 @@
     "mongoose": "^8.5.0",
     "morgan": "^1.10.0",
     "psn-api": "^2.10.1",
+    "sharp": "^0.33.5",
     "webpack": "^5.93.0"
   },
   "devDependencies": {
