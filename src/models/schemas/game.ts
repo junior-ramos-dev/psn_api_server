@@ -97,7 +97,11 @@ const GameIconSchema = new Schema<IGameIcon>(
       type: String,
       required: true,
     },
-    iconBinaryData: {
+    iconBinPng: {
+      type: String,
+      required: true,
+    },
+    iconBinWebp: {
       type: String,
       required: true,
     },

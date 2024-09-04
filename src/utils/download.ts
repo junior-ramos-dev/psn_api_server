@@ -1,8 +1,14 @@
 import axios, { AxiosResponse } from "axios";
 import * as fs from "fs";
+import sharp from "sharp";
 
-// Download image binary data
-export const dolwnloadFileToBase64 = async (
+/**
+ * Download image binary data
+ *
+ * @param imageUrl
+ * @returns
+ */
+export const dolwnloadImgToBase64 = async (
   imageUrl: string
 ): Promise<string> => {
   let data: string = "";
@@ -24,7 +30,13 @@ export const dolwnloadFileToBase64 = async (
   return data;
 };
 
-// Download image file to disk
+/**
+ * Download image file to disk
+ *
+ * @param imageUrl
+ * @param filePath
+ * @param fileName
+ */
 export const dolwnloadImgToDisk = async (
   imageUrl: string,
   filePath: string,
@@ -51,4 +63,35 @@ export const dolwnloadImgToDisk = async (
       console.log("Failure downloading image file to disk]");
       console.log(err);
     });
+};
+
+/**
+ * Resize image base 64 to Webp base 64
+ *
+ * @param imageBase64
+ * @param resizeWidth
+ * @param resizeHeight
+ * @returns
+ */
+export const resizeImgToWebpBase64 = async (
+  imageBase64: string,
+  resizeWidth: number,
+  resizeHeight: number
+) => {
+  const imgBuffer = Buffer.from(imageBase64, "base64");
+
+  const bufferImgWebp = await sharp(imgBuffer)
+    .webp({ lossless: true })
+    .resize({ width: resizeWidth, height: resizeHeight })
+    .toBuffer()
+    .then((data) => {
+      return data;
+    })
+    .catch((err) => {
+      console.log(`Error on compress: ${err}`);
+    });
+
+  if (bufferImgWebp) {
+    return bufferImgWebp.toString("base64");
+  }
 };

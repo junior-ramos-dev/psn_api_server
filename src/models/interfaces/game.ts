@@ -30,7 +30,8 @@ export interface IGameIcon {
   npCommunicationId: string;
   trophyTitleName: string;
   trophyTitleIconUrl: string;
-  iconBinaryData: string;
+  iconBinPng: string;
+  iconBinWebp: string;
   createdAt: Date;
   updatedAt: Date;
 }
