@@ -10,7 +10,6 @@ import {
   getDbUserProfileByUserId,
 } from "@/services/repositories/userRepository";
 import { IS_NODE_ENV_PRODUCTION } from "@/utils/env";
-import { getBearerTokenFromHeader } from "@/utils/http";
 
 let PSN_AUTH: PsnAuth;
 
@@ -53,11 +52,12 @@ const registerUser = async (req: Request, res: Response) => {
     });
   }
 
-  const authorization = req.headers["authorization"];
+  // TODO Refactor create psnAuth
+  // Get NPSSO code set in the session
+  const NPSSO = req.session.npsso;
 
   // Check if NPSSO exists
-  if (authorization) {
-    const NPSSO = getBearerTokenFromHeader(authorization);
+  if (NPSSO) {
     // Initialize the PSN credentials for using with psn_api
     PSN_AUTH = await PsnAuth.createPsnAuth(NPSSO).then((psnAuth) => psnAuth);
 
@@ -94,11 +94,12 @@ const loginUser = async (req: Request, res: Response) => {
   const user = await getDbUserByEmail(email);
 
   if (user && (await user.comparePassword(password))) {
-    // Get the PSN credentials for using with psn_api
-    const authorization = req.headers["authorization"];
+    // Get NPSSO code set in the session
+    const NPSSO = req.session.npsso;
 
-    if (authorization) {
-      const NPSSO = getBearerTokenFromHeader(authorization);
+    // Check if NPSSO exists
+    if (NPSSO) {
+      // Initialize the PSN credentials for using with psn_api
       PSN_AUTH = await PsnAuth.createPsnAuth(NPSSO).then((psnAuth) => psnAuth);
     } else {
       return res.status(401).json({

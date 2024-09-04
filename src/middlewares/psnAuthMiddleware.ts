@@ -27,7 +27,7 @@ const psnAuthenticate = asyncHandler(
         );
       }
 
-      // TODO Refactor create psnAuth
+      // Set the NPSSO code to session
       req.session.npsso = npsso;
 
       next();
