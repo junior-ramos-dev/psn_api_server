@@ -140,10 +140,13 @@ const getGameIconBinByImgType = async (req: Request, res: Response) => {
  * @param req
  * @param res
  */
-const getGameIconBinByListOfGamesIds = async (req: Request, res: Response) => {
+const getGamesIconBinListByIds = async (req: Request, res: Response) => {
   try {
-    const { npCommIdList } = req.body;
-    const gameIconBin = await getDbGameIconBinByListOfGamesIds(npCommIdList);
+    const { npCommIdList, imgType } = req.body;
+    const gameIconBin = await getDbGameIconBinByListOfGamesIds(
+      npCommIdList,
+      imgType
+    );
 
     res.json(gameIconBin);
   } catch (error) {
@@ -156,6 +159,6 @@ const getGameIconBinByListOfGamesIds = async (req: Request, res: Response) => {
 export {
   getGameIconBin,
   getGameIconBinByImgType,
-  getGameIconBinByListOfGamesIds,
   getGamesByUser,
+  getGamesIconBinListByIds,
 };

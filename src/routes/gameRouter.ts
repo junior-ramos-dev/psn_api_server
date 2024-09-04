@@ -3,8 +3,8 @@ import express from "express";
 import {
   getGameIconBin,
   getGameIconBinByImgType,
-  getGameIconBinByListOfGamesIds,
   getGamesByUser,
+  getGamesIconBinListByIds,
 } from "@/controllers/gameController";
 import { authenticate } from "@/middlewares/authMiddleware";
 
@@ -18,9 +18,6 @@ gameRouter.get(
 );
 gameRouter.get("/icon/:npCommunicationId", /* authenticate, */ getGameIconBin);
 
-gameRouter.post(
-  "/icon/list",
-  /* authenticate, */ getGameIconBinByListOfGamesIds
-);
+gameRouter.post("/icon/list", /* authenticate, */ getGamesIconBinListByIds);
 
 export default gameRouter;

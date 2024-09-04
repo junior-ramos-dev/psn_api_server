@@ -200,14 +200,44 @@ export const getDbGameIconBinByImgType = async (
  * @returns
  */
 export const getDbGameIconBinByListOfGamesIds = async (
-  npCommIdList: string[]
+  npCommIdList: string[],
+  imgType: string
 ): Promise<IGameIcon[] | undefined> => {
   try {
-    const gameIconBinList = await GameIcon.find({
-      npCommunicationId: { $in: [...npCommIdList] },
-    });
+    const iconProjection: IGameIconProjecton = {
+      npCommunicationId: 1,
+      trophyTitleName: 1,
+      trophyTitleIconUrl: 1,
+      iconBinPng: 1,
+      iconBinWebp: 1,
+      createdAt: 1,
+      updatedAt: 1,
+    };
 
-    return gameIconBinList;
+    switch (imgType.toLowerCase()) {
+      case IMG_TYPE.PNG:
+        delete iconProjection.iconBinWebp;
+        break;
+      case IMG_TYPE.WEBP:
+        delete iconProjection.iconBinPng;
+        break;
+    }
+
+    const gameIconBinList = await GameIcon.aggregate([
+      // Match the documents by query
+      {
+        $match: {
+          npCommunicationId: { $in: [...npCommIdList] },
+        },
+      },
+
+      // Project the result.
+      {
+        $project: iconProjection,
+      },
+    ]);
+
+    return gameIconBinList as IGameIcon[];
   } catch (error: unknown) {
     //Handle the error
     servicesErrorHandler(error);
