@@ -250,8 +250,6 @@ export const createDbGameIconBin = async (
           40
         );
 
-        // console.log(iconBase64);
-
         await GameIcon.create({
           npCommunicationId: game.npCommunicationId,
           trophyTitleName: game.trophyTitleName,

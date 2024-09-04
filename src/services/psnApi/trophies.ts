@@ -4,10 +4,10 @@ import {
   Trophy,
 } from "psn-api";
 import type { TitleThinTrophy } from "psn-api/dist/models/title-thin-trophy.model";
-import { ITrophy } from "src/models/interfaces/trophy";
 
 import { PSN_AUTH } from "@/controllers/authController";
 import { PsnApiError } from "@/models/interfaces/common/error";
+import { ITrophy } from "@/models/interfaces/trophy";
 import {
   NP_SERVICE_NAME,
   TROPHY_GROUP_ID,
