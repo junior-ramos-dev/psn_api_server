@@ -130,12 +130,10 @@ export const setPsnApiPollingInterval = (
   objUpdatedAt: Date,
   intervalHours: number
 ) => {
-  const developmentInterval = 0; //hours
+  const devInterval = 1000; //hours
 
   // Interval in hours to request data from psnApi;
-  const pollingInterval = IS_NODE_ENV_PRODUCTION
-    ? intervalHours
-    : developmentInterval;
+  const pollingInterval = IS_NODE_ENV_PRODUCTION ? intervalHours : devInterval;
   const currentDate = new Date();
   const updatedAt = objUpdatedAt;
 
