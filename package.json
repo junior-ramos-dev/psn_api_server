@@ -22,7 +22,6 @@
     "express": "^4.19.2",
     "express-async-errors": "^3.1.1",
     "express-async-handler": "^1.2.0",
-    "express-disk-cache": "^1.1.1",
     "express-session": "^1.18.0",
     "express-validator": "^7.1.0",
     "fresh": "^0.5.2",
@@ -32,8 +31,7 @@
     "mongoose": "^8.5.0",
     "morgan": "^1.10.0",
     "psn-api": "^2.10.1",
-    "sharp": "^0.33.5",
-    "webpack": "^5.93.0"
+    "sharp": "^0.33.5"
   },
   "devDependencies": {
     "@eslint/js": "^9.9.0",
@@ -59,8 +57,6 @@
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^4.9.5",
-    "typescript-eslint": "^8.0.1",
-    "webpack-dev-middleware": "^7.2.1",
-    "webpack-hot-middleware": "^2.26.1"
+    "typescript-eslint": "^8.0.1"
   }
 }
