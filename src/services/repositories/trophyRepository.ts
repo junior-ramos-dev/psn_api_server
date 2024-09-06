@@ -67,6 +67,7 @@ export const createDbTrophyListByGame = async (
 
     const gameTrophyList = new GameTrophies({
       npCommunicationId: npCommunicationId,
+      trophyTitlePlatform: trophyTitlePlatform,
       trophies: psnApiTrophyList,
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -121,7 +122,12 @@ export const updateDbUserGamesTrophies = async (
       {
         upsert: true,
         new: true,
-        arrayFilters: [{ "e1.npCommunicationId": npCommunicationId }],
+        arrayFilters: [
+          {
+            "e1.npCommunicationId": npCommunicationId,
+            "e1.trophyTitlePlatform": trophyTitlePlatform,
+          },
+        ],
         timestamps: { createdAt: false, updatedAt: true },
       }
     );
@@ -144,46 +150,63 @@ export const updateDbUserGamesTrophies = async (
  */
 export const getDbTrophyListByGame = async (
   userId: string,
-  npCommunicationId: string
+  npCommunicationId: string,
+  trophyTitlePlatform: string
 ): Promise<IUserGamesTrophies | undefined> => {
   try {
-    const gameTrophies = await UserGamesTrophies.aggregate([
-      // Match the documents by query
-      {
-        $match: {
-          userId: new Types.ObjectId(userId),
-          "gamesTrophies.npCommunicationId": npCommunicationId,
+    const gameTrophies = await UserGamesTrophies.aggregate(
+      [
+        { $match: { userId: new Types.ObjectId(userId) } },
+        { $unwind: "$gamesTrophies" },
+        {
+          $match: { "gamesTrophies.trophyTitlePlatform": trophyTitlePlatform },
         },
-      },
-      // De-normalize nested array
-      {
-        $unwind: "$gamesTrophies",
-      },
-      {
-        $unwind: "$gamesTrophies.trophies",
-      },
-      // Group the intermediate result.
-      {
-        $group: {
-          _id: "$gamesTrophies._id",
-          userId: {
-            $first: "$userId",
-          },
-          npCommunicationId: {
-            $first: "$gamesTrophies.npCommunicationId",
-          },
-          trophies: {
-            $push: "$gamesTrophies.trophies",
-          },
-          createdAt: {
-            $first: "$gamesTrophies.createdAt",
-          },
-          updatedAt: {
-            $first: "$gamesTrophies.updatedAt",
-          },
-        },
-      },
-    ]).then((result) => result[0]);
+        { $match: { "gamesTrophies.npCommunicationId": npCommunicationId } },
+        { $project: { _id: 0, userId: 1, gamesTrophies: 1 } },
+      ]
+
+      //   [
+      //   // Match the documents by query
+      //   {
+      //     $match: {
+      //       userId: new Types.ObjectId(userId),
+      //       "gamesTrophies.npCommunicationId": npCommunicationId,
+      //       "gamesTrophies.trophyTitlePlatform": trophyTitlePlatform,
+      //     },
+      //   },
+      //   // De-normalize nested array
+      //   {
+      //     $unwind: "$gamesTrophies",
+      //   },
+      //   {
+      //     $unwind: "$gamesTrophies.trophies",
+      //   },
+      //   // Group the result.
+      //   {
+      //     $group: {
+      //       _id: "$gamesTrophies._id",
+      //       userId: {
+      //         $first: "$userId",
+      //       },
+      //       npCommunicationId: {
+      //         $first: "$gamesTrophies.npCommunicationId",
+      //       },
+      //       trophyTitlePlatform: {
+      //         $first: "$gamesTrophies.trophyTitlePlatform",
+      //       },
+      //       trophies: {
+      //         $push: "$gamesTrophies.trophies",
+      //       },
+      //       createdAt: {
+      //         $first: "$gamesTrophies.createdAt",
+      //       },
+      //       updatedAt: {
+      //         $first: "$gamesTrophies.updatedAt",
+      //       },
+      //     },
+      //   },
+      // ]
+    ).then((result) => result[0]);
 
     return gameTrophies as IUserGamesTrophies;
   } catch (error: unknown) {

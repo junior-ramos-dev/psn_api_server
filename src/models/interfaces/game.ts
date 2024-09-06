@@ -21,6 +21,7 @@ export interface IGame {
 
 export interface IGameTrophies extends mongoose.Document {
   npCommunicationId: string;
+  trophyTitlePlatform: string;
   trophies: ITrophy[];
   createdAt: Date;
   updatedAt: Date;
@@ -38,6 +39,7 @@ export interface IGameIcon {
 
 export interface IGamesTrophiesBulk {
   npCommunicationId: string;
+  trophyTitlePlatform: string;
   trophies: ITrophy[];
 }
 

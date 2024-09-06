@@ -10,8 +10,6 @@ export const GameSchema = new Schema<IGame>(
     npCommunicationId: {
       type: String,
       required: true,
-      unique: true,
-      index: true,
     },
     npServiceName: {
       type: String,
@@ -86,8 +84,6 @@ const GameIconSchema = new Schema<IGameIcon>(
     npCommunicationId: {
       type: String,
       required: true,
-      unique: true,
-      index: true,
     },
     trophyTitleName: {
       type: String,
@@ -123,8 +119,10 @@ export const GameTrophiesSchema = new Schema<IGameTrophies>(
     npCommunicationId: {
       type: String,
       required: true,
-      unique: true,
-      index: true,
+    },
+    trophyTitlePlatform: {
+      type: String,
+      required: true,
     },
     trophies: {
       type: [TrophySchema],
