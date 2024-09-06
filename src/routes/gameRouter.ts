@@ -10,14 +10,15 @@ import { authenticate } from "@/middlewares/authMiddleware";
 
 const gameRouter = express.Router();
 //TODO Fix
-gameRouter.get("/list", /* authenticate, */ getGamesByUser);
+gameRouter.get("/list", authenticate, getGamesByUser);
 
 gameRouter.get(
   "/icon/:imgType/:npCommunicationId",
-  /* authenticate, */ getGameIconBinByImgType
+  authenticate,
+  getGameIconBinByImgType
 );
-gameRouter.get("/icon/:npCommunicationId", /* authenticate, */ getGameIconBin);
+gameRouter.get("/icon/:npCommunicationId", authenticate, getGameIconBin);
 
-gameRouter.post("/icon/list", /* authenticate, */ getGamesIconBinListByIds);
+gameRouter.post("/icon/list", authenticate, getGamesIconBinListByIds);
 
 export default gameRouter;
