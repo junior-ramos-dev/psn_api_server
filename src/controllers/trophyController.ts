@@ -28,6 +28,7 @@ const getTrophiesByGame = async (req: Request, res: Response) => {
   try {
     //Get user id from session
     const userId = req.session.user!.id;
+    // const userId = "66c74f86a34c6bfd144e5203";
     const npCommunicationId = req.params["npCommunicationId"];
     const trophyTitlePlatform = req.params["trophyTitlePlatform"];
 
@@ -78,7 +79,11 @@ const getUpdatedDbTrophyList = async (
   const npCommunicationId = userGame.games[0].npCommunicationId;
   const trophyTitlePlatform = userGame.games[0].trophyTitlePlatform;
 
-  const gameTrophies = await getDbTrophyListByGame(userId, npCommunicationId);
+  const gameTrophies = await getDbTrophyListByGame(
+    userId,
+    npCommunicationId,
+    trophyTitlePlatform
+  );
 
   if (gameTrophies) {
     // Interval in hours to request data from psnApi;
@@ -115,7 +120,7 @@ const createTrophiesListForAllGamesBulk = async (
   try {
     //Get user id from session
     const userId = req.session.user!.id;
-
+    // const userId = "66c74f86a34c6bfd144e5203";
     const bulkResponse: IBulkResponse<string> = {
       name: "createTrophiesListForAllGamesBulk",
       message: "",
