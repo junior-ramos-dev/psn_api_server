@@ -14,9 +14,6 @@ import {
 } from "@/services/repositories/trophyRepository";
 import { setPsnApiPollingInterval } from "@/utils/http";
 
-//TODO Check if needs to create trophies icons
-// const createDbTrophyIconBin = (trophiesByGame) => {};
-
 /**
  * Get trophy list by Game ID and Game Platform
  *

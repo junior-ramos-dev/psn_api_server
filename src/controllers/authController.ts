@@ -52,7 +52,6 @@ const registerUser = async (req: Request, res: Response) => {
     });
   }
 
-  // TODO Refactor create psnAuth
   // Get NPSSO code set in the session
   const NPSSO = req.session.npsso;
 

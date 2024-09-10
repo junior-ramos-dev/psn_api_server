@@ -7,10 +7,6 @@ import { GameTrophies } from "@/models/schemas/game";
 import { UserGamesTrophies } from "@/models/schemas/user/user";
 import { getPsnGameParsedTrophies } from "@/services/psnApi/trophies";
 
-//TODO Check if need to get the list of trophies stats.
-// Get the list of trophies stats for each of the user's titles.
-// const getAllGamesTrophiesInfoList = async (): Promise<GameStats[]> => {};
-
 /**
  * Get or Create (if not exists) the list of trophies by game
  *
