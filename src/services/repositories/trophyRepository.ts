@@ -158,7 +158,16 @@ export const getDbTrophyListByGame = async (
           $match: { "gamesTrophies.trophyTitlePlatform": trophyTitlePlatform },
         },
         { $match: { "gamesTrophies.npCommunicationId": npCommunicationId } },
-        { $project: { _id: 0, userId: 1, gamesTrophies: 1 } },
+        {
+          $project: {
+            _id: 0,
+            userId: 1,
+            gamesTrophies: 1,
+            totalPoints: {
+              $sum: "$gamesTrophies.trophies.points",
+            },
+          },
+        },
       ]
 
       //   [
