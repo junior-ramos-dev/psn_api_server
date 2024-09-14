@@ -1,6 +1,9 @@
+import { Types } from "mongoose";
+
 import { servicesErrorHandler } from "@/models/interfaces/common/error";
 import { Convert, IGameIcon } from "@/models/interfaces/game";
 import { IUserGames } from "@/models/interfaces/user";
+import { IUserSingleGame } from "@/models/interfaces/user/user";
 import { GameIcon } from "@/models/schemas/game";
 import { UserGames } from "@/models/schemas/user";
 import { IGameIconProjecton, IMG_TYPE } from "@/models/types/game";
@@ -96,24 +99,36 @@ export const updateDbGamesByUserId = async (
 };
 
 /**
- * Update the lsit of games by user
+ * Get games by trophyTitlePlatform and npCommunicationId
  *
  * @param userId
  * @returns
  */
-export const getDbUserGameByNpCommunicationId = async (
+export const getDbUserGameByIdAndPlatform = async (
   userId: string,
+  trophyTitlePlatform: string,
   npCommunicationId: string
-): Promise<IUserGames | undefined> => {
+): Promise<IUserSingleGame | undefined> => {
   try {
-    const userGames = await UserGames.findOne({
-      userId: userId,
-      games: {
-        $elemMatch: { npCommunicationId: npCommunicationId },
+    const userGames = await UserGames.aggregate([
+      { $match: { userId: new Types.ObjectId(userId) } },
+      { $unwind: "$games" },
+      {
+        $match: { "games.trophyTitlePlatform": trophyTitlePlatform },
       },
-    });
+      { $match: { "games.npCommunicationId": npCommunicationId } },
+      {
+        $project: {
+          _id: 0,
+          userId: 1,
+          game: "$games",
+          createdAt: 1,
+          updatedAt: 1,
+        },
+      },
+    ]).then((result) => result[0]);
 
-    return userGames as IUserGames;
+    return userGames as IUserSingleGame;
   } catch (error: unknown) {
     //Handle the error
     servicesErrorHandler(error);

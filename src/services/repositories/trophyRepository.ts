@@ -146,8 +146,8 @@ export const updateDbUserGamesTrophies = async (
  */
 export const getDbTrophyListByGame = async (
   userId: string,
-  npCommunicationId: string,
-  trophyTitlePlatform: string
+  trophyTitlePlatform: string,
+  npCommunicationId: string
 ): Promise<IUserGamesTrophies | undefined> => {
   try {
     const gameTrophies = await UserGamesTrophies.aggregate(

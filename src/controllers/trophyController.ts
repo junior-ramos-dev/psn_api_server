@@ -3,9 +3,9 @@ import { MongooseError } from "mongoose";
 
 import { IBulkResponse } from "@/models/interfaces/common/bulk";
 import { controllersErrorHandler } from "@/models/interfaces/common/error";
-import { IUserGames } from "@/models/interfaces/user";
+import { IUserSingleGame } from "@/models/interfaces/user/user";
 import { upsertTrophiesForAllGamesBulk } from "@/services/repositories/bulk/trophy";
-import { getDbUserGameByNpCommunicationId } from "@/services/repositories/gameRepository";
+import { getDbUserGameByIdAndPlatform } from "@/services/repositories/gameRepository";
 import {
   createDbTrophyListByGame,
   getDbTrophyListByGame,
@@ -26,11 +26,12 @@ const getTrophiesByGame = async (req: Request, res: Response) => {
     //Get user id from session
     const userId = req.session.user!.id;
     // const userId = "66c74f86a34c6bfd144e5203";
-    const npCommunicationId = req.params["npCommunicationId"];
     const trophyTitlePlatform = req.params["trophyTitlePlatform"];
+    const npCommunicationId = req.params["npCommunicationId"];
 
-    const userGame = await getDbUserGameByNpCommunicationId(
+    const userGame = await getDbUserGameByIdAndPlatform(
       userId,
+      trophyTitlePlatform,
       npCommunicationId
     );
 
@@ -70,16 +71,16 @@ const getTrophiesByGame = async (req: Request, res: Response) => {
 const getUpdatedDbTrophyList = async (
   req: Request,
   res: Response,
-  userGame: IUserGames
+  userGame: IUserSingleGame
 ) => {
   const userId = userGame.userId.toString();
-  const npCommunicationId = userGame.games[0].npCommunicationId;
-  const trophyTitlePlatform = userGame.games[0].trophyTitlePlatform;
+  const npCommunicationId = userGame.game.npCommunicationId;
+  const trophyTitlePlatform = userGame.game.trophyTitlePlatform;
 
   const gameTrophies = await getDbTrophyListByGame(
     userId,
-    npCommunicationId,
-    trophyTitlePlatform
+    trophyTitlePlatform,
+    npCommunicationId
   );
 
   if (gameTrophies) {
