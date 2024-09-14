@@ -58,6 +58,13 @@ export interface IUserGames extends mongoose.Document {
   updatedAt: Date;
 }
 
+export interface IUserSingleGame extends mongoose.Document {
+  userId: Types.ObjectId;
+  game: IGame;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 export interface IUserGamesTrophies {
   userId: Types.ObjectId;
   gamesTrophies: IGameTrophies[];

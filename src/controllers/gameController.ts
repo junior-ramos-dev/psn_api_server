@@ -9,9 +9,42 @@ import {
   getDbGameIconBinByImgType,
   getDbGameIconBinByListOfGamesIds,
   getDbGamesListByUserId,
+  getDbUserGameByIdAndPlatform,
   updateDbGamesByUserId,
 } from "@/services/repositories/gameRepository";
 import { setPsnApiPollingInterval } from "@/utils/http";
+
+/**
+ * Get the user by id from DB
+ *
+ * @param userId
+ * @returns
+ */
+export const getUserGameByIdAndPlatform = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    //Get user id from session
+    const userId = req.session.user!.id;
+    // const userId = "66c74f86a34c6bfd144e5203";
+    const npCommunicationId = req.params["npCommunicationId"];
+    const trophyTitlePlatform = req.params["trophyTitlePlatform"];
+
+    const game = await getDbUserGameByIdAndPlatform(
+      userId,
+      trophyTitlePlatform,
+      npCommunicationId
+    );
+
+    console.log("returned game from DB");
+    return res.json(game);
+  } catch (error: unknown) {
+    console.log(error);
+    const resObj = controllersErrorHandler(error);
+    return res.status(resObj.status).json(resObj);
+  }
+};
 
 /**
  * Get the list of games of a user
