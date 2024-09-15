@@ -1,5 +1,7 @@
 import mongoose from "mongoose";
 
+import { TROPHY_POINTS_MAP, TROPHY_TYPE_NAME } from "../types/trophy";
+
 import { ITrophy, ITrophyCount } from "./trophy";
 
 export interface IGame {
@@ -17,6 +19,8 @@ export interface IGame {
   earnedTrophies: ITrophyCount;
   hiddenFlag: boolean;
   lastUpdatedDateTime: Date;
+  definedTrophiesPoints: number;
+  earnedTrophiesPoints: number;
 }
 
 export interface IGameTrophies extends mongoose.Document {
@@ -60,8 +64,26 @@ export class Convert {
       const item = JSON.stringify(obj);
       const gameItem = Convert.toIGame(item);
 
+      gameItem.definedTrophiesPoints = getTrophiesTotalPoints(
+        gameItem.definedTrophies
+      );
+      gameItem.earnedTrophiesPoints = getTrophiesTotalPoints(
+        gameItem.earnedTrophies
+      );
+
       gamesList.push(gameItem);
     });
     return gamesList;
   }
 }
+
+const getTrophiesTotalPoints = (trophyCount: ITrophyCount) => {
+  let count: number = 0;
+
+  count += trophyCount.bronze * TROPHY_POINTS_MAP[TROPHY_TYPE_NAME.BRONZE];
+  count += trophyCount.silver * TROPHY_POINTS_MAP[TROPHY_TYPE_NAME.SILVER];
+  count += trophyCount.gold * TROPHY_POINTS_MAP[TROPHY_TYPE_NAME.GOLD];
+  count += trophyCount.platinum * TROPHY_POINTS_MAP[TROPHY_TYPE_NAME.PLATINUM];
+
+  return count;
+};

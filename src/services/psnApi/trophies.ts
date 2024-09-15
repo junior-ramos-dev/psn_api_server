@@ -15,8 +15,8 @@ import {
 } from "@/models/types/game";
 import {
   CAPITALIZE_TYPE_MAP,
-  POINTS_MAP,
-  RARITY_MAP,
+  TROPHY_POINTS_MAP,
+  TROPHY_RARITY_MAP,
 } from "@/models/types/trophy";
 
 /**
@@ -130,9 +130,9 @@ const parsePsnTrophyToITrophy = (trophy: Trophy): ITrophy => {
     trophyDetail: trophy.trophyDetail,
     trophyIconUrl: trophy.trophyIconUrl,
     trophyGroupId: trophy.trophyGroupId,
-    rarity: RARITY_MAP[trophy.trophyRare ?? 0],
+    rarity: TROPHY_RARITY_MAP[trophy.trophyRare ?? 0],
     groupId: trophy.trophyGroupId,
-    points: POINTS_MAP[trophy.trophyType ?? 0],
+    points: TROPHY_POINTS_MAP[trophy.trophyType ?? 0],
   };
 
   return trophyParsed;
