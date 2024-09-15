@@ -4,7 +4,7 @@ import { servicesErrorHandler } from "@/models/interfaces/common/error";
 import { Convert, IGameIcon } from "@/models/interfaces/game";
 import { IUserGames } from "@/models/interfaces/user";
 import {
-  IUserGameWithTrophies,
+  IUserGameDetails,
   IUserSingleGame,
 } from "@/models/interfaces/user/user";
 import { GameIcon } from "@/models/schemas/game";
@@ -139,20 +139,21 @@ export const getDbUserGameByIdAndPlatform = async (
 };
 
 /**
- * Get games by trophyTitlePlatform and npCommunicationId
+ * Get the user game with icon PNG/WEBP and with/without list of trophies;
  *
  * @param userId
  * @returns
  */
-export const getDbUserGameByIdAndPlatformWithTrophies = async (
+export const getDbUserGameDetails = async (
   userId: string,
   trophyTitlePlatform: string,
   npCommunicationId: string
-): Promise<IUserGameWithTrophies | undefined> => {
+): Promise<IUserGameDetails | undefined> => {
   try {
     console.log(userId, trophyTitlePlatform, npCommunicationId);
 
     const userGameWithTrophies = await UserGamesTrophies.aggregate([
+      // Make reference to the usergames collection using the "userId"
       {
         $lookup: {
           from: "usergames",
@@ -161,28 +162,53 @@ export const getDbUserGameByIdAndPlatformWithTrophies = async (
           as: "usergame",
         },
       },
+      // Make reference to the gameicons collection from usergame collection using the "npCommunicationId"
+      {
+        $lookup: {
+          from: "gameicons",
+          localField: "npCommunicationId",
+          foreignField: "usergame.games.npCommunicationId",
+          as: "gameIcon",
+        },
+      },
+      // Unwind gameTrohpies array
       {
         $unwind: "$gamesTrophies",
       },
+      // Unwind userGame object
       {
         $unwind: "$usergame",
       },
+      // Unwind usergame games array
       {
         $unwind: "$usergame.games",
       },
+      // Unwind gameIcon object
       {
+        $unwind: "$gameIcon",
+      },
+      {
+        // Match userId, platform and npCommunicationId for the usergame
         $match: {
           userId: new Types.ObjectId(userId),
           "usergame.games.trophyTitlePlatform": trophyTitlePlatform,
           "usergame.games.npCommunicationId": npCommunicationId,
+          "gameIcon.npCommunicationId": npCommunicationId,
           $expr: {
+            // Expression to assert usergametrophies and usergame with same npCommunicationId
             $eq: [
               "$usergame.games.npCommunicationId",
+              "$gamesTrophies.npCommunicationId",
+            ],
+            // Expression to assert usergametrophies and gameIcon with same npCommunicationId
+            $eq: [
+              "$gameIcon.npCommunicationId",
               "$gamesTrophies.npCommunicationId",
             ],
           },
         },
       },
+      //Group the expected output fields
       {
         $group: {
           _id: "$_id",
@@ -195,8 +221,13 @@ export const getDbUserGameByIdAndPlatformWithTrophies = async (
           trophies: {
             $first: "$gamesTrophies.trophies",
           },
+          // Get the icon bin with PNG format
+          gameIcon: {
+            $first: "$gameIcon.iconBinPng",
+          },
         },
       },
+      // Add the totalPoints field as the sum of points of all trophies for the specified game
       {
         $addFields: {
           totalPoints: {
@@ -204,18 +235,20 @@ export const getDbUserGameByIdAndPlatformWithTrophies = async (
           },
         },
       },
+      // Project the the final output excluding the "_id" field
       {
         $project: {
           _id: 0,
           userId: 1,
           usergame: 1,
+          gameIcon: 1,
           trophies: 1,
           totalPoints: 1,
         },
       },
     ]).then((result) => result[0]);
 
-    return userGameWithTrophies as IUserGameWithTrophies;
+    return userGameWithTrophies as IUserGameDetails;
   } catch (error: unknown) {
     //Handle the error
     servicesErrorHandler(error);

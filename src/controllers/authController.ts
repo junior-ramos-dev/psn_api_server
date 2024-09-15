@@ -34,6 +34,7 @@ const clearToken = (res: Response) => {
   });
 };
 
+//TODO Get games, trophies and icons on register;
 const registerUser = async (req: Request, res: Response) => {
   const { psnOnlineId, email, password } = req.body;
   const onlineIdExists = await getDbUserByPsnOnlineId(psnOnlineId);

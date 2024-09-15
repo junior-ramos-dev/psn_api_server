@@ -66,11 +66,12 @@ export interface IUserSingleGame extends mongoose.Document {
   updatedAt: Date;
 }
 
-export interface IUserGameWithTrophies extends mongoose.Document {
+export interface IUserGameDetails extends mongoose.Document {
   userId: Types.ObjectId;
   usergame: IUserGames;
   trophies: ITrophy[];
   totalPoints: number;
+  gameIcon: string;
 }
 
 export interface IUserGamesTrophies {

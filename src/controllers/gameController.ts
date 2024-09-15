@@ -10,7 +10,7 @@ import {
   getDbGameIconBinByListOfGamesIds,
   getDbGamesListByUserId,
   getDbUserGameByIdAndPlatform,
-  getDbUserGameByIdAndPlatformWithTrophies,
+  getDbUserGameDetails,
   updateDbGamesByUserId,
 } from "@/services/repositories/gameRepository";
 import { setPsnApiPollingInterval } from "@/utils/http";
@@ -53,10 +53,7 @@ export const getUserGameByIdAndPlatform = async (
  * @param userId
  * @returns
  */
-export const getUserGameByIdAndPlatformWithTrophies = async (
-  req: Request,
-  res: Response
-) => {
+export const getUserGameDetails = async (req: Request, res: Response) => {
   try {
     //Get user id from session
     const userId = req.session.user!.id;
@@ -64,7 +61,7 @@ export const getUserGameByIdAndPlatformWithTrophies = async (
     const npCommunicationId = req.params["npCommunicationId"];
     const trophyTitlePlatform = req.params["trophyTitlePlatform"];
 
-    const game = await getDbUserGameByIdAndPlatformWithTrophies(
+    const game = await getDbUserGameDetails(
       userId,
       trophyTitlePlatform,
       npCommunicationId
