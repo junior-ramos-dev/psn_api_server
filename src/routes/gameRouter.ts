@@ -6,11 +6,17 @@ import {
   getGamesByUser,
   getGamesIconBinListByIds,
   getUserGameByIdAndPlatform,
+  getUserGameByIdAndPlatformWithTrophies,
 } from "@/controllers/gameController";
 import { authenticate } from "@/middlewares/authMiddleware";
 
 const gameRouter = express.Router();
 
+gameRouter.get(
+  "/:trophyTitlePlatform/:npCommunicationId/trophies",
+  authenticate,
+  getUserGameByIdAndPlatformWithTrophies
+);
 gameRouter.get(
   "/:trophyTitlePlatform/:npCommunicationId",
   authenticate,

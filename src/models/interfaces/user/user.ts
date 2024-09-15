@@ -1,6 +1,7 @@
 import mongoose, { Types } from "mongoose";
 
 import { IGame, IGameTrophies } from "../game";
+import { ITrophy } from "../trophy";
 
 import { IUserProfile } from "./profile";
 
@@ -63,6 +64,13 @@ export interface IUserSingleGame extends mongoose.Document {
   game: IGame;
   createdAt: Date;
   updatedAt: Date;
+}
+
+export interface IUserGameWithTrophies extends mongoose.Document {
+  userId: Types.ObjectId;
+  usergame: IUserGames;
+  trophies: ITrophy[];
+  totalPoints: number;
 }
 
 export interface IUserGamesTrophies {

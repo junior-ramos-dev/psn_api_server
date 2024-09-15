@@ -10,6 +10,7 @@ import {
   getDbGameIconBinByListOfGamesIds,
   getDbGamesListByUserId,
   getDbUserGameByIdAndPlatform,
+  getDbUserGameByIdAndPlatformWithTrophies,
   updateDbGamesByUserId,
 } from "@/services/repositories/gameRepository";
 import { setPsnApiPollingInterval } from "@/utils/http";
@@ -38,6 +39,38 @@ export const getUserGameByIdAndPlatform = async (
     );
 
     console.log("returned game from DB");
+    return res.json(game);
+  } catch (error: unknown) {
+    console.log(error);
+    const resObj = controllersErrorHandler(error);
+    return res.status(resObj.status).json(resObj);
+  }
+};
+
+/**
+ * Get the user by id from DB
+ *
+ * @param userId
+ * @returns
+ */
+export const getUserGameByIdAndPlatformWithTrophies = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    //Get user id from session
+    const userId = req.session.user!.id;
+    // const userId = "66c74f86a34c6bfd144e5203";
+    const npCommunicationId = req.params["npCommunicationId"];
+    const trophyTitlePlatform = req.params["trophyTitlePlatform"];
+
+    const game = await getDbUserGameByIdAndPlatformWithTrophies(
+      userId,
+      trophyTitlePlatform,
+      npCommunicationId
+    );
+
+    console.log("returned game with trophies from DB");
     return res.json(game);
   } catch (error: unknown) {
     console.log(error);

@@ -3,9 +3,12 @@ import { Types } from "mongoose";
 import { servicesErrorHandler } from "@/models/interfaces/common/error";
 import { Convert, IGameIcon } from "@/models/interfaces/game";
 import { IUserGames } from "@/models/interfaces/user";
-import { IUserSingleGame } from "@/models/interfaces/user/user";
+import {
+  IUserGameWithTrophies,
+  IUserSingleGame,
+} from "@/models/interfaces/user/user";
 import { GameIcon } from "@/models/schemas/game";
-import { UserGames } from "@/models/schemas/user";
+import { UserGames, UserGamesTrophies } from "@/models/schemas/user";
 import { IGameIconProjecton, IMG_TYPE } from "@/models/types/game";
 import { getTrophyTitles } from "@/services/psnApi/games";
 import { dolwnloadImgToBase64, resizeImgToWebpBase64 } from "@/utils/download";
@@ -129,6 +132,90 @@ export const getDbUserGameByIdAndPlatform = async (
     ]).then((result) => result[0]);
 
     return userGames as IUserSingleGame;
+  } catch (error: unknown) {
+    //Handle the error
+    servicesErrorHandler(error);
+  }
+};
+
+/**
+ * Get games by trophyTitlePlatform and npCommunicationId
+ *
+ * @param userId
+ * @returns
+ */
+export const getDbUserGameByIdAndPlatformWithTrophies = async (
+  userId: string,
+  trophyTitlePlatform: string,
+  npCommunicationId: string
+): Promise<IUserGameWithTrophies | undefined> => {
+  try {
+    console.log(userId, trophyTitlePlatform, npCommunicationId);
+
+    const userGameWithTrophies = await UserGamesTrophies.aggregate([
+      {
+        $lookup: {
+          from: "usergames",
+          localField: "usergames.userId",
+          foreignField: "gamesTrophies.userId",
+          as: "usergame",
+        },
+      },
+      {
+        $unwind: "$gamesTrophies",
+      },
+      {
+        $unwind: "$usergame",
+      },
+      {
+        $unwind: "$usergame.games",
+      },
+      {
+        $match: {
+          userId: new Types.ObjectId(userId),
+          "usergame.games.trophyTitlePlatform": trophyTitlePlatform,
+          "usergame.games.npCommunicationId": npCommunicationId,
+          $expr: {
+            $eq: [
+              "$usergame.games.npCommunicationId",
+              "$gamesTrophies.npCommunicationId",
+            ],
+          },
+        },
+      },
+      {
+        $group: {
+          _id: "$_id",
+          userId: {
+            $first: "$userId",
+          },
+          usergame: {
+            $first: "$usergame.games",
+          },
+          trophies: {
+            $first: "$gamesTrophies.trophies",
+          },
+        },
+      },
+      {
+        $addFields: {
+          totalPoints: {
+            $sum: "$trophies.points",
+          },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          userId: 1,
+          usergame: 1,
+          trophies: 1,
+          totalPoints: 1,
+        },
+      },
+    ]).then((result) => result[0]);
+
+    return userGameWithTrophies as IUserGameWithTrophies;
   } catch (error: unknown) {
     //Handle the error
     servicesErrorHandler(error);
