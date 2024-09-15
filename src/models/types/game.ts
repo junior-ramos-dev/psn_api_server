@@ -28,6 +28,10 @@ export interface IGameIconProjecton {
   [key: string]: number;
 }
 
+export interface IGameDetailsProjecton {
+  [key: string]: number;
+}
+
 export enum IMG_TYPE {
   PNG = "png",
   WEBP = "webp",

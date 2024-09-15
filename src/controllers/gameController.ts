@@ -58,13 +58,20 @@ export const getUserGameDetails = async (req: Request, res: Response) => {
     //Get user id from session
     const userId = req.session.user!.id;
     // const userId = "66c74f86a34c6bfd144e5203";
+
+    // URL params
     const npCommunicationId = req.params["npCommunicationId"];
     const trophyTitlePlatform = req.params["trophyTitlePlatform"];
+    //Query params
+    const imgType = String(req.query.imgType);
+    const getTrophies = Number(req.query.getTrophies);
 
     const game = await getDbUserGameDetails(
       userId,
       trophyTitlePlatform,
-      npCommunicationId
+      npCommunicationId,
+      imgType,
+      getTrophies
     );
 
     console.log("returned game with trophies from DB");

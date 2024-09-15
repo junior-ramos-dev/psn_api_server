@@ -9,7 +9,11 @@ import {
 } from "@/models/interfaces/user/user";
 import { GameIcon } from "@/models/schemas/game";
 import { UserGames, UserGamesTrophies } from "@/models/schemas/user";
-import { IGameIconProjecton, IMG_TYPE } from "@/models/types/game";
+import {
+  IGameDetailsProjecton,
+  IGameIconProjecton,
+  IMG_TYPE,
+} from "@/models/types/game";
 import { getTrophyTitles } from "@/services/psnApi/games";
 import { dolwnloadImgToBase64, resizeImgToWebpBase64 } from "@/utils/download";
 
@@ -142,15 +146,42 @@ export const getDbUserGameByIdAndPlatform = async (
  * Get the user game with icon PNG/WEBP and with/without list of trophies;
  *
  * @param userId
+ * @param trophyTitlePlatform
+ * @param npCommunicationId
+ * @param imgType @default webp
+ * @param getTrophies @default false
  * @returns
  */
 export const getDbUserGameDetails = async (
   userId: string,
   trophyTitlePlatform: string,
-  npCommunicationId: string
+  npCommunicationId: string,
+  imgType: string = IMG_TYPE.WEBP,
+  getTrophies: number = 0
 ): Promise<IUserGameDetails | undefined> => {
   try {
-    console.log(userId, trophyTitlePlatform, npCommunicationId);
+    const gameDetailProjection: IGameDetailsProjecton = {
+      _id: 0,
+      userId: 1,
+      usergame: 1,
+      gameIcon: 1,
+      trophies: 1,
+      totalPoints: 1,
+    };
+
+    // If "getTrophies is false, remove the trophy list from the result projection
+    if (!getTrophies) delete gameDetailProjection.trophies;
+
+    let gameIconType = "";
+    // Define the img type to be returned
+    switch (imgType.toLowerCase()) {
+      case IMG_TYPE.PNG:
+        gameIconType = "$gameIcon.iconBinPng";
+        break;
+      case IMG_TYPE.WEBP:
+        gameIconType = "$gameIcon.iconBinWebp";
+        break;
+    }
 
     const userGameWithTrophies = await UserGamesTrophies.aggregate([
       // Make reference to the usergames collection using the "userId"
@@ -223,7 +254,7 @@ export const getDbUserGameDetails = async (
           },
           // Get the icon bin with PNG format
           gameIcon: {
-            $first: "$gameIcon.iconBinPng",
+            $first: gameIconType,
           },
         },
       },
@@ -237,14 +268,7 @@ export const getDbUserGameDetails = async (
       },
       // Project the the final output excluding the "_id" field
       {
-        $project: {
-          _id: 0,
-          userId: 1,
-          usergame: 1,
-          gameIcon: 1,
-          trophies: 1,
-          totalPoints: 1,
-        },
+        $project: gameDetailProjection,
       },
     ]).then((result) => result[0]);
 
