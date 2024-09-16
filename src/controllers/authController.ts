@@ -1,8 +1,12 @@
 import { Request, Response } from "express";
 import jwt from "jsonwebtoken";
 
-import { ERROR_CLASS_NAME } from "@/models/interfaces/common/error";
+import {
+  controllersErrorHandler,
+  ERROR_CLASS_NAME,
+} from "@/models/interfaces/common/error";
 import { PsnAuth } from "@/services/psnApi/psnAuth";
+import { loadPsnUserDataOnRegister } from "@/services/repositories/bulk/game";
 import {
   createDbUserAndProfile,
   getDbUserByEmail,
@@ -34,7 +38,13 @@ const clearToken = (res: Response) => {
   });
 };
 
-//TODO Get games, trophies and icons on register;
+/**
+ * Register an user
+ *
+ * @param req
+ * @param res
+ * @returns
+ */
 const registerUser = async (req: Request, res: Response) => {
   const { psnOnlineId, email, password } = req.body;
   const onlineIdExists = await getDbUserByPsnOnlineId(psnOnlineId);
@@ -66,6 +76,16 @@ const registerUser = async (req: Request, res: Response) => {
 
     if (data && "userDb" in data && "userProfileDb" in data) {
       const { userDb, userProfileDb } = data;
+
+      try {
+        // Load the games and trophy user data from PSN and insert on DB
+        await loadPsnUserDataOnRegister(String(userDb._id));
+      } catch (error) {
+        console.log(error);
+        const resObj = controllersErrorHandler(error);
+        return res.status(resObj.status).json(resObj);
+      }
+
       generateToken(res, String(userDb._id));
       return res.status(201).json({
         user: {
@@ -89,6 +109,13 @@ const registerUser = async (req: Request, res: Response) => {
   }
 };
 
+/**
+ * Login an user
+ *
+ * @param req
+ * @param res
+ * @returns
+ */
 const loginUser = async (req: Request, res: Response) => {
   const { email, password } = req.body;
   const user = await getDbUserByEmail(email);
@@ -127,6 +154,13 @@ const loginUser = async (req: Request, res: Response) => {
   }
 };
 
+/**
+ * Logout an user
+ *
+ * @param req
+ * @param res
+ * @returns
+ */
 const logoutUser = async (req: Request, res: Response) => {
   // Unset the PSN credentials used with psn_api
   if (PSN_AUTH) PSN_AUTH = PsnAuth.clearPsnAuth(PSN_AUTH);

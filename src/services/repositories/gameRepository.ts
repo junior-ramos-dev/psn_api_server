@@ -27,6 +27,9 @@ export const createDbGamesByUser = async (
   userId: string
 ): Promise<IUserGames | undefined> => {
   try {
+    console.log(
+      `[${new Date().toISOString()}] Started getting games from PSN...`
+    );
     // Get the user's list of titles (games) from psn_api
     const psnApiGames = await getTrophyTitles();
 
@@ -38,7 +41,9 @@ export const createDbGamesByUser = async (
       createdAt: new Date(),
       updatedAt: new Date(),
     });
-
+    console.log(
+      `[${new Date().toISOString()}] Finished getting games from PSN.`
+    );
     return userGames as IUserGames;
   } catch (error: unknown) {
     //Handle the error
@@ -415,6 +420,8 @@ export const createDbGameIconBin = async (
 
     const games = userGames.games;
 
+    console.log(`[${new Date().toISOString()}] Started getting game icons...`);
+
     for (const game of games) {
       const gamesIconExists = await GameIcon.findOne({
         npCommunicationId: game.npCommunicationId,
@@ -451,6 +458,7 @@ export const createDbGameIconBin = async (
       }
       count++;
     }
+    console.log(`[${new Date().toISOString()}] Finished getting game icons.`);
   } catch (error: unknown) {
     //Handle the error
     servicesErrorHandler(error);
