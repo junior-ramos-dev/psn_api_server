@@ -12,26 +12,34 @@ import { authenticate } from "@/middlewares/authMiddleware";
 
 const gameRouter = express.Router();
 
+//Icon
+gameRouter.get("/:npCommunicationId/icon", authenticate, getGameIconBin);
+
+//Game
 gameRouter.get(
-  "/:trophyTitlePlatform/:npCommunicationId/details",
-  authenticate,
-  getUserGameDetails
-);
-gameRouter.get(
-  "/:trophyTitlePlatform/:npCommunicationId",
+  "/:npCommunicationId/:trophyTitlePlatform",
   authenticate,
   getUserGameByIdAndPlatform
 );
 
+//Game
+gameRouter.get(
+  "/:npCommunicationId/:trophyTitlePlatform/details",
+  authenticate,
+  getUserGameDetails
+);
+
+//Game
 gameRouter.get("/list", authenticate, getGamesByUser);
 
+//Icon
 gameRouter.get(
-  "/icon/:imgType/:npCommunicationId",
+  "/:npCommunicationId/icon/:imgType",
   authenticate,
   getGameIconBinByImgType
 );
-gameRouter.get("/icon/:npCommunicationId", authenticate, getGameIconBin);
 
+//Icon
 gameRouter.post("/icon/list", authenticate, getGamesIconBinListByIds);
 
 export default gameRouter;
