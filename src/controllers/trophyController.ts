@@ -150,7 +150,7 @@ const createTrophiesListForAllGamesBulk = async (
   }
 };
 
-//TODO Move to updateDbUserGamesTrophies and upsertTrophiesForAllGamesBulk
+//TODO Create function on repository
 const getTrophiesGroupsByGame = async (req: Request, res: Response) => {
   try {
     const npCommunicationId = req.params["npCommunicationId"];

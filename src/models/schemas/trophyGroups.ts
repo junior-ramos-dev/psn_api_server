@@ -61,27 +61,7 @@ export const TrophyGroupsInfoSchema = new Schema<ITrophyGroupsInfo>({
 });
 
 export const GameTrophyGroupsSchema = new Schema<IGameTrophyGroups>({
-  npCommunicationId: {
-    type: String,
-    required: true,
-  },
-  npServiceName: {
-    type: String,
-    required: true,
-  },
-  trophyTitleName: {
-    type: String,
-    required: true,
-  },
-  trophyTitleIconUrl: {
-    type: String,
-    required: true,
-  },
-  trophyTitlePlatform: {
-    type: String,
-    required: true,
-  },
-  definedTrophies: {
+  allTrophiesCount: {
     type: TrophyCountSchema,
     required: true,
   },

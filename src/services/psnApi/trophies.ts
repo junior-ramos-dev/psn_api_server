@@ -90,7 +90,6 @@ const getPsnGameEarnedTrophiesGroups = async (
   return data;
 };
 
-//TODO Add to trophy bulk and DB
 /**
  * Get PSN trophies groups by game ID and game Platform
  *
@@ -119,12 +118,7 @@ export const getPsnParsedTrophiesGroupsByGame = async (
     );
 
     const gameTrophyGroups: IGameTrophyGroups = {
-      npServiceName: definedGroups.npServiceName,
-      npCommunicationId: definedGroups.npCommunicationId,
-      trophyTitleName: definedGroups.trophyTitleName,
-      trophyTitleIconUrl: definedGroups.trophyTitleIconUrl,
-      trophyTitlePlatform: definedGroups.trophyTitlePlatform,
-      definedTrophies: definedGroups.definedTrophies,
+      allTrophiesCount: definedGroups.definedTrophies,
       trophyGroupsInfo: [],
     };
 

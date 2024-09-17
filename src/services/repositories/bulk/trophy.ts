@@ -46,7 +46,7 @@ const getBulkTrophiesList = async (userId: string, userGames: IUserGames) => {
         gameTrophiesBulk.push({
           npCommunicationId: npCommunicationId,
           trophyTitlePlatform: trophyTitlePlatform,
-          trophies: psnApiTrophyList,
+          trophyGroups: psnApiTrophyList,
         });
       } else {
         console.log(`psnApi trophy list not found: ${trophyTitleName}`);

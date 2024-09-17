@@ -32,12 +32,7 @@ export class ConvertTrophyDefinedGroupsResponse {
 
 // Interfaces for parsed trophy groups
 export interface IGameTrophyGroups {
-  npCommunicationId: string;
-  npServiceName: string;
-  trophyTitleName: string;
-  trophyTitleIconUrl: string;
-  trophyTitlePlatform: string;
-  definedTrophies: ITrophyCount;
+  allTrophiesCount: ITrophyCount;
   trophyGroupsInfo: ITrophyGroupsInfo[];
 }
 
