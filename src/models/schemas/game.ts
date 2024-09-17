@@ -133,7 +133,7 @@ export const GameTrophiesSchema = new Schema<IGameTrophies>(
       required: true,
     },
     trophies: {
-      type: [TrophySchema],
+      type: [TrophySchema], //TODO Change to use trophy groups interface
       required: true,
     },
     createdAt: {

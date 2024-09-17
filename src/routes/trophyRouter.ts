@@ -2,7 +2,8 @@ import express from "express";
 
 import {
   createTrophiesListForAllGamesBulk,
-  getTrophiesByGame,
+  getAllTrophiesByGame,
+  getTrophiesGroupsByGame,
 } from "@/controllers/trophyController";
 import { authenticate } from "@/middlewares/authMiddleware";
 
@@ -12,7 +13,14 @@ const trophyRouter = express.Router();
 trophyRouter.get(
   "/:trophyTitlePlatform/:npCommunicationId/list",
   authenticate,
-  getTrophiesByGame
+  getAllTrophiesByGame
+);
+
+// Get the trophy groups for a single game by user
+trophyRouter.get(
+  "/:trophyTitlePlatform/:npCommunicationId/group",
+  authenticate,
+  getTrophiesGroupsByGame
 );
 
 // Get the list of trohpies for all games by user

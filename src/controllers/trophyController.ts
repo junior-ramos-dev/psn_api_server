@@ -4,6 +4,7 @@ import { MongooseError } from "mongoose";
 import { IBulkResponse } from "@/models/interfaces/common/bulk";
 import { controllersErrorHandler } from "@/models/interfaces/common/error";
 import { IUserSingleGame } from "@/models/interfaces/user/user";
+import { getPsnParsedTrophiesGroupsByGame } from "@/services/psnApi/trophies";
 import { upsertTrophiesForAllGamesBulk } from "@/services/repositories/bulk/trophy";
 import { getDbUserGameByIdAndPlatform } from "@/services/repositories/gameRepository";
 import {
@@ -21,18 +22,18 @@ import { setPsnApiPollingInterval } from "@/utils/http";
  * @param res
  * @returns
  */
-const getTrophiesByGame = async (req: Request, res: Response) => {
+const getAllTrophiesByGame = async (req: Request, res: Response) => {
   try {
     //Get user id from session
     const userId = req.session.user!.id;
     // const userId = "66c74f86a34c6bfd144e5203";
-    const trophyTitlePlatform = req.params["trophyTitlePlatform"];
     const npCommunicationId = req.params["npCommunicationId"];
+    const trophyTitlePlatform = req.params["trophyTitlePlatform"];
 
     const userGame = await getDbUserGameByIdAndPlatform(
       userId,
-      trophyTitlePlatform,
-      npCommunicationId
+      npCommunicationId,
+      trophyTitlePlatform
     );
 
     if (userGame) {
@@ -105,6 +106,7 @@ const getUpdatedDbTrophyList = async (
     }
   }
 };
+
 /**
  * Insert or Update the list of trophies for all games from a user (bulk).
  *
@@ -148,4 +150,26 @@ const createTrophiesListForAllGamesBulk = async (
   }
 };
 
-export { createTrophiesListForAllGamesBulk, getTrophiesByGame };
+//TODO Move to updateDbUserGamesTrophies and upsertTrophiesForAllGamesBulk
+const getTrophiesGroupsByGame = async (req: Request, res: Response) => {
+  try {
+    const npCommunicationId = req.params["npCommunicationId"];
+    const trophyTitlePlatform = req.params["trophyTitlePlatform"];
+
+    const groups = await getPsnParsedTrophiesGroupsByGame(
+      npCommunicationId,
+      trophyTitlePlatform
+    );
+    return res.status(200).send(groups);
+  } catch (error) {
+    console.log(error);
+    const resObj = controllersErrorHandler(error);
+    return res.status(resObj.status).json(resObj);
+  }
+};
+
+export {
+  createTrophiesListForAllGamesBulk,
+  getAllTrophiesByGame,
+  getTrophiesGroupsByGame,
+};

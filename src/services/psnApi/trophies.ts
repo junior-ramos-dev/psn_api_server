@@ -1,13 +1,23 @@
+import _ from "lodash";
 import {
   getTitleTrophies,
+  getTitleTrophyGroups,
   getUserTrophiesEarnedForTitle,
+  getUserTrophyGroupEarningsForTitle,
   Trophy,
+  UserTrophyGroupEarningsForTitleResponse,
 } from "psn-api";
 import type { TitleThinTrophy } from "psn-api/dist/models/title-thin-trophy.model";
 
 import { PSN_AUTH } from "@/controllers/authController";
 import { PsnApiError } from "@/models/interfaces/common/error";
 import { ITrophy } from "@/models/interfaces/trophy";
+import {
+  ConvertTrophyDefinedGroupsResponse,
+  IGameTrophyGroups,
+  ITrophyDefinedGroupsResponse,
+  ITrophyGroupsInfo,
+} from "@/models/interfaces/trophyGroups";
 import {
   NP_SERVICE_NAME,
   TROPHY_GROUP_ID,
@@ -18,6 +28,168 @@ import {
   TROPHY_POINTS_MAP,
   TROPHY_RARITY_MAP,
 } from "@/models/types/trophy";
+
+/**
+ * Get game trophy groups
+ *
+ * @param npCommunicationId
+ * @param trophyTitlePlatform
+ * @returns
+ */
+const getPsnGameDefinedTrophyGroups = async (
+  npCommunicationId: string,
+  trophyTitlePlatform: string
+): Promise<ITrophyDefinedGroupsResponse> => {
+  const { accessToken } = await PSN_AUTH.getCredentials();
+
+  const data = await getTitleTrophyGroups(
+    { accessToken: accessToken },
+    npCommunicationId,
+    {
+      npServiceName: !trophyTitlePlatform.includes(TROPHY_TITLE_PLATFORM.PS5)
+        ? NP_SERVICE_NAME.PS3_PS4_PSVITA_TROPHY
+        : NP_SERVICE_NAME.PS5_TROPHY,
+    }
+  );
+
+  if (!data) throw new PsnApiError("Get game trophy groups failed.");
+
+  const definedGroupsResponse = ConvertTrophyDefinedGroupsResponse.fromJson(
+    JSON.stringify(data)
+  );
+
+  return definedGroupsResponse;
+};
+
+/**
+ * Get the game earned trophy groups.
+ *
+ * @param npCommunicationId
+ * @param trophyTitlePlatform
+ * @returns
+ */
+const getPsnGameEarnedTrophiesGroups = async (
+  npCommunicationId: string,
+  trophyTitlePlatform: string
+): Promise<UserTrophyGroupEarningsForTitleResponse> => {
+  const { accessToken, accountId } = await PSN_AUTH.getCredentials();
+
+  const data = await getUserTrophyGroupEarningsForTitle(
+    { accessToken: accessToken },
+    accountId,
+    npCommunicationId,
+    {
+      npServiceName: !trophyTitlePlatform.includes(TROPHY_TITLE_PLATFORM.PS5)
+        ? NP_SERVICE_NAME.PS3_PS4_PSVITA_TROPHY
+        : NP_SERVICE_NAME.PS5_TROPHY,
+    }
+  );
+
+  if (!data) throw new PsnApiError("Get game trophy groups failed.");
+
+  return data;
+};
+
+//TODO Add to trophy bulk and DB
+/**
+ * Get PSN trophies groups by game ID and game Platform
+ *
+ * @param npCommunicationId
+ * @param trophyTitlePlatform
+ * @returns
+ */
+export const getPsnParsedTrophiesGroupsByGame = async (
+  npCommunicationId: string,
+  trophyTitlePlatform: string
+) => {
+  try {
+    // Get the credentials used by psn_api
+    const { accessToken, accountId } = await PSN_AUTH.getCredentials();
+
+    // Get defined trophy groups
+    const definedGroups = await getPsnGameDefinedTrophyGroups(
+      npCommunicationId,
+      trophyTitlePlatform
+    );
+    console.log(JSON.stringify(definedGroups));
+
+    // Get earned trophy groups
+    const earnedGroups = await getPsnGameEarnedTrophiesGroups(
+      npCommunicationId,
+      trophyTitlePlatform
+    );
+
+    const gameTrophyGroups: IGameTrophyGroups = {
+      npServiceName: definedGroups.npServiceName,
+      npCommunicationId: definedGroups.npCommunicationId,
+      trophyTitleName: definedGroups.trophyTitleName,
+      trophyTitleIconUrl: definedGroups.trophyTitleIconUrl,
+      trophyTitlePlatform: definedGroups.trophyTitlePlatform,
+      definedTrophies: definedGroups.definedTrophies,
+      trophyGroupsInfo: [],
+    };
+
+    const trophiesGroupsInfoArray: ITrophyGroupsInfo[] = [];
+
+    if (definedGroups && earnedGroups) {
+      const groupsIds: string[] = [];
+
+      // Get the groups IDs
+      for (const group of definedGroups.trophyGroups) {
+        groupsIds.push(group.trophyGroupId);
+      }
+
+      let count = 0;
+
+      // Get the trophy list for each group
+      for (const groupId of groupsIds) {
+        const definedTrophiesGroup = await getPsnGameTrophiesList(
+          accessToken,
+          npCommunicationId,
+          trophyTitlePlatform,
+          groupId
+        );
+
+        const earnedTrophiesGroup = await getPsnGameEarnedTrophiesList(
+          accessToken,
+          accountId,
+          npCommunicationId,
+          trophyTitlePlatform,
+          groupId
+        );
+
+        // Merge the trophy lists for each group
+        let parsedTrophies = mergePsnTrophyLists(
+          definedTrophiesGroup,
+          earnedTrophiesGroup
+        );
+
+        parsedTrophies = _.orderBy(
+          parsedTrophies,
+          ["trophyId", "groupId"],
+          ["asc", "asc"]
+        );
+
+        // Create the trophy groups info with the merged trophy lists
+        const trophiesGroupsInfo: ITrophyGroupsInfo = {
+          definedGroupInfo: definedGroups.trophyGroups[count],
+          earnedGroupInfo: earnedGroups.trophyGroups[count],
+          groupTrophies: parsedTrophies,
+        };
+
+        trophiesGroupsInfoArray.push(trophiesGroupsInfo);
+        count++;
+      }
+    }
+
+    gameTrophyGroups.trophyGroupsInfo = trophiesGroupsInfoArray;
+
+    return gameTrophyGroups;
+  } catch (error) {
+    //Handle the error
+    throw new PsnApiError(`Get PSN trophies groups by game failed: ${error}`);
+  }
+};
 
 /**
  * Get the game trophies list.
@@ -46,7 +218,7 @@ const getPsnGameTrophiesList = async (
   );
 
   if (!gameTrophiesList.length)
-    throw new PsnApiError("Get game trohies failed.");
+    throw new PsnApiError("Get game trophies failed.");
 
   return gameTrophiesList;
 };
@@ -81,7 +253,7 @@ const getPsnGameEarnedTrophiesList = async (
   );
 
   if (!gameEarnedTrophies.length)
-    throw new PsnApiError("Get game earned trohies failed.");
+    throw new PsnApiError("Get game earned trophies failed.");
 
   return gameEarnedTrophies;
 };
@@ -110,7 +282,7 @@ const mergePsnTrophyLists = (
   }
 
   if (!mergedTrophies.length)
-    throw new PsnApiError("Merge game trohies lists failed.");
+    throw new PsnApiError("Merge game trophies lists failed.");
 
   return mergedTrophies;
 };

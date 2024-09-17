@@ -118,8 +118,8 @@ export const updateDbGamesByUserId = async (
  */
 export const getDbUserGameByIdAndPlatform = async (
   userId: string,
-  trophyTitlePlatform: string,
-  npCommunicationId: string
+  npCommunicationId: string,
+  trophyTitlePlatform: string
 ): Promise<IUserSingleGame | undefined> => {
   try {
     const userGames = await UserGames.aggregate([

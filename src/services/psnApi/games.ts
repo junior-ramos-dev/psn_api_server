@@ -8,11 +8,13 @@ export const getTrophyTitles = async (): Promise<TrophyTitle[]> => {
   // Get the credentials used by psn_api
   const { accessToken, accountId } = await PSN_AUTH.getCredentials();
 
-  const { trophyTitles } = await getUserTitles(
+  const { trophyTitles, totalItemCount } = await getUserTitles(
     { accessToken: accessToken },
     accountId,
-    { limit: 150 } //TODO Add limit/offset to query
+    { limit: 150, offset: 0 } //TODO Add limit/offset to query
   );
+
+  console.log(totalItemCount);
 
   if (!trophyTitles.length)
     throw new PsnApiError("Get trophy titles (games) failed.");

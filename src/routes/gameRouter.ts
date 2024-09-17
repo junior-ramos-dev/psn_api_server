@@ -24,7 +24,7 @@ gameRouter.get(
 
 //Game
 gameRouter.get(
-  "/:npCommunicationId/:trophyTitlePlatform/details",
+  "/:npCommunicationId/:trophyTitlePlatform/details?imgType=:imgType&getTrophies=:getTrophies",
   authenticate,
   getUserGameDetails
 );
