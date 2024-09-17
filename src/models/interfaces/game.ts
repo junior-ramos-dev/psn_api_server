@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import { TROPHY_POINTS_MAP, TROPHY_TYPE_NAME } from "../types/trophy";
 
 import { ITrophy, ITrophyCount } from "./trophy";
+import { IGameTrophyGroups } from "./trophyGroups";
 
 export interface IGame {
   npCommunicationId: string;
@@ -26,7 +27,7 @@ export interface IGame {
 export interface IGameTrophies extends mongoose.Document {
   npCommunicationId: string;
   trophyTitlePlatform: string;
-  trophies: ITrophy[];
+  trophies: IGameTrophyGroups[];
   createdAt: Date;
   updatedAt: Date;
 }

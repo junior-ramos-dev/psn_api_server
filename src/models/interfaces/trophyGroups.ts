@@ -2,8 +2,8 @@ import { ITrophy, ITrophyCount } from "./trophy";
 
 // Interfaces for psn_api getTitleTrophyGroups response
 export interface ITrophyDefinedGroupsResponse {
-  npServiceName: string;
   npCommunicationId: string;
+  npServiceName: string;
   trophySetVersion: string;
   trophyTitleName: string;
   trophyTitleIconUrl: string;
@@ -32,8 +32,8 @@ export class ConvertTrophyDefinedGroupsResponse {
 
 // Interfaces for parsed trophy groups
 export interface IGameTrophyGroups {
-  npServiceName: string;
   npCommunicationId: string;
+  npServiceName: string;
   trophyTitleName: string;
   trophyTitleIconUrl: string;
   trophyTitlePlatform: string;

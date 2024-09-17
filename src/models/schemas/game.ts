@@ -2,7 +2,8 @@ import mongoose, { Schema } from "mongoose";
 
 import { IGame, IGameIcon, IGameTrophies } from "@/models/interfaces/game";
 
-import { TrophyCount, TrophySchema } from "./trophy";
+import { TrophyCountSchema } from "./trophy";
+import { GameTrophyGroupsSchema } from "./trophyGroups";
 
 //Model for Game
 export const GameSchema = new Schema<IGame>(
@@ -44,11 +45,11 @@ export const GameSchema = new Schema<IGame>(
       required: true,
     },
     definedTrophies: {
-      type: TrophyCount,
+      type: TrophyCountSchema,
       required: true,
     },
     earnedTrophies: {
-      type: TrophyCount,
+      type: TrophyCountSchema,
       required: true,
     },
     progress: {
@@ -133,7 +134,7 @@ export const GameTrophiesSchema = new Schema<IGameTrophies>(
       required: true,
     },
     trophies: {
-      type: [TrophySchema], //TODO Change to use trophy groups interface
+      type: [GameTrophyGroupsSchema],
       required: true,
     },
     createdAt: {

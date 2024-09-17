@@ -65,7 +65,7 @@ export const TrophySchema = new Schema<ITrophy>({
   },
 });
 
-export const TrophyCount = new Schema<ITrophyCount>({
+export const TrophyCountSchema = new Schema<ITrophyCount>({
   bronze: {
     type: Number,
     required: true,
@@ -94,7 +94,7 @@ export const TrophySummary = new Schema<ITrophySummary>({
     required: true,
   },
   earnedTrophies: {
-    type: TrophyCount,
+    type: TrophyCountSchema,
     required: true,
   },
 });
