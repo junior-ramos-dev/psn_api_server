@@ -111,7 +111,6 @@ export const getPsnParsedTrophiesGroupsByGame = async (
       npCommunicationId,
       trophyTitlePlatform
     );
-    console.log(JSON.stringify(definedGroups));
 
     // Get earned trophy groups
     const earnedGroups = await getPsnGameEarnedTrophiesGroups(

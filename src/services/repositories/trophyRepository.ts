@@ -5,7 +5,7 @@ import { IGameTrophies } from "@/models/interfaces/game";
 import { IUserGamesTrophies } from "@/models/interfaces/user/user";
 import { GameTrophies } from "@/models/schemas/game";
 import { UserGamesTrophies } from "@/models/schemas/user/user";
-import { getPsnGameParsedTrophies } from "@/services/psnApi/trophies";
+import { getPsnParsedTrophiesGroupsByGame } from "@/services/psnApi/trophies";
 
 /**
  * Get or Create (if not exists) the list of trophies by game
@@ -56,7 +56,7 @@ export const createDbTrophyListByGame = async (
 ): Promise<IGameTrophies | undefined> => {
   try {
     // Get the list of trophies by game from psn_api
-    const psnApiTrophyList = await getPsnGameParsedTrophies(
+    const psnApiTrophyList = await getPsnParsedTrophiesGroupsByGame(
       npCommunicationId,
       trophyTitlePlatform
     );
@@ -100,7 +100,7 @@ export const updateDbUserGamesTrophies = async (
 ): Promise<IUserGamesTrophies | undefined> => {
   try {
     // Get the list of trophies by game from psn_api
-    const psnApiTrophyList = await getPsnGameParsedTrophies(
+    const psnApiTrophyList = await getPsnParsedTrophiesGroupsByGame(
       npCommunicationId,
       trophyTitlePlatform
     );

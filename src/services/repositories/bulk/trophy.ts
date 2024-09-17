@@ -5,7 +5,7 @@ import { servicesErrorHandler } from "@/models/interfaces/common/error";
 import { IGamesTrophiesBulk } from "@/models/interfaces/game";
 import { IUserGames } from "@/models/interfaces/user";
 import { UserGamesTrophies } from "@/models/schemas/user";
-import { getPsnGameParsedTrophies } from "@/services/psnApi/trophies";
+import { getPsnParsedTrophiesGroupsByGame } from "@/services/psnApi/trophies";
 import { setPsnApiPollingInterval } from "@/utils/http";
 
 import { getDbGamesListByUserId } from "../gameRepository";
@@ -37,7 +37,7 @@ const getBulkTrophiesList = async (userId: string, userGames: IUserGames) => {
       const trophyTitleName = game.trophyTitleName.toUpperCase();
 
       // Get the list of trophies by game from psn_api
-      const psnApiTrophyList = await getPsnGameParsedTrophies(
+      const psnApiTrophyList = await getPsnParsedTrophiesGroupsByGame(
         npCommunicationId,
         trophyTitlePlatform
       );
