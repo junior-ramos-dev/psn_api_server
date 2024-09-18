@@ -4,7 +4,6 @@ import { MongooseError } from "mongoose";
 import { IBulkResponse } from "@/models/interfaces/common/bulk";
 import { controllersErrorHandler } from "@/models/interfaces/common/error";
 import { IUserSingleGame } from "@/models/interfaces/user/user";
-import { getPsnParsedTrophiesGroupsByGame } from "@/services/psnApi/trophies";
 import { upsertTrophiesForAllGamesBulk } from "@/services/repositories/bulk/trophy";
 import { getDbUserGameByIdAndPlatform } from "@/services/repositories/gameRepository";
 import {
@@ -150,26 +149,4 @@ const createTrophiesListForAllGamesBulk = async (
   }
 };
 
-//TODO Create function on repository
-const getTrophiesGroupsByGame = async (req: Request, res: Response) => {
-  try {
-    const npCommunicationId = req.params["npCommunicationId"];
-    const trophyTitlePlatform = req.params["trophyTitlePlatform"];
-
-    const groups = await getPsnParsedTrophiesGroupsByGame(
-      npCommunicationId,
-      trophyTitlePlatform
-    );
-    return res.status(200).send(groups);
-  } catch (error) {
-    console.log(error);
-    const resObj = controllersErrorHandler(error);
-    return res.status(resObj.status).json(resObj);
-  }
-};
-
-export {
-  createTrophiesListForAllGamesBulk,
-  getAllTrophiesByGame,
-  getTrophiesGroupsByGame,
-};
+export { createTrophiesListForAllGamesBulk, getAllTrophiesByGame };
