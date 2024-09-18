@@ -28,14 +28,13 @@ export const getUserGameByIdAndPlatform = async (
   try {
     //Get user id from session
     const userId = req.session.user!.id;
-    // const userId = "66c74f86a34c6bfd144e5203";
     const npCommunicationId = req.params["npCommunicationId"];
     const trophyTitlePlatform = req.params["trophyTitlePlatform"];
 
     const game = await getDbUserGameByIdAndPlatform(
       userId,
-      trophyTitlePlatform,
-      npCommunicationId
+      npCommunicationId,
+      trophyTitlePlatform
     );
 
     console.log("returned game from DB");
