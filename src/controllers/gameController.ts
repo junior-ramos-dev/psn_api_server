@@ -56,7 +56,6 @@ export const getUserGameDetails = async (req: Request, res: Response) => {
   try {
     //Get user id from session
     const userId = req.session.user!.id;
-    // const userId = "66c74f86a34c6bfd144e5203";
 
     // URL params
     const npCommunicationId = req.params["npCommunicationId"];
@@ -93,7 +92,6 @@ const getGamesByUser = async (req: Request, res: Response) => {
   try {
     //Get user id from session
     const userId = req.session.user!.id;
-    // const userId = "66c74f86a34c6bfd144e5203";
 
     const gamesByUser = await getDbGamesListByUserId(userId);
 
