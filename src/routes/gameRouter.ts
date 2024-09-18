@@ -22,9 +22,9 @@ gameRouter.get(
   getUserGameByIdAndPlatform
 );
 
-//Game
+//Game  [?imgType=:imgType&getTrophies=:getTrophies]
 gameRouter.get(
-  "/:npCommunicationId/:trophyTitlePlatform/details?imgType=:imgType&getTrophies=:getTrophies",
+  "/:npCommunicationId/:trophyTitlePlatform/details",
   authenticate,
   getUserGameDetails
 );

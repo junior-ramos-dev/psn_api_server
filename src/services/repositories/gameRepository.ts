@@ -162,7 +162,7 @@ export const getDbUserGameDetails = async (
   trophyTitlePlatform: string,
   npCommunicationId: string,
   imgType: string = IMG_TYPE.WEBP,
-  getTrophies: number = 0
+  getTrophies: number = 0 //false
 ): Promise<IUserGameDetails | undefined> => {
   try {
     const gameDetailProjection: IGameDetailsProjecton = {
@@ -170,23 +170,20 @@ export const getDbUserGameDetails = async (
       userId: 1,
       usergame: 1,
       gameIcon: 1,
-      trophies: 1,
-      totalPoints: 1,
+      trophyGroupsInfo: 1,
     };
 
-    // If "getTrophies is false, remove the trophy list from the result projection
-    if (!getTrophies) delete gameDetailProjection.trophies;
+    // If "getTrophies" is false, remove the trophy list from the result projection
+    console.log(!getTrophies);
+    if (!getTrophies) delete gameDetailProjection.trophyGroupsInfo;
 
-    let gameIconType = "";
+    console.log(gameDetailProjection);
+
+    // Define WEBP as default image type
+    let gameIconType = "$gameIcon.iconBinWebp";
     // Define the img type to be returned
-    switch (imgType.toLowerCase()) {
-      case IMG_TYPE.PNG:
-        gameIconType = "$gameIcon.iconBinPng";
-        break;
-      case IMG_TYPE.WEBP:
-        gameIconType = "$gameIcon.iconBinWebp";
-        break;
-    }
+    if (imgType.toLowerCase() === IMG_TYPE.PNG)
+      gameIconType = "$gameIcon.iconBinPng";
 
     const userGameWithTrophies = await UserGamesTrophies.aggregate([
       // Make reference to the usergames collection using the "userId"
@@ -194,7 +191,7 @@ export const getDbUserGameDetails = async (
         $lookup: {
           from: "usergames",
           localField: "usergames.userId",
-          foreignField: "gamesTrophies.userId",
+          foreignField: "this.userId",
           as: "usergame",
         },
       },
@@ -254,20 +251,12 @@ export const getDbUserGameDetails = async (
           usergame: {
             $first: "$usergame.games",
           },
-          trophies: {
-            $first: "$gamesTrophies.trophies",
+          trophyGroupsInfo: {
+            $first: "$gamesTrophies.trophyGroups.trophyGroupsInfo",
           },
-          // Get the icon bin with PNG format
+          // Get the icon bin with the specified format
           gameIcon: {
             $first: gameIconType,
-          },
-        },
-      },
-      // Add the totalPoints field as the sum of points of all trophies for the specified game
-      {
-        $addFields: {
-          totalPoints: {
-            $sum: "$trophies.points",
           },
         },
       },
