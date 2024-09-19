@@ -298,6 +298,7 @@ const parsePsnTrophyToITrophy = (trophy: Trophy): ITrophy => {
     rarity: TROPHY_RARITY_MAP[trophy.trophyRare ?? 0],
     groupId: trophy.trophyGroupId,
     points: TROPHY_POINTS_MAP[trophy.trophyType ?? 0],
+    isChecked: trophy.earned,
   };
 
   return trophyParsed;

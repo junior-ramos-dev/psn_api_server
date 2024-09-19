@@ -63,6 +63,11 @@ export const TrophySchema = new Schema<ITrophy>({
     type: Number,
     required: true,
   },
+  isChecked: {
+    type: Boolean,
+    required: true,
+    default: false,
+  },
 });
 
 export const TrophyCountSchema = new Schema<ITrophyCount>({
