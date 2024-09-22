@@ -105,7 +105,7 @@ const getGamesByUser = async (req: Request, res: Response) => {
       if (createdGames) {
         // Download and create (if not exists yet) the game image (trophyTitleIconUrl)
         // and insert as binary data in the collection "gamesicons"
-        await createDbGameIconBin(createdGames);
+        await createDbGameIconBin(userId);
 
         console.log("created userGames on DB");
         return res.json(createdGames);
@@ -145,7 +145,7 @@ const getUpdatedDbGamesList = async (
     if (updatedGames) {
       // Download and update (if not exists yet) the game image (trophyTitleIconUrl)
       // and insert as binary data in the collection "gamesicons"
-      await createDbGameIconBin(updatedGames);
+      await createDbGameIconBin(userId);
 
       console.log("updated userGames on DB");
       return res.json(gamesByUser);

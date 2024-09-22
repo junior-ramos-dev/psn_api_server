@@ -23,7 +23,7 @@ export const loadPsnGamesData = async (userId: string) => {
     if (createdGames) {
       // Download and create (if not exists yet) the game image (trophyTitleIconUrl)
       // and insert as binary data in the collection "gamesicons"
-      await createDbGameIconBin(createdGames);
+      await createDbGameIconBin(userId);
 
       // Response for getting list of trophies
       const bulkResponse: IBulkResponse<string> = {

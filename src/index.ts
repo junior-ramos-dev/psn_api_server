@@ -81,7 +81,7 @@ app.use(
 app.use(bodyParser.json()); // To recognize the req obj as a json obj
 app.use(bodyParser.urlencoded({ extended: true })); // To recognize the req obj as strings or arrays. extended true to handle nested objects also
 
-app.listen(port, () => {
+const server = app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
 
@@ -105,3 +105,21 @@ app.use(errorHandler);
 
 //MongoDb Connection
 connectMongoDB();
+
+// Run some code to clean things up before server exits or restarts
+const stop = () => {
+  server.on("close", function () {
+    console.log("⬇ Shutting down server");
+    process.exit();
+  });
+  server.close();
+};
+
+process.on("SIGINT", stop);
+process.on("SIGTERM", stop);
+process.on("SIGQUIT", stop);
+
+process.once("SIGUSR2", function () {
+  // Run some code to do a different kind of cleanup on nodemon restart:
+  process.kill(process.pid, "SIGUSR2");
+});

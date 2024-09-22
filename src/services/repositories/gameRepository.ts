@@ -401,13 +401,13 @@ export const getDbGameIconBinByListOfGamesIds = async (
  * Download the game icon (if not exists yet) and insert as binary data in the collection "gamesicons"
  * aside from the "usergames" collection.
  */
-export const createDbGameIconBin = async (
-  userGames: IUserGames
-): Promise<void> => {
+export const createDbGameIconBin = async (userId: string): Promise<void> => {
   try {
     let count = 1;
 
-    const games = userGames.games;
+    const userGames = await getDbGamesListByUserId(userId);
+
+    const games = userGames!.games;
 
     console.log(`[${new Date().toISOString()}] Started getting game icons...`);
 
