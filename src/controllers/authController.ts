@@ -6,7 +6,7 @@ import {
   ERROR_CLASS_NAME,
 } from "@/models/interfaces/common/error";
 import { PsnAuth } from "@/services/psnApi/psnAuth";
-import { loadPsnUserDataOnRegister } from "@/services/repositories/bulk/game";
+import { loadPsnGamesData } from "@/services/repositories/bulk/game";
 import {
   createDbUserAndProfile,
   getDbUserByEmail,
@@ -17,7 +17,8 @@ import { IS_NODE_ENV_PRODUCTION } from "@/utils/env";
 
 let PSN_AUTH: PsnAuth;
 
-const generateToken = (res: Response, userId: string) => {
+// Generate the auth token
+export const generateToken = (res: Response, userId: string) => {
   const jwtSecret = process.env.JWT_SECRET ?? "";
   const token = jwt.sign({ userId }, jwtSecret, {
     expiresIn: "1h",
@@ -53,7 +54,7 @@ const registerUser = async (req: Request, res: Response) => {
   if (onlineIdExists) {
     return res.status(400).json({
       name: ERROR_CLASS_NAME.MONGO_DB,
-      message: `An account with PSN Username '${psnOnlineId}' already exists!`,
+      message: `An account with PSN Username '${psnOnlineId}' already exists! If you used this username to register, try to Login.`,
     });
   }
   if (userEmailExists) {
@@ -79,7 +80,7 @@ const registerUser = async (req: Request, res: Response) => {
 
       try {
         // Load the games and trophy user data from PSN and insert on DB
-        await loadPsnUserDataOnRegister(String(userDb._id));
+        await loadPsnGamesData(String(userDb._id));
       } catch (error) {
         console.log(error);
         const resObj = controllersErrorHandler(error);
@@ -104,7 +105,8 @@ const registerUser = async (req: Request, res: Response) => {
   } else {
     return res.status(401).json({
       name: ERROR_CLASS_NAME.PSN_API,
-      message: "An error occurred in creating the account: Missing 'NPSSO'",
+      message:
+        "An error occurred in creating the account: Missing 'NPSSO' code",
     });
   }
 };

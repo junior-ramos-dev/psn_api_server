@@ -43,6 +43,7 @@ export const createDbUserAndProfile = async (
       updatedAt,
     };
 
+    // Insert user profile on DB
     const userProfileDb = await new UserProfile(userProfile).save(opts);
 
     const data: IUserAndProfile = { userDb, userProfileDb };

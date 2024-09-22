@@ -10,7 +10,7 @@ import { upsertTrophiesForAllGamesBulk } from "./trophy";
  *
  * @param userId
  */
-export const loadPsnUserDataOnRegister = async (userId: string) => {
+export const loadPsnGamesData = async (userId: string) => {
   try {
     let dataLoaded = false;
 

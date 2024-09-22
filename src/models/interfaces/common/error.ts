@@ -17,7 +17,7 @@ export enum ERROR_CLASS_NAME {
   UNKNOWN = "UnknownError",
 }
 
-interface IResponseErrorObj {
+export interface IErrorResponse {
   status: number;
   name: string;
   message: string;
@@ -107,14 +107,25 @@ const servicesErrorHandler = (error: unknown) => {
   const { errorClassType, errorClass } = castErrorUnknownToErrorClass(error);
 
   switch (errorClassType) {
-    case ERROR_CLASS_TYPE.REQUEST:
-      throw errorClass; //RequestError
-    case ERROR_CLASS_TYPE.AUTHENTICATION:
-      throw errorClass; //AuthenticationError
-    case ERROR_CLASS_TYPE.PSN_API:
-      throw errorClass; //PsnApiError
-    case ERROR_CLASS_TYPE.MONGO_DB:
-      throw errorClass; //MongoDbError;
+    case ERROR_CLASS_TYPE.REQUEST: {
+      const requestError = errorClass;
+      throw requestError; //RequestError
+    }
+
+    case ERROR_CLASS_TYPE.AUTHENTICATION: {
+      const authenticationError = errorClass;
+      throw authenticationError; //AuthenticationError
+    }
+
+    case ERROR_CLASS_TYPE.PSN_API: {
+      const psnApiError = errorClass;
+      throw psnApiError; //PsnApiError
+    }
+
+    case ERROR_CLASS_TYPE.MONGO_DB: {
+      const mongoDbError = errorClass;
+      throw mongoDbError; //MongoDbError
+    }
     default:
       throw errorClass; //UnknownError;
   }
@@ -122,16 +133,14 @@ const servicesErrorHandler = (error: unknown) => {
 
 const controllersErrorHandler = (error: unknown) => {
   const { errorClassType, errorClass } = castErrorUnknownToErrorClass(error);
-  // console.error(errorClass.stack);
 
-  const resErrorObj: IResponseErrorObj = {
+  const resErrorObj: IErrorResponse = {
     status: 400,
     name: "Error",
     message: "Error message",
   };
 
   if (errorClass) {
-    // return res.status(400).json({ error: `MongoDB: User not found: ${error}` });
     switch (errorClassType) {
       case ERROR_CLASS_TYPE.REQUEST: {
         const reqError = errorClass as RequestError;
@@ -145,7 +154,7 @@ const controllersErrorHandler = (error: unknown) => {
 
       case ERROR_CLASS_TYPE.AUTHENTICATION: {
         resErrorObj.status = 401;
-        resErrorObj.name = errorClass.name;
+        resErrorObj.name = ERROR_CLASS_NAME.AUTHENTICATION;
         resErrorObj.message = `Unauthorized: ${errorClass.message}`;
 
         break;
@@ -153,7 +162,7 @@ const controllersErrorHandler = (error: unknown) => {
 
       case ERROR_CLASS_TYPE.PSN_API: {
         resErrorObj.status = 400;
-        resErrorObj.name = errorClass.name;
+        resErrorObj.name = ERROR_CLASS_NAME.PSN_API;
         resErrorObj.message = `${errorClass.message}`;
 
         break;
@@ -161,7 +170,7 @@ const controllersErrorHandler = (error: unknown) => {
 
       case ERROR_CLASS_TYPE.MONGO_DB: {
         resErrorObj.status = 400;
-        resErrorObj.name = errorClass.name;
+        resErrorObj.name = ERROR_CLASS_NAME.MONGO_DB;
         resErrorObj.message = `${errorClass.message}`;
 
         break;
@@ -169,7 +178,7 @@ const controllersErrorHandler = (error: unknown) => {
 
       case ERROR_CLASS_TYPE.UNKNOWN: {
         resErrorObj.status = 400;
-        resErrorObj.name = errorClass.name;
+        resErrorObj.name = ERROR_CLASS_NAME.UNKNOWN;
         resErrorObj.message = `${errorClass.message}`;
 
         break;
@@ -190,6 +199,7 @@ const controllersErrorHandler = (error: unknown) => {
 export {
   AuthenticationError,
   controllersErrorHandler,
+  MongoDbError,
   PsnApiError,
   RequestError,
   servicesErrorHandler,
