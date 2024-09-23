@@ -150,9 +150,5 @@ export const GameTrophiesSchema = new Schema<IGameTrophies>(
 );
 
 const GameIcon = mongoose.model<IGameIcon>("GameIcon", GameIconSchema);
-const GameTrophies = mongoose.model<IGameTrophies>(
-  "GameTrophies",
-  GameTrophiesSchema
-);
 
-export { GameIcon, GameTrophies };
+export { GameIcon };
