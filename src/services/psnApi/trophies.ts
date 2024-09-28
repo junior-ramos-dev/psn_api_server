@@ -29,6 +29,8 @@ import {
   TROPHY_RARITY_MAP,
 } from "@/models/types/trophy";
 
+import { PSN_AUTH2 } from "../loaders/auth/registerLoader";
+
 /**
  * Get game trophy groups
  *
@@ -40,7 +42,8 @@ const getPsnGameDefinedTrophyGroups = async (
   npCommunicationId: string,
   trophyTitlePlatform: string
 ): Promise<ITrophyDefinedGroupsResponse> => {
-  const { accessToken } = await PSN_AUTH.getCredentials();
+  const psnAuthInstance = PSN_AUTH ?? PSN_AUTH2;
+  const { accessToken } = await psnAuthInstance.getCredentials();
 
   const data = await getTitleTrophyGroups(
     { accessToken: accessToken },
@@ -72,7 +75,8 @@ const getPsnGameEarnedTrophiesGroups = async (
   npCommunicationId: string,
   trophyTitlePlatform: string
 ): Promise<UserTrophyGroupEarningsForTitleResponse> => {
-  const { accessToken, accountId } = await PSN_AUTH.getCredentials();
+  const psnAuthInstance = PSN_AUTH ?? PSN_AUTH2;
+  const { accessToken, accountId } = await psnAuthInstance.getCredentials();
 
   const data = await getUserTrophyGroupEarningsForTitle(
     { accessToken: accessToken },
@@ -103,7 +107,8 @@ export const getPsnParsedTrophiesGroupsByGame = async (
 ) => {
   try {
     // Get the credentials used by psn_api
-    const { accessToken, accountId } = await PSN_AUTH.getCredentials();
+    const psnAuthInstance = PSN_AUTH ?? PSN_AUTH2;
+    const { accessToken, accountId } = await psnAuthInstance.getCredentials();
 
     // Get defined trophy groups
     const definedGroups = await getPsnGameDefinedTrophyGroups(
@@ -318,7 +323,8 @@ export const getPsnGameParsedTrophies = async (
   trophyGroupId?: string
 ): Promise<ITrophy[]> => {
   // Get the credentials used by psn_api
-  const { accessToken, accountId } = await PSN_AUTH.getCredentials();
+  const psnAuthInstance = PSN_AUTH ?? PSN_AUTH2;
+  const { accessToken, accountId } = await psnAuthInstance.getCredentials();
 
   const gameTrophies = await getPsnGameTrophiesList(
     accessToken,
