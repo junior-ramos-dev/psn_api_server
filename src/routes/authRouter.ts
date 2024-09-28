@@ -10,8 +10,16 @@ import {
   validateLoginReq,
   validateRegisterReq,
 } from "@/middlewares/validations/request/auth";
+import { taskProgressLoaderWrapper } from "@/services/loaders/taskProgressLoaderWrapper";
 
 const authRouter = express.Router();
+
+authRouter.post(
+  "/register/loader",
+  validateRegisterReq(),
+  psnAuthenticate,
+  taskProgressLoaderWrapper
+);
 
 authRouter.post(
   "/register",
@@ -19,6 +27,7 @@ authRouter.post(
   psnAuthenticate,
   registerUser
 );
+
 authRouter.post("/login", validateLoginReq(), psnAuthenticate, loginUser);
 authRouter.post("/logout", logoutUser);
 
