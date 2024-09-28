@@ -152,7 +152,7 @@ export class PsnAuth {
       }
     } catch (error) {
       console.log(logError("psnAuthFactory", String(error)));
-      throw new PsnApiError("psnAuthFactory", String(error));
+      throw new PsnApiError(String(error));
     }
 
     return this;
