@@ -170,6 +170,7 @@ export const getPsnParsedTrophiesGroupsByGame = async (
 
         // Create the trophy groups info with the merged trophy lists
         const trophiesGroupsInfo: ITrophyGroupsInfo = {
+          trophyGroupId: definedGroups.trophyGroups[count].trophyGroupId,
           definedGroupInfo: definedGroups.trophyGroups[count],
           earnedGroupInfo: earnedGroups.trophyGroups[count],
           groupTrophies: parsedTrophies,

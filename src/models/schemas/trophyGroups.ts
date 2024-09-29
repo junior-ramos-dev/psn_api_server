@@ -46,6 +46,10 @@ export const TrophyEarnedGroupInfoSchema = new Schema<ITrophyEarnedGroupInfo>({
 });
 
 export const TrophyGroupsInfoSchema = new Schema<ITrophyGroupsInfo>({
+  trophyGroupId: {
+    type: String,
+    required: true,
+  },
   definedGroupInfo: {
     type: TrophyDefinedGroupInfoSchema,
     required: true,

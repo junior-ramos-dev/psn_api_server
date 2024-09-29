@@ -37,6 +37,7 @@ export interface IGameTrophyGroups {
 }
 
 export interface ITrophyGroupsInfo {
+  trophyGroupId: string;
   definedGroupInfo: ITrophyDefinedGroupInfo;
   earnedGroupInfo: ITrophyEarnedGroupInfo;
   groupTrophies: ITrophy[];
