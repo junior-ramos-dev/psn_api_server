@@ -170,12 +170,12 @@ export const getDbUserGameDetails = async (
       userId: 1,
       usergame: 1,
       gameIcon: 1,
-      trophyGroupInfo: 1,
+      trophyGroupsInfo: 1,
     };
 
     // If "getTrophies" is false, remove the trophy list from the result projection
     console.log(!getTrophies);
-    if (!getTrophies) delete gameDetailProjection.trophyGroupInfo;
+    if (!getTrophies) delete gameDetailProjection.trophyGroupsInfo;
 
     console.log(gameDetailProjection);
 
@@ -251,8 +251,8 @@ export const getDbUserGameDetails = async (
           usergame: {
             $first: "$usergame.games",
           },
-          trophyGroupInfo: {
-            $first: "$gamesTrophies.trophyGroups.trophyGroupInfo",
+          trophyGroupsInfo: {
+            $first: "$gamesTrophies.trophyGroups.trophyGroupsInfo",
           },
           // Get the icon bin with the specified format
           gameIcon: {
