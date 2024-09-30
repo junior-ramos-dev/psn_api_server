@@ -86,9 +86,10 @@ const updateTrophyIsChecked = async (req: Request, res: Response) => {
     const trophyTitlePlatform = req.params["trophyTitlePlatform"];
 
     const { trophyGroupId, trophyId, isChecked } = req.body;
+    console.log(req.body);
 
     // Return trophies list from db
-    await updateDbTrophyIsChecked(
+    const updated = await updateDbTrophyIsChecked(
       userId,
       npCommunicationId,
       trophyTitlePlatform,
@@ -97,12 +98,21 @@ const updateTrophyIsChecked = async (req: Request, res: Response) => {
       isChecked
     );
 
-    console.log(
-      `Trophy Updated: trophyId ${trophyId} from [${trophyTitlePlatform} - ${npCommunicationId}] isChecked set to: ${isChecked}`
-    );
-    return res.json({
-      message: `Trophy Updated: trophyId ${trophyId} from [${trophyTitlePlatform} - ${npCommunicationId}] isChecked set to: ${isChecked}`,
-    });
+    if (updated) {
+      console.log(
+        `Trophy Updated: trophyId ${trophyId} from [${trophyTitlePlatform} - ${npCommunicationId}] isChecked set to: ${isChecked}`
+      );
+      return res.json({
+        message: `Trophy Updated: trophyId ${trophyId} from [${trophyTitlePlatform} - ${npCommunicationId}] isChecked set to: ${isChecked}`,
+      });
+    } else {
+      console.log(
+        `Error updating trophy: trophyId ${trophyId} from [${trophyTitlePlatform} - ${npCommunicationId}] isChecked set to: ${isChecked}`
+      );
+      return res.status(400).json({
+        message: `Error updating trophy: trophyId ${trophyId} from [${trophyTitlePlatform} - ${npCommunicationId}] isChecked set to: ${isChecked}`,
+      });
+    }
   } catch (error) {
     console.log(error);
     const resObj = controllersErrorHandler(error);

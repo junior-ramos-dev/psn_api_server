@@ -143,33 +143,36 @@ export const updateDbTrophyIsChecked = async (
   trophyId: number,
   isChecked: boolean
 ) => {
-  const gameTrophy = await UserGamesTrophies.findOneAndUpdate(
-    {
-      userId: new Types.ObjectId(userId),
-    },
-    {
-      $set: {
-        "gamesTrophies.$[e1].trophyGroups.trophyGroupsInfo.$[e2].groupTrophies.$[e3].isChecked":
-          isChecked, //"gamesTrophies.$[e1].trophyGroups.trophyGroupsInfo.$[e2].wares.$[e3].reserved": "2"
+  try {
+    await UserGamesTrophies.findOneAndUpdate(
+      {
+        userId: new Types.ObjectId(userId),
       },
-    },
-    {
-      arrayFilters: [
-        {
-          "e1.npCommunicationId": npCommunicationId,
-          "e1.trophyTitlePlatform": trophyTitlePlatform,
+      {
+        $set: {
+          "gamesTrophies.$[e1].trophyGroups.trophyGroupsInfo.$[e2].groupTrophies.$[e3].isChecked":
+            isChecked, //"gamesTrophies.$[e1].trophyGroups.trophyGroupsInfo.$[e2].wares.$[e3].reserved": "2"
         },
-        {
-          "e2.trophyGroupId": trophyGroupId,
-        },
-        {
-          "e3.trophyId": trophyId,
-        },
-      ],
-    }
-  );
+      },
+      {
+        arrayFilters: [
+          {
+            "e1.npCommunicationId": npCommunicationId,
+            "e1.trophyTitlePlatform": trophyTitlePlatform,
+          },
+          {
+            "e2.trophyGroupId": trophyGroupId,
+          },
+          {
+            "e3.trophyId": trophyId,
+          },
+        ],
+      }
+    );
 
-  console.log(gameTrophy);
-
-  return gameTrophy;
+    return true;
+  } catch (error: unknown) {
+    //Handle the error
+    servicesErrorHandler(error);
+  }
 };

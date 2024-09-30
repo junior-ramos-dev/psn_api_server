@@ -177,8 +177,6 @@ export const getDbUserGameDetails = async (
     console.log(!getTrophies);
     if (!getTrophies) delete gameDetailProjection.trophyGroupsInfo;
 
-    console.log(gameDetailProjection);
-
     // Define WEBP as default image type
     let gameIconType = "$gameIcon.iconBinWebp";
     // Define the img type to be returned

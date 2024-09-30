@@ -21,14 +21,14 @@ const authenticate = asyncHandler(
       const token = req.cookies.jwt;
 
       if (!token) {
-        throw new AuthenticationError("Token not found");
+        throw new AuthenticationError("Token not found. Try to login again.");
       }
 
       const jwtSecret = process.env.JWT_SECRET ?? "";
       const decoded = jwt.verify(token, jwtSecret) as JwtPayload;
 
       if (!decoded?.userId) {
-        throw new AuthenticationError("UserId not found");
+        throw new AuthenticationError("UserId not found. Try to login again.");
       }
 
       const user = await User.findById(decoded.userId, "_id psnOnlineId email");
