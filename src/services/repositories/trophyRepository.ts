@@ -98,68 +98,24 @@ export const getDbTrophyListByGame = async (
   npCommunicationId: string
 ): Promise<IUserGamesTrophies | undefined> => {
   try {
-    const gameTrophies = await UserGamesTrophies.aggregate(
-      [
-        { $match: { userId: new Types.ObjectId(userId) } },
-        { $unwind: "$gamesTrophies" },
-        {
-          $match: { "gamesTrophies.trophyTitlePlatform": trophyTitlePlatform },
-        },
-        { $match: { "gamesTrophies.npCommunicationId": npCommunicationId } },
-        {
-          $project: {
-            _id: 0,
-            userId: 1,
-            gamesTrophies: 1,
-            totalPoints: {
-              $sum: "$gamesTrophies.trophies.points",
-            },
+    const gameTrophies = await UserGamesTrophies.aggregate([
+      { $match: { userId: new Types.ObjectId(userId) } },
+      { $unwind: "$gamesTrophies" },
+      {
+        $match: { "gamesTrophies.trophyTitlePlatform": trophyTitlePlatform },
+      },
+      { $match: { "gamesTrophies.npCommunicationId": npCommunicationId } },
+      {
+        $project: {
+          _id: 0,
+          userId: 1,
+          gamesTrophies: 1,
+          totalPoints: {
+            $sum: "$gamesTrophies.trophies.points",
           },
         },
-      ]
-
-      //   [
-      //   // Match the documents by query
-      //   {
-      //     $match: {
-      //       userId: new Types.ObjectId(userId),
-      //       "gamesTrophies.npCommunicationId": npCommunicationId,
-      //       "gamesTrophies.trophyTitlePlatform": trophyTitlePlatform,
-      //     },
-      //   },
-      //   // De-normalize nested array
-      //   {
-      //     $unwind: "$gamesTrophies",
-      //   },
-      //   {
-      //     $unwind: "$gamesTrophies.trophies",
-      //   },
-      //   // Group the result.
-      //   {
-      //     $group: {
-      //       _id: "$gamesTrophies._id",
-      //       userId: {
-      //         $first: "$userId",
-      //       },
-      //       npCommunicationId: {
-      //         $first: "$gamesTrophies.npCommunicationId",
-      //       },
-      //       trophyTitlePlatform: {
-      //         $first: "$gamesTrophies.trophyTitlePlatform",
-      //       },
-      //       trophies: {
-      //         $push: "$gamesTrophies.trophies",
-      //       },
-      //       createdAt: {
-      //         $first: "$gamesTrophies.createdAt",
-      //       },
-      //       updatedAt: {
-      //         $first: "$gamesTrophies.updatedAt",
-      //       },
-      //     },
-      //   },
-      // ]
-    ).then((result) => result[0]);
+      },
+    ]).then((result) => result[0]);
 
     return gameTrophies as IUserGamesTrophies;
   } catch (error: unknown) {
@@ -168,37 +124,52 @@ export const getDbTrophyListByGame = async (
   }
 };
 
-//TODO
-// const updateTrophy = (
-//   userId: string,
-//   npCommunicationId: string,
-//   trophyTitlePlatform: string
-// ) => {
-//   const gameTrophy = UserGamesTrophies.findOneAndUpdate(
-//     {
-//       userId: userId,
-//     },
-//     {
-//       $set: {
-//         "gamesTrophies.$[i].trophyGroups.$[j].trophyGroupInfo.trophyGroupId":
-//           req.body.new_name,
-//       },
-//     },
-//     {
-//       arrayFilters: [
-//         {
-//           "i.tour_name": req.body.tour_name,
-//           "j.image": req.body.new_name, // tour_name -  current tour name,  new_name - new tour name
-//         },
-//       ],
-//     }
-//   )
-//     .then(function (resp) {
-//       console.log(resp);
-//       res.json({ status: "success", resp });
-//     })
-//     .catch(function (err) {
-//       console.log(err);
-//       res.status(500).json("Failed");
-//     });
-// };
+/**
+ * Set the field 'isChecked' from a trophy
+ *
+ * @param userId
+ * @param npCommunicationId
+ * @param trophyTitlePlatform
+ * @param trophyGroupId
+ * @param trophyId
+ * @param isChecked
+ * @returns
+ */
+export const updateDbTrophyIsChecked = async (
+  userId: string,
+  npCommunicationId: string,
+  trophyTitlePlatform: string,
+  trophyGroupId: string,
+  trophyId: number,
+  isChecked: boolean
+) => {
+  const gameTrophy = await UserGamesTrophies.findOneAndUpdate(
+    {
+      userId: new Types.ObjectId(userId),
+    },
+    {
+      $set: {
+        "gamesTrophies.$[e1].trophyGroups.trophyGroupsInfo.$[e2].groupTrophies.$[e3].isChecked":
+          isChecked, //"gamesTrophies.$[e1].trophyGroups.trophyGroupsInfo.$[e2].wares.$[e3].reserved": "2"
+      },
+    },
+    {
+      arrayFilters: [
+        {
+          "e1.npCommunicationId": npCommunicationId,
+          "e1.trophyTitlePlatform": trophyTitlePlatform,
+        },
+        {
+          "e2.trophyGroupId": trophyGroupId,
+        },
+        {
+          "e3.trophyId": trophyId,
+        },
+      ],
+    }
+  );
+
+  console.log(gameTrophy);
+
+  return gameTrophy;
+};

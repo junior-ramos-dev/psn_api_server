@@ -4,7 +4,10 @@ import { MongooseError } from "mongoose";
 import { IBulkResponse } from "@/models/interfaces/common/bulk";
 import { controllersErrorHandler } from "@/models/interfaces/common/error";
 import { upsertDbTrophiesForAllGamesBulk } from "@/services/repositories/bulk/trophy";
-import { getDbTrophyListByGame } from "@/services/repositories/trophyRepository";
+import {
+  getDbTrophyListByGame,
+  updateDbTrophyIsChecked,
+} from "@/services/repositories/trophyRepository";
 
 /**
  * Get trophy list by Game ID and Game Platform
@@ -75,4 +78,40 @@ const upsertTrophiesForAllGamesBulk = async (req: Request, res: Response) => {
   }
 };
 
-export { getTrophyListByGame, upsertTrophiesForAllGamesBulk };
+const updateTrophyIsChecked = async (req: Request, res: Response) => {
+  try {
+    //Get user id from session
+    const userId = req.session.user!.id;
+    const npCommunicationId = req.params["npCommunicationId"];
+    const trophyTitlePlatform = req.params["trophyTitlePlatform"];
+
+    const { trophyGroupId, trophyId, isChecked } = req.body;
+
+    // Return trophies list from db
+    await updateDbTrophyIsChecked(
+      userId,
+      npCommunicationId,
+      trophyTitlePlatform,
+      trophyGroupId,
+      trophyId,
+      isChecked
+    );
+
+    console.log(
+      `Trophy Updated: trophyId ${trophyId} from [${trophyTitlePlatform} - ${npCommunicationId}] isChecked set to: ${isChecked}`
+    );
+    return res.json({
+      message: `Trophy Updated: trophyId ${trophyId} from [${trophyTitlePlatform} - ${npCommunicationId}] isChecked set to: ${isChecked}`,
+    });
+  } catch (error) {
+    console.log(error);
+    const resObj = controllersErrorHandler(error);
+    return res.status(resObj.status).json(resObj);
+  }
+};
+
+export {
+  getTrophyListByGame,
+  updateTrophyIsChecked,
+  upsertTrophiesForAllGamesBulk,
+};
