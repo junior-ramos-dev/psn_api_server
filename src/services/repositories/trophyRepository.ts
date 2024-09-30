@@ -86,58 +86,6 @@ export const createDbTrophyListByGame = async (
 };
 
 /**
- * Update the list of trophies by game
- *
- * @param userId
- * @param npCommunicationId
- * @param trophyTitlePlatform
- * @returns
- */
-export const updateDbUserGamesTrophies = async (
-  userId: string,
-  npCommunicationId: string,
-  trophyTitlePlatform: string
-): Promise<IUserGamesTrophies | undefined> => {
-  try {
-    // Get the list of trophies by game from psn_api
-    const psnApiTrophyList = await getPsnParsedTrophiesGroupsByGame(
-      npCommunicationId,
-      trophyTitlePlatform
-    );
-
-    const gameTrophiesList = await UserGamesTrophies.findOneAndUpdate(
-      {
-        userId: userId,
-      },
-      {
-        $set: {
-          "gamesTrophies.$[e1].trophies": psnApiTrophyList,
-          updatedAt: new Date(),
-        },
-      },
-      {
-        upsert: true,
-        new: true,
-        arrayFilters: [
-          {
-            "e1.npCommunicationId": npCommunicationId,
-            "e1.trophyTitlePlatform": trophyTitlePlatform,
-          },
-        ],
-        timestamps: { createdAt: false, updatedAt: true },
-      }
-    );
-
-    await gameTrophiesList?.save();
-
-    return gameTrophiesList as IUserGamesTrophies;
-  } catch (error: unknown) {
-    //Handle the error
-    servicesErrorHandler(error);
-  }
-};
-
-/**
  * Get the list of trophies by game
  *
  * @param userId
@@ -219,3 +167,38 @@ export const getDbTrophyListByGame = async (
     servicesErrorHandler(error);
   }
 };
+
+//TODO
+// const updateTrophy = (
+//   userId: string,
+//   npCommunicationId: string,
+//   trophyTitlePlatform: string
+// ) => {
+//   const gameTrophy = UserGamesTrophies.findOneAndUpdate(
+//     {
+//       userId: userId,
+//     },
+//     {
+//       $set: {
+//         "gamesTrophies.$[i].trophyGroups.$[j].trophyGroupInfo.trophyGroupId":
+//           req.body.new_name,
+//       },
+//     },
+//     {
+//       arrayFilters: [
+//         {
+//           "i.tour_name": req.body.tour_name,
+//           "j.image": req.body.new_name, // tour_name -  current tour name,  new_name - new tour name
+//         },
+//       ],
+//     }
+//   )
+//     .then(function (resp) {
+//       console.log(resp);
+//       res.json({ status: "success", resp });
+//     })
+//     .catch(function (err) {
+//       console.log(err);
+//       res.status(500).json("Failed");
+//     });
+// };

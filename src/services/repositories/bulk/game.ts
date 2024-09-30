@@ -3,7 +3,7 @@ import { servicesErrorHandler } from "@/models/interfaces/common/error";
 
 import { createDbGameIconBin, createDbGamesByUser } from "../gameRepository";
 
-import { upsertTrophiesForAllGamesBulk } from "./trophy";
+import { upsertDbTrophiesForAllGamesBulk } from "./trophy";
 
 /**
  * Load the games and trophy user data from PSN and insert on DB
@@ -27,14 +27,14 @@ export const loadPsnGamesData = async (userId: string) => {
 
       // Response for getting list of trophies
       const bulkResponse: IBulkResponse<string> = {
-        name: "createTrophiesListForAllGamesBulk",
+        name: "upsertTrophiesForAllGamesBulk",
         message: "",
         data: {},
         isError: false,
       };
 
       //Insert or Update the list of trophies for all games from a user (bulk)
-      await upsertTrophiesForAllGamesBulk(userId, bulkResponse);
+      await upsertDbTrophiesForAllGamesBulk(userId, bulkResponse);
     }
     console.log(
       `[${new Date().toISOString()}] Finished loading user data from PSN...`

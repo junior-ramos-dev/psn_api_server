@@ -18,7 +18,10 @@ import { getOrCreateDbUserGamesTrophies } from "../trophyRepository";
  * @param userId
  * @returns
  */
-const getBulkTrophiesList = async (userId: string, userGames: IUserGames) => {
+const getBulkAllGamesTrophiesList = async (
+  userId: string,
+  userGames: IUserGames
+) => {
   const bulkTrohiesList = [];
   const gameTrophiesBulk: IGamesTrophiesBulk[] = [];
 
@@ -89,10 +92,8 @@ const execUpsertBulkTrophiesList = async (
   userGames: IUserGames,
   bulkResponse: IBulkResponse<string>
 ) => {
-  const { bulkTrohiesList, bulkTrophiesData } = await getBulkTrophiesList(
-    userId,
-    userGames
-  );
+  const { bulkTrohiesList, bulkTrophiesData } =
+    await getBulkAllGamesTrophiesList(userId, userGames);
 
   await UserGamesTrophies.bulkWrite(bulkTrohiesList)
     .then((bulkWriteOpResult) => {
@@ -107,7 +108,7 @@ const execUpsertBulkTrophiesList = async (
     })
     .catch((err) => {
       bulkResponse.message =
-        "BULK OK: Trophies Lists added/updated into DB with success";
+        "BULK ERROR: Adding/updating trophies list into DB failed";
       bulkResponse.data = err;
       bulkResponse.isError = true;
 
@@ -180,7 +181,7 @@ const updateBulkTrophiesList = async (
  * @param bulkResponse
  * @returns
  */
-export const upsertTrophiesForAllGamesBulk = async (
+export const upsertDbTrophiesForAllGamesBulk = async (
   userId: string,
   bulkResponse: IBulkResponse<string>
 ) => {

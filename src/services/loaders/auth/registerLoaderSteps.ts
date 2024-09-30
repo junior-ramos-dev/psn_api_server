@@ -1,7 +1,7 @@
 import { IBulkResponse } from "@/models/interfaces/common/bulk";
 import { MongoDbError, PsnApiError } from "@/models/interfaces/common/error";
 import { PsnAuth } from "@/services/psnApi/psnAuth";
-import { upsertTrophiesForAllGamesBulk } from "@/services/repositories/bulk/trophy";
+import { upsertDbTrophiesForAllGamesBulk } from "@/services/repositories/bulk/trophy";
 import {
   createDbGameIconBin,
   createDbGamesByUser,
@@ -109,14 +109,14 @@ export const loadGamesIcons = async (userId: string) => {
 export const getGamesTrophiesList = async (userId: string) => {
   // Response for getting list of trophies
   const bulkResponse: IBulkResponse<string> = {
-    name: "createTrophiesListForAllGamesBulk",
+    name: "upsertTrophiesForAllGamesBulk",
     message: "",
     data: {},
     isError: false,
   };
 
   //Insert or Update the list of trophies for all games from a user (bulk)
-  await upsertTrophiesForAllGamesBulk(userId, bulkResponse).then(() => {
+  await upsertDbTrophiesForAllGamesBulk(userId, bulkResponse).then(() => {
     console.log(
       "================================================== GAMES TROPHIES"
     );
