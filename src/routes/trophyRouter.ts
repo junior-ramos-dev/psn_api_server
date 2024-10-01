@@ -1,7 +1,7 @@
 import express from "express";
 
-import { getEarnedTrophyTypesStats } from "@/controllers/statsController";
 import {
+  getEarnedTrophyTypesStats,
   getTrophyListByGame,
   updateTrophyIsChecked,
   upsertTrophiesForAllGamesBulk,

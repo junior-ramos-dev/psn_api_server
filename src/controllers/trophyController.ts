@@ -5,6 +5,7 @@ import { IBulkResponse } from "@/models/interfaces/common/bulk";
 import { controllersErrorHandler } from "@/models/interfaces/common/error";
 import { upsertDbTrophiesForAllGamesBulk } from "@/services/repositories/bulk/trophy";
 import {
+  getDbEarnedTrophyTypesStats,
   getDbTrophyListByGame,
   updateDbTrophyIsChecked,
 } from "@/services/repositories/trophyRepository";
@@ -120,7 +121,33 @@ const updateTrophyIsChecked = async (req: Request, res: Response) => {
   }
 };
 
+/**
+ * Get Earned Trophies Stats
+ *
+ * @param req
+ * @param res
+ */
+const getEarnedTrophyTypesStats = async (req: Request, res: Response) => {
+  try {
+    //Get user id from session
+    const userId = req.session.user!.id;
+    const { startDate, endDate } = req.body;
+    const gamesAndTrophyGroups = await getDbEarnedTrophyTypesStats(
+      userId,
+      startDate,
+      endDate
+    );
+
+    res.json(gamesAndTrophyGroups);
+  } catch (error) {
+    console.log(error);
+    const resObj = controllersErrorHandler(error);
+    return res.status(resObj.status).json(resObj);
+  }
+};
+
 export {
+  getEarnedTrophyTypesStats,
   getTrophyListByGame,
   updateTrophyIsChecked,
   upsertTrophiesForAllGamesBulk,

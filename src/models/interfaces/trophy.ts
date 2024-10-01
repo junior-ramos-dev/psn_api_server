@@ -28,3 +28,10 @@ export interface ITrophySummary {
   progress: number;
   earnedTrophies: ITrophyCount;
 }
+
+export interface ITrophyTypeStats {
+  earnedTotal: number;
+  notEarnedTotal: number;
+  total: number;
+  trophyType: string;
+}
