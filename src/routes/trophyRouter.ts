@@ -1,5 +1,6 @@
 import express from "express";
 
+import { getEarnedTrophyTypesStats } from "@/controllers/statsController";
 import {
   getTrophyListByGame,
   updateTrophyIsChecked,
@@ -25,5 +26,8 @@ trophyRouter.patch(
 
 // Get the list of trohpies for all games by user
 trophyRouter.get("/bulk", authenticate, upsertTrophiesForAllGamesBulk);
+
+//stats
+trophyRouter.post("/stats", authenticate, getEarnedTrophyTypesStats);
 
 export default trophyRouter;
