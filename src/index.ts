@@ -6,6 +6,7 @@ import express, { Request, Response } from "express";
 import session from "express-session";
 import helmet from "helmet";
 import morgan from "morgan";
+import swaggerUi from "swagger-ui-express";
 
 import connectMongoDB from "@/connections/mongoDB";
 import { errorHandler } from "@/middlewares/errorMiddleware";
@@ -20,6 +21,7 @@ import {
   applyColorToHttpMethod,
   applyColorToHttpStatusCode,
 } from "./utils/http";
+import swaggerOutput from "./swagger_output.json";
 
 import "express-async-errors";
 
@@ -80,6 +82,8 @@ app.use(
 
 app.use(bodyParser.json()); // To recognize the req obj as a json obj
 app.use(bodyParser.urlencoded({ extended: true })); // To recognize the req obj as strings or arrays. extended true to handle nested objects also
+
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerOutput));
 
 const server = app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
