@@ -2,7 +2,7 @@
 
 **Name**: PSN API Server
 
-The app uses TypeScript, ESLint, Express, MongoDB, and the [PlayStation Network (PSN) API](https://andshrew.github.io/PlayStation-Trophies/#/APIv2), and the other specified technologies. It creates the backend for a **Gaming Profile Management App** that allows users to connect their PlayStation accounts, view their gaming stats, and manage their gaming profiles.
+The app uses TypeScript, ESLint, Express, MongoDB, [PlayStation Network (PSN) API](https://andshrew.github.io/PlayStation-Trophies/#/APIv2), and the other specified technologies. It creates the backend for a **Gaming Profile Management App** that allows users to connect their PlayStation accounts, view their gaming stats, and manage their gaming profiles.
 
 By implementing features such as JWT authentication, password hashing with bcrypt, and using middleware for security, the app is built with a focus on safety and user experience. The integration with the PSN API enriches user data, making it a valuable tool for gamers. The architecture is extensible, allowing for future enhancements and features like game recommendations, community forums, or achievement tracking.
 
