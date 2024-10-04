@@ -177,8 +177,6 @@ npm init -y
    app.use('/api/protected', authenticateJWT);
    ```
 
-### Integrate with PSN API
-- Use Axios to fetch gaming data from the PSN API whenever a user links their account.
 
 ### Testing and Deployment
 - Use tools like Postman to test your API endpoints.
