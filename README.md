@@ -55,10 +55,10 @@ By implementing features such as JWT authentication, password hashing with bcryp
    - **MongoDB**: Stores user profiles, linked PSN accounts, and other necessary data.
    - **PSN API Integration**: Connects to the PSN API to fetch user gaming data.
 
-### Install the project and its dependencies
+### Install the app and its dependencies
 
 ```bash
-npm init -y
+npm install
 ```
 
 ### Backend Setup Description (Examples)
