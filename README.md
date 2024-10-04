@@ -57,6 +57,8 @@ By implementing features such as JWT authentication, password hashing with bcryp
 
 ### Install and run the app with the following commands
 
+- Make sure you have set up the **.env** file. See the **.env_example** file to check the required variables.
+
 ```bash
 npm install
 
