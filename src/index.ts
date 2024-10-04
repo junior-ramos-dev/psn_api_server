@@ -11,6 +11,7 @@ import swaggerUi from "swagger-ui-express";
 import connectMongoDB from "@/connections/mongoDB";
 import { errorHandler } from "@/middlewares/errorMiddleware";
 import authRouter from "@/routes/authRouter";
+import gameIconRouter from "@/routes/gameIconRouter";
 import gameRouter from "@/routes/gameRouter";
 import trophyRouter from "@/routes/trophyRouter";
 import userRouter from "@/routes/userRouter";
@@ -100,6 +101,10 @@ app.use("/user", userRouter);
 
 //Games Routes
 app.use("/game", gameRouter);
+
+//Games Icon Routes (use the same base path as game)
+// The routes were moved to a separate file better reading
+app.use("/game", gameIconRouter);
 
 //Trophies Routes
 app.use("/trophy", trophyRouter);
