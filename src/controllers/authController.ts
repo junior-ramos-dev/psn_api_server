@@ -51,7 +51,10 @@ const registerUser = async (req: Request, res: Response) => {
   #swagger.requestBody = {
       required: true,
       schema: { $ref: "#/components/schemas/RegisterRequest" }
-  }
+  },
+  #swagger.security = [{
+            "bearerAuth": []
+  }]
   */
   const { psnOnlineId, email, password } = req.body;
   const onlineIdExists = await getDbUserByPsnOnlineId(psnOnlineId);

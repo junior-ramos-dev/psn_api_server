@@ -57,6 +57,11 @@
             "description": "Unauthorized"
           }
         },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
