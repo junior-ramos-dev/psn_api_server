@@ -5,12 +5,14 @@
   "main": "index.js",
   "scripts": {
     "dev": "npx nodemon --exec ts-node src/index.ts --watch 'src/' -e ts,js",
+    "swagger": "ts-node src/swagger.ts",
     "compile": "npx tsc",
     "start": "node ./dist/server.js"
   },
   "author": "Junior Ramos <malebolge@gmail.com>",
   "license": "ISC",
   "dependencies": {
+    "@types/swagger-ui-express": "^4.1.6",
     "axios": "^1.7.3",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.20.3",
@@ -31,7 +33,9 @@
     "mongoose": "^8.7.0",
     "morgan": "^1.10.0",
     "psn-api": "^2.10.1",
-    "sharp": "^0.33.5"
+    "sharp": "^0.33.5",
+    "swagger-autogen": "^2.23.7",
+    "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.11.1",
