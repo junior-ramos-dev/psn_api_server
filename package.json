@@ -1,5 +1,5 @@
 {
-  "name": "psn_api_server",
+  "name": "PSN API Server",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -7,9 +7,9 @@
     "dev": "npx nodemon --exec ts-node src/index.ts --watch 'src/' -e ts,js",
     "swagger": "ts-node src/swagger.ts",
     "compile": "npx tsc",
-    "start": "node ./dist/server.js"
+    "start": "node ./dist/index.js"
   },
-  "author": "Junior Ramos <malebolge@gmail.com>",
+  "author": "Junior Ramos <junior.ramos.dev@gmail.com>",
   "license": "ISC",
   "dependencies": {
     "@types/swagger-ui-express": "^4.1.6",
