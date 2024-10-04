@@ -88,6 +88,7 @@ export const getUserGameDetails = async (req: Request, res: Response) => {
  * @param res
  * @returns
  */
+//TODO Add limit/offset to query
 const getGamesByUser = async (req: Request, res: Response) => {
   try {
     //Get user id from session
@@ -127,6 +128,7 @@ const getGamesByUser = async (req: Request, res: Response) => {
  * @param userId
  * @returns
  */
+//TODO Add limit/offset to query
 const getUpdatedDbGamesList = async (
   req: Request,
   res: Response,

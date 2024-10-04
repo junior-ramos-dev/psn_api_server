@@ -24,14 +24,16 @@ import { dolwnloadImgToBase64, resizeImgToWebpBase64 } from "@/utils/download";
  * @returns
  */
 export const createDbGamesByUser = async (
-  userId: string
+  userId: string,
+  limit?: number,
+  offset?: number
 ): Promise<IUserGames | undefined> => {
   try {
     console.log(
       `[${new Date().toISOString()}] Started getting games from PSN...`
     );
     // Get the user's list of titles (games) from psn_api
-    const psnApiGames = await getTrophyTitles();
+    const psnApiGames = await getTrophyTitles(limit, offset);
 
     const gamesList = Convert.toIGameArray(psnApiGames);
 
@@ -82,11 +84,13 @@ export const getDbGamesListByUserId = async (
  * @returns
  */
 export const updateDbGamesByUserId = async (
-  userId: string
+  userId: string,
+  limit?: number,
+  offset?: number
 ): Promise<IUserGames | undefined> => {
   try {
     // Get the user's list of titles (games) from psn_api
-    const psnApiGames = await getTrophyTitles();
+    const psnApiGames = await getTrophyTitles(limit, offset);
 
     const gamesList = Convert.toIGameArray(psnApiGames);
 
