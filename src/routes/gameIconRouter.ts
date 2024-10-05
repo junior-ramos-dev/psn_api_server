@@ -10,11 +10,11 @@ import { authenticate } from "@/middlewares/authMiddleware";
 const gameIconRouter = express.Router();
 
 //Icon
-gameIconRouter.get("/:npCommunicationId/icon", authenticate, getGameIconBin);
+gameIconRouter.get("/icon/:npCommunicationId", authenticate, getGameIconBin);
 
 //Icon
 gameIconRouter.get(
-  "/:npCommunicationId/icon/:imgType",
+  "/icon/:npCommunicationId/:imgType",
   authenticate,
   getGameIconBinByImgType
 );
