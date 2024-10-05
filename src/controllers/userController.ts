@@ -26,7 +26,7 @@ const getUserById = async (req: Request, res: Response) => {
   } catch (error) {
     console.log(error);
     const resObj = controllersErrorHandler(error);
-    return res.status(resObj.status).json(resObj);
+    res.status(resObj.status).json(resObj);
   }
 };
 
@@ -50,7 +50,7 @@ const getUserProfileById = async (req: Request, res: Response) => {
   } catch (error) {
     console.log(error);
     const resObj = controllersErrorHandler(error);
-    return res.status(resObj.status).json(resObj);
+    res.status(resObj.status).json(resObj);
   }
 };
 
@@ -81,11 +81,11 @@ const getUpdatedDbUserProfile = async (
 
     if (updatedProfile) {
       console.log("updated userGames on DB");
-      return res.json(updatedProfile);
+      res.json(updatedProfile);
     }
   } else {
     console.log("returned userGames from DB");
-    return res.status(200).json(userProfile);
+    res.status(200).json(userProfile);
   }
 };
 

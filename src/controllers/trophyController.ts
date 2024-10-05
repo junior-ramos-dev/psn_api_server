@@ -32,11 +32,11 @@ const getTrophyListByGame = async (req: Request, res: Response) => {
     );
 
     console.log("returned trophy list by game from DB");
-    return res.json(gameTrophies);
+    res.json(gameTrophies);
   } catch (error) {
     console.log(error);
     const resObj = controllersErrorHandler(error);
-    return res.status(resObj.status).json(resObj);
+    res.status(resObj.status).json(resObj);
   }
 };
 
@@ -67,15 +67,15 @@ const upsertTrophiesForAllGamesBulk = async (req: Request, res: Response) => {
       !(upsertTrophiesResponse instanceof MongooseError)
     ) {
       if (!upsertTrophiesResponse.isError) {
-        return res.status(200).send(bulkResponse);
+        res.status(200).send(bulkResponse);
       } else {
-        return res.status(400).send(bulkResponse);
+        res.status(400).send(bulkResponse);
       }
     }
   } catch (error) {
     console.log(error);
     const resObj = controllersErrorHandler(error);
-    return res.status(resObj.status).json(resObj);
+    res.status(resObj.status).json(resObj);
   }
 };
 
@@ -103,21 +103,21 @@ const updateTrophyIsChecked = async (req: Request, res: Response) => {
       console.log(
         `Trophy Updated: trophyId ${trophyId} from [${trophyTitlePlatform} - ${npCommunicationId}] isChecked set to: ${isChecked}`
       );
-      return res.json({
+      res.json({
         message: `Trophy Updated: trophyId ${trophyId} from [${trophyTitlePlatform} - ${npCommunicationId}] isChecked set to: ${isChecked}`,
       });
     } else {
       console.log(
         `Error updating trophy: trophyId ${trophyId} from [${trophyTitlePlatform} - ${npCommunicationId}] isChecked set to: ${isChecked}`
       );
-      return res.status(400).json({
+      res.status(400).json({
         message: `Error updating trophy: trophyId ${trophyId} from [${trophyTitlePlatform} - ${npCommunicationId}] isChecked set to: ${isChecked}`,
       });
     }
   } catch (error) {
     console.log(error);
     const resObj = controllersErrorHandler(error);
-    return res.status(resObj.status).json(resObj);
+    res.status(resObj.status).json(resObj);
   }
 };
 
@@ -142,7 +142,7 @@ const getEarnedTrophyTypesStats = async (req: Request, res: Response) => {
   } catch (error) {
     console.log(error);
     const resObj = controllersErrorHandler(error);
-    return res.status(resObj.status).json(resObj);
+    res.status(resObj.status).json(resObj);
   }
 };
 

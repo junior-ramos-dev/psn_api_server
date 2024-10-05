@@ -61,13 +61,13 @@ const registerUser = async (req: Request, res: Response) => {
   const userEmailExists = await getDbUserByEmail(email);
 
   if (onlineIdExists) {
-    return res.status(400).json({
+    res.status(400).json({
       name: ERROR_CLASS_NAME.MONGO_DB,
       message: `An account with PSN Username '${psnOnlineId}' already exists! If you used this username to register, try to Login.`,
     });
   }
   if (userEmailExists) {
-    return res.status(400).json({
+    res.status(400).json({
       name: ERROR_CLASS_NAME.MONGO_DB,
       message: `An account with email '${email}' already exists!`,
     });
@@ -93,11 +93,11 @@ const registerUser = async (req: Request, res: Response) => {
       } catch (error) {
         console.log(error);
         const resObj = controllersErrorHandler(error);
-        return res.status(resObj.status).json(resObj);
+        res.status(resObj.status).json(resObj);
       }
 
       generateToken(res, String(userDb._id));
-      return res.status(201).json({
+      res.status(201).json({
         user: {
           id: userDb._id,
           psnOnlineId: userDb.psnOnlineId,
@@ -106,13 +106,13 @@ const registerUser = async (req: Request, res: Response) => {
         profile: userProfileDb,
       });
     } else {
-      return res.status(400).json({
+      res.status(400).json({
         name: ERROR_CLASS_NAME.MONGO_DB,
         message: "An error occurred in creating the account",
       });
     }
   } else {
-    return res.status(401).json({
+    res.status(401).json({
       name: ERROR_CLASS_NAME.PSN_API,
       message:
         "An error occurred in creating the account: Missing 'NPSSO' code",
@@ -140,7 +140,7 @@ const loginUser = async (req: Request, res: Response) => {
       // Initialize the PSN credentials for using with psn_api
       PSN_AUTH = await PsnAuth.createPsnAuth(NPSSO).then((psnAuth) => psnAuth);
     } else {
-      return res.status(401).json({
+      res.status(401).json({
         name: ERROR_CLASS_NAME.PSN_API,
         message: "An error occurred in login: Missing 'NPSSO'",
       });
@@ -149,7 +149,7 @@ const loginUser = async (req: Request, res: Response) => {
     const userDbProfile = await getDbUserProfileByUserId(String(user._id));
 
     generateToken(res, String(user._id));
-    return res.status(201).json({
+    res.status(201).json({
       user: {
         id: user._id,
         psnOnlineId: user.psnOnlineId,
@@ -158,7 +158,7 @@ const loginUser = async (req: Request, res: Response) => {
       profile: userDbProfile,
     });
   } else {
-    return res.status(401).json({
+    res.status(401).json({
       name: ERROR_CLASS_NAME.MONGO_DB,
       message: "User not found / password incorrect",
     });
@@ -180,9 +180,7 @@ const logoutUser = async (req: Request, res: Response) => {
   req.session.destroy((err) => {
     if (err) console.log(`Session Destroy Error: ${err}`);
   });
-  return res
-    .status(200)
-    .json({ name: "Authentication", message: "User logged out" });
+  res.status(200).json({ name: "Authentication", message: "User logged out" });
 };
 
 export { loginUser, logoutUser, PSN_AUTH, registerUser };

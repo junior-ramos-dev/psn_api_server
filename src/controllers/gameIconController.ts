@@ -24,7 +24,7 @@ export const getGameIconBin = async (req: Request, res: Response) => {
   } catch (error) {
     console.log(error);
     const resObj = controllersErrorHandler(error);
-    return res.status(resObj.status).json(resObj);
+    res.status(resObj.status).json(resObj);
   }
 };
 
@@ -49,7 +49,7 @@ export const getGameIconBinByImgType = async (req: Request, res: Response) => {
   } catch (error) {
     console.log(error);
     const resObj = controllersErrorHandler(error);
-    return res.status(resObj.status).json(resObj);
+    res.status(resObj.status).json(resObj);
   }
 };
 
@@ -71,6 +71,6 @@ export const getGamesIconBinListByIds = async (req: Request, res: Response) => {
   } catch (error) {
     console.log(error);
     const resObj = controllersErrorHandler(error);
-    return res.status(resObj.status).json(resObj);
+    res.status(resObj.status).json(resObj);
   }
 };

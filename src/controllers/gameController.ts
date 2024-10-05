@@ -38,11 +38,11 @@ export const getUserGameByIdAndPlatform = async (
     );
 
     console.log("returned game from DB");
-    return res.json(game);
+    res.json(game);
   } catch (error: unknown) {
     console.log(error);
     const resObj = controllersErrorHandler(error);
-    return res.status(resObj.status).json(resObj);
+    res.status(resObj.status).json(resObj);
   }
 };
 
@@ -76,11 +76,11 @@ export const getUserGameDetails = async (
     );
 
     console.log("returned game with trophies from DB");
-    return res.json(game);
+    res.json(game);
   } catch (error: unknown) {
     console.log(error);
     const resObj = controllersErrorHandler(error);
-    return res.status(resObj.status).json(resObj);
+    res.status(resObj.status).json(resObj);
   }
 };
 
@@ -113,11 +113,11 @@ export const getUserGameDetailsList = async (
     );
 
     console.log("returned game with trophies from DB");
-    return res.json(game);
+    res.json(game);
   } catch (error: unknown) {
     console.log(error);
     const resObj = controllersErrorHandler(error);
-    return res.status(resObj.status).json(resObj);
+    res.status(resObj.status).json(resObj);
   }
 };
 
@@ -148,13 +148,13 @@ export const upsertAllGamesByUser = async (req: Request, res: Response) => {
         await createDbGameIconBin(userId);
 
         console.log("created userGames on DB");
-        return res.json(createdGames);
+        res.json(createdGames);
       }
     }
   } catch (error) {
     console.log(error);
     const resObj = controllersErrorHandler(error);
-    return res.status(resObj.status).json(resObj);
+    res.status(resObj.status).json(resObj);
   }
 };
 
@@ -188,10 +188,10 @@ const updateAllGamesList = async (
       await createDbGameIconBin(userId);
 
       console.log("updated userGames on DB");
-      return res.json(gamesByUser);
+      res.json(gamesByUser);
     }
   } else {
     console.log("returned userGames from DB");
-    return res.json(gamesByUser);
+    res.json(gamesByUser);
   }
 };
