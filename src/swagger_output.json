@@ -148,26 +148,6 @@
         }
       }
     },
-    "/game/{npCommunicationId}/icon": {
-      "get": {
-        "description": "",
-        "parameters": [
-          {
-            "name": "npCommunicationId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
     "/game/{npCommunicationId}/{trophyTitlePlatform}": {
       "get": {
         "description": "",
@@ -238,6 +218,46 @@
         }
       }
     },
+    "/game/details": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "imgType",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "getTrophies",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/game/list": {
       "get": {
         "description": "",
@@ -248,7 +268,27 @@
         }
       }
     },
-    "/game/{npCommunicationId}/icon/{imgType}": {
+    "/game/icon/{npCommunicationId}": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "npCommunicationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/game/icon/{npCommunicationId}/{imgType}": {
       "get": {
         "description": "",
         "parameters": [
