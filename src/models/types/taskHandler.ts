@@ -1,11 +1,6 @@
 import { TaskHandler } from "../classes/taskHandler";
 import { IObjectMap, ITaskHandler } from "../interfaces/taskHandler";
 
-export enum TASK_NAME {
-  REGISTER_USER_LOADER = "registerUserLoader",
-  LOAD_PSN_GAMES_DATA = "loadPsnGamesData",
-}
-
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type TaskFunctionParams = IObjectMap<any>;
 
@@ -15,7 +10,6 @@ export type TaskFunction = (
 ) => Promise<ITaskHandler | undefined>;
 
 export type TaskProgressLoader = (
-  taskFunctionName: TASK_NAME,
   taskFunction: TaskFunction,
   taskFunctionParams: TaskFunctionParams,
   taskHandler: TaskHandler

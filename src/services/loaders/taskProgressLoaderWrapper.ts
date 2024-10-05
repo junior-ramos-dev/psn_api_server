@@ -3,11 +3,7 @@ import { Request, Response } from "express";
 import { TaskHandler } from "@/models/classes/taskHandler";
 
 import { IObjectMap, ITaskHandler } from "../../models/interfaces/taskHandler";
-import {
-  remapObj,
-  TASK_NAME,
-  TaskFunctionParams,
-} from "../../models/types/taskHandler";
+import { remapObj, TaskFunctionParams } from "../../models/types/taskHandler";
 
 import { registerUserLoader } from "./auth/registerLoader";
 import { taskProgressLoader } from "./taskProgressLoader";
@@ -35,7 +31,6 @@ export const taskProgressLoaderWrapper = async (
   ) as IObjectMap<object>;
 
   const result = await taskProgressLoader(
-    TASK_NAME.REGISTER_USER_LOADER,
     registerUserLoader,
     taskFunctionParams,
     taskHandler
