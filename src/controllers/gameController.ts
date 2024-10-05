@@ -1,17 +1,16 @@
-import { Request, Response } from "express";
+import express, { Request, Response } from "express";
 
 import { controllersErrorHandler } from "@/models/interfaces/common/error";
 import { IUserGames } from "@/models/interfaces/user";
 import {
-  createDbGameIconBin,
-  createDbGamesByUser,
-  getDbGameIconBin,
-  getDbGameIconBinByImgType,
-  getDbGameIconBinByListOfGamesIds,
+  insertAllDbGamesByUser,
+  updateAllDbGamesByUserId,
+} from "@/services/repositories/bulk/game";
+import { createDbGameIconBin } from "@/services/repositories/gameIconRepository";
+import {
   getDbGamesListByUserId,
   getDbUserGameByIdAndPlatform,
   getDbUserGameDetails,
-  updateDbGamesByUserId,
 } from "@/services/repositories/gameRepository";
 import { setPsnApiPollingInterval } from "@/utils/http";
 
@@ -52,7 +51,11 @@ export const getUserGameByIdAndPlatform = async (
  * @param userId
  * @returns
  */
-export const getUserGameDetails = async (req: Request, res: Response) => {
+//TODO Add limit/offset to query
+export const getUserGameDetails = async (
+  req: express.Request,
+  res: express.Response
+) => {
   try {
     //Get user id from session
     const userId = req.session.user!.id;
@@ -88,8 +91,7 @@ export const getUserGameDetails = async (req: Request, res: Response) => {
  * @param res
  * @returns
  */
-//TODO Add limit/offset to query
-const getGamesByUser = async (req: Request, res: Response) => {
+export const upsertAllGamesByUser = async (req: Request, res: Response) => {
   try {
     //Get user id from session
     const userId = req.session.user!.id;
@@ -98,10 +100,10 @@ const getGamesByUser = async (req: Request, res: Response) => {
 
     if (gamesByUser) {
       // Return updated games list from db
-      await getUpdatedDbGamesList(req, res, gamesByUser, userId);
+      await updateAllGamesList(req, res, gamesByUser, userId);
     } else {
       // Create games list into DB and return result
-      const createdGames = await createDbGamesByUser(userId);
+      const createdGames = await insertAllDbGamesByUser(userId);
 
       if (createdGames) {
         // Download and create (if not exists yet) the game image (trophyTitleIconUrl)
@@ -129,7 +131,7 @@ const getGamesByUser = async (req: Request, res: Response) => {
  * @returns
  */
 //TODO Add limit/offset to query
-const getUpdatedDbGamesList = async (
+const updateAllGamesList = async (
   req: Request,
   res: Response,
   gamesByUser: IUserGames,
@@ -142,7 +144,7 @@ const getUpdatedDbGamesList = async (
   );
 
   if (diffHours > pollingInterval) {
-    const updatedGames = await updateDbGamesByUserId(userId);
+    const updatedGames = await updateAllDbGamesByUserId(userId);
 
     if (updatedGames) {
       // Download and update (if not exists yet) the game image (trophyTitleIconUrl)
@@ -156,79 +158,4 @@ const getUpdatedDbGamesList = async (
     console.log("returned userGames from DB");
     return res.json(gamesByUser);
   }
-};
-
-/**
- * Get the icon (image) binary data from a game id (npCommunicationId)
- *
- * @param req
- * @param res
- * @returns
- */
-const getGameIconBin = async (req: Request, res: Response) => {
-  try {
-    const npCommunicationId = req.params["npCommunicationId"];
-
-    const gameIconBin = await getDbGameIconBin(npCommunicationId);
-
-    res.json(gameIconBin);
-  } catch (error) {
-    console.log(error);
-    const resObj = controllersErrorHandler(error);
-    return res.status(resObj.status).json(resObj);
-  }
-};
-
-/**
- * Get the PNG or WEBP icon (image) binary data from a game id (npCommunicationId)
- *
- * @param req
- * @param res
- * @returns
- */
-const getGameIconBinByImgType = async (req: Request, res: Response) => {
-  try {
-    const npCommunicationId = req.params["npCommunicationId"];
-    const imgType = req.params["imgType"];
-
-    const gameIconBin = await getDbGameIconBinByImgType(
-      npCommunicationId,
-      imgType
-    );
-
-    res.json(gameIconBin);
-  } catch (error) {
-    console.log(error);
-    const resObj = controllersErrorHandler(error);
-    return res.status(resObj.status).json(resObj);
-  }
-};
-
-/**
- * Get the icon (image) binary data from a list of game ids (npCommunicationId)
- *
- * @param req
- * @param res
- */
-const getGamesIconBinListByIds = async (req: Request, res: Response) => {
-  try {
-    const { npCommIdList, imgType } = req.body;
-    const gameIconBin = await getDbGameIconBinByListOfGamesIds(
-      npCommIdList,
-      imgType
-    );
-
-    res.json(gameIconBin);
-  } catch (error) {
-    console.log(error);
-    const resObj = controllersErrorHandler(error);
-    return res.status(resObj.status).json(resObj);
-  }
-};
-
-export {
-  getGameIconBin,
-  getGameIconBinByImgType,
-  getGamesByUser,
-  getGamesIconBinListByIds,
 };

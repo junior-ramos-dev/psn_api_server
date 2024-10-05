@@ -24,11 +24,11 @@ export enum TROPHY_GROUP_ID {
   ALL = "all",
 }
 
-export interface IGameIconProjecton {
+export interface IGameIconProjection {
   [key: string]: number;
 }
 
-export interface IGameDetailsProjecton {
+export interface IGameDetailsProjection {
   [key: string]: number;
 }
 

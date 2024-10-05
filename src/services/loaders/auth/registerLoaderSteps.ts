@@ -1,11 +1,9 @@
 import { IBulkResponse } from "@/models/interfaces/common/bulk";
 import { MongoDbError, PsnApiError } from "@/models/interfaces/common/error";
 import { PsnAuth } from "@/services/psnApi/psnAuth";
+import { insertAllDbGamesByUser } from "@/services/repositories/bulk/game";
 import { upsertDbTrophiesForAllGamesBulk } from "@/services/repositories/bulk/trophy";
-import {
-  createDbGameIconBin,
-  createDbGamesByUser,
-} from "@/services/repositories/gameRepository";
+import { createDbGameIconBin } from "@/services/repositories/gameIconRepository";
 import {
   createDbUserAndProfile,
   getDbUserByEmail,
@@ -81,7 +79,7 @@ export const getUserGamesList = async (userId: string) => {
     `[${new Date().toISOString()}] Started loading games data from PSN...`
   );
 
-  await createDbGamesByUser(userId)
+  await insertAllDbGamesByUser(userId)
     .then((data) => {
       console.log(
         "================================================== GAMES LIST"

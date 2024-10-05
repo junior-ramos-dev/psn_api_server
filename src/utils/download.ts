@@ -8,7 +8,7 @@ import sharp from "sharp";
  * @param imageUrl
  * @returns
  */
-export const dolwnloadImgToBase64 = async (
+export const downloadImgToBase64 = async (
   imageUrl: string
 ): Promise<string> => {
   let data: string = "";

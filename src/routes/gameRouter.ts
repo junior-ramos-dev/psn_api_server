@@ -1,19 +1,13 @@
 import express from "express";
 
 import {
-  getGameIconBin,
-  getGameIconBinByImgType,
-  getGamesByUser,
-  getGamesIconBinListByIds,
   getUserGameByIdAndPlatform,
   getUserGameDetails,
+  upsertAllGamesByUser,
 } from "@/controllers/gameController";
 import { authenticate } from "@/middlewares/authMiddleware";
 
 const gameRouter = express.Router();
-
-//Icon
-gameRouter.get("/:npCommunicationId/icon", authenticate, getGameIconBin);
 
 //Game
 gameRouter.get(
@@ -30,16 +24,6 @@ gameRouter.get(
 );
 
 //Game
-gameRouter.get("/list", authenticate, getGamesByUser);
-
-//Icon
-gameRouter.get(
-  "/:npCommunicationId/icon/:imgType",
-  authenticate,
-  getGameIconBinByImgType
-);
-
-//Icon
-gameRouter.post("/icon/list", authenticate, getGamesIconBinListByIds);
+gameRouter.get("/list", authenticate, upsertAllGamesByUser);
 
 export default gameRouter;
