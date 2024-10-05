@@ -31,6 +31,9 @@ export interface IGameIconProjection {
 export interface IGameDetailsProjection {
   [key: string]: number;
 }
+export interface IGameDetailsListProjection {
+  [key: string]: number | string;
+}
 
 export enum IMG_TYPE {
   PNG = "png",

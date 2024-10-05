@@ -7,7 +7,11 @@ import {
   IUserSingleGame,
 } from "@/models/interfaces/user/user";
 import { UserGames, UserGamesTrophies } from "@/models/schemas/user";
-import { IGameDetailsProjection, IMG_TYPE } from "@/models/types/game";
+import {
+  IGameDetailsListProjection,
+  IGameDetailsProjection,
+  IMG_TYPE,
+} from "@/models/types/game";
 
 /**
  * Get games by user and add (populate) the virtual reference from GameIcon schema
@@ -188,6 +192,130 @@ export const getDbUserGameDetails = async (
     ]).then((result) => result[0]);
 
     return userGameWithTrophies as IUserGameDetails;
+  } catch (error: unknown) {
+    //Handle the error
+    servicesErrorHandler(error);
+  }
+};
+
+/**
+ * Get user game details list with icon PNG/WEBP and with/without list of trophies
+ *
+ * @param userId
+ * @param limit
+ * @param offset
+ * @param imgType
+ * @param getTrophies
+ * @returns
+ */
+export const getDbUserGameDetailsList = async (
+  userId: string,
+  limit: number,
+  offset: number,
+  imgType: string = IMG_TYPE.WEBP,
+  getTrophies: number = 0 //false
+): Promise<IGameDetailsListProjection[] | undefined> => {
+  try {
+    // Define WEBP as default image type
+    let gameIconType = "$gameIcon.iconBinWebp";
+    // Define the img type to be returned
+    if (imgType.toLowerCase() === IMG_TYPE.PNG)
+      gameIconType = "$gameIcon.iconBinPng";
+
+    const gameDetailListProjection: IGameDetailsListProjection = {
+      _id: 0,
+      userId: userId,
+      usergame: "$_id.slicedGames",
+      gameIcon: gameIconType,
+      gameTrophies: "$usergamestrophies.gamesTrophies",
+    };
+
+    // If "getTrophies" is false, remove the trophy list from the result projection
+    console.log(!getTrophies);
+    if (!getTrophies) delete gameDetailListProjection.gameTrophies;
+
+    console.log(userId, limit, offset, imgType, getTrophies);
+
+    const userGameDetailsList = await UserGames.aggregate([
+      // Match userId the usergamestrophies
+      {
+        $match: {
+          userId: new Types.ObjectId(userId),
+        },
+      },
+      // Group the slice of gamesTrophies
+      {
+        $group: {
+          _id: {
+            slicedGames: {
+              $slice: ["$games", offset, limit],
+            },
+          },
+        },
+      },
+      // Unwind slicedGamesTrophies array
+      {
+        $unwind: "$_id.slicedGames",
+      },
+      // Make reference to the usergames collection using the "userId"
+      {
+        $lookup: {
+          from: "usergamestrophies",
+          localField: "usergamestrophies.userId",
+          foreignField: "this.userId",
+          as: "usergamestrophies",
+        },
+      },
+      // Unwind $usergamestrophies object
+      {
+        $unwind: "$usergamestrophies",
+      },
+      // Unwind $usergamestrophies.gamesTrophies array
+      {
+        $unwind: "$usergamestrophies.gamesTrophies",
+      },
+      {
+        $match: {
+          $expr: {
+            // Expression to assert slicedGames and usergamestrophies.gamesTrophies with same npCommunicationId
+            $eq: [
+              "$usergamestrophies.gamesTrophies.npCommunicationId",
+              "$_id.slicedGames.npCommunicationId",
+            ],
+          },
+        },
+      },
+      // Make reference to the gameicons collection from usergame collection using the "npCommunicationId"
+      {
+        $lookup: {
+          from: "gameicons",
+          localField: "npCommunicationId",
+          foreignField: "games.npCommunicationId",
+          as: "gameIcon",
+        },
+      },
+      // Unwind gameIcon object
+      {
+        $unwind: "$gameIcon",
+      },
+      {
+        $match: {
+          $expr: {
+            // Expression to assert slicedGames and gameIcon with same npCommunicationId
+            $eq: [
+              "$gameIcon.npCommunicationId",
+              "$_id.slicedGames.npCommunicationId",
+            ],
+          },
+        },
+      },
+      // Project the the final output excluding the "_id" field
+      {
+        $project: gameDetailListProjection,
+      },
+    ]);
+
+    return userGameDetailsList as IGameDetailsListProjection[];
   } catch (error: unknown) {
     //Handle the error
     servicesErrorHandler(error);

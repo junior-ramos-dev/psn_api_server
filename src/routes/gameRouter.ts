@@ -3,6 +3,7 @@ import express from "express";
 import {
   getUserGameByIdAndPlatform,
   getUserGameDetails,
+  getUserGameDetailsList,
   upsertAllGamesByUser,
 } from "@/controllers/gameController";
 import { authenticate } from "@/middlewares/authMiddleware";
@@ -22,6 +23,9 @@ gameRouter.get(
   authenticate,
   getUserGameDetails
 );
+
+//Game  [?limit=5&offset=0&imgType=webp&getTrophies=1]
+gameRouter.get("/details", authenticate, getUserGameDetailsList);
 
 //Game
 gameRouter.get("/list", authenticate, upsertAllGamesByUser);

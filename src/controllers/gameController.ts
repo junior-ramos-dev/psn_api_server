@@ -11,11 +11,12 @@ import {
   getDbGamesListByUserId,
   getDbUserGameByIdAndPlatform,
   getDbUserGameDetails,
+  getDbUserGameDetailsList,
 } from "@/services/repositories/gameRepository";
 import { setPsnApiPollingInterval } from "@/utils/http";
 
 /**
- * Get the user by id from DB
+ * Get game by id (npCommunicationId) and platform (trophyTitlePlatform) from DB
  *
  * @param userId
  * @returns
@@ -46,12 +47,11 @@ export const getUserGameByIdAndPlatform = async (
 };
 
 /**
- * Get the user by id from DB
+ * Get game details by id (npCommunicationId) and platform (trophyTitlePlatform) from DB
  *
  * @param userId
  * @returns
  */
-//TODO Add limit/offset to query
 export const getUserGameDetails = async (
   req: express.Request,
   res: express.Response
@@ -85,7 +85,44 @@ export const getUserGameDetails = async (
 };
 
 /**
- * Get the list of games of a user
+ * Get game details by id (npCommunicationId) and platform (trophyTitlePlatform) from DB
+ *
+ * @param userId
+ * @returns
+ */
+export const getUserGameDetailsList = async (
+  req: express.Request,
+  res: express.Response
+) => {
+  try {
+    //Get user id from session
+    const userId = req.session.user!.id;
+
+    //Query params
+    const limit = Number(req.query.limit);
+    const offset = Number(req.query.offset);
+    const imgType = String(req.query.imgType);
+    const getTrophies = Number(req.query.getTrophies);
+
+    const game = await getDbUserGameDetailsList(
+      userId,
+      limit,
+      offset,
+      imgType,
+      getTrophies
+    );
+
+    console.log("returned game with trophies from DB");
+    return res.json(game);
+  } catch (error: unknown) {
+    console.log(error);
+    const resObj = controllersErrorHandler(error);
+    return res.status(resObj.status).json(resObj);
+  }
+};
+
+/**
+ * Upsert the list of all games from a user
  *
  * @param req
  * @param res
@@ -122,7 +159,7 @@ export const upsertAllGamesByUser = async (req: Request, res: Response) => {
 };
 
 /**
- * Retrieve or updated list of from DB
+ * Retrieve the updated list of all games from DB/PSN_API
  *
  * @param req
  * @param res
@@ -130,7 +167,6 @@ export const upsertAllGamesByUser = async (req: Request, res: Response) => {
  * @param userId
  * @returns
  */
-//TODO Add limit/offset to query
 const updateAllGamesList = async (
   req: Request,
   res: Response,
