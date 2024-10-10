@@ -1,3 +1,5 @@
+import { Types } from "mongoose";
+
 import { IBulkResponse } from "@/models/interfaces/common/bulk";
 import { MongoDbError, PsnApiError } from "@/models/interfaces/common/error";
 import { IUserAndProfile } from "@/models/interfaces/user";
@@ -76,13 +78,13 @@ export const createUserAndProfile = async (
 };
 
 // Step 6 - Get user games list
-export const getUserGamesList = async (userId: string) => {
+export const getUserGamesList = async (userId: Types.ObjectId) => {
   // Get the list of games from PSN and insert on DB
   console.log(
     `[${new Date().toISOString()}] Started loading games data from PSN...`
   );
 
-  await insertAllDbGamesByUser(userId)
+  await insertAllDbGamesByUser(String(userId))
     .then((data) => {
       console.log(
         "================================================== GAMES LIST"
@@ -96,10 +98,10 @@ export const getUserGamesList = async (userId: string) => {
 };
 
 // Step 7 - Load the games icons
-export const loadGamesIcons = async (userId: string) => {
+export const loadGamesIcons = async (userId: Types.ObjectId) => {
   // Download and create (if not exists yet) the game image (trophyTitleIconUrl)
   // and insert as binary data in the collection "gamesicons"
-  await createDbGameIconBin(userId).then(() => {
+  await createDbGameIconBin(String(userId)).then(() => {
     console.log(
       "================================================== GAMES ICONS"
     );
@@ -107,7 +109,7 @@ export const loadGamesIcons = async (userId: string) => {
 };
 
 // Step 8 - Get the games trohies list
-export const getGamesTrophiesList = async (userId: string) => {
+export const getGamesTrophiesList = async (userId: Types.ObjectId) => {
   // Response for getting list of trophies
   const bulkResponse: IBulkResponse<string> = {
     name: "upsertTrophiesForAllGamesBulk",
@@ -117,11 +119,13 @@ export const getGamesTrophiesList = async (userId: string) => {
   };
 
   //Insert or Update the list of trophies for all games from a user (bulk)
-  await upsertDbTrophiesForAllGamesBulk(userId, bulkResponse).then(() => {
-    console.log(
-      "================================================== GAMES TROPHIES"
-    );
-  });
+  await upsertDbTrophiesForAllGamesBulk(String(userId), bulkResponse).then(
+    () => {
+      console.log(
+        "================================================== GAMES TROPHIES"
+      );
+    }
+  );
 
   console.log(
     `[${new Date().toISOString()}] Finished loading user data from PSN...`
