@@ -10,7 +10,7 @@ import {
   validateLoginReq,
   validateRegisterReq,
 } from "@/middlewares/validations/request/auth";
-import { taskProgressLoaderWrapper } from "@/services/loaders/taskProgressLoaderWrapper";
+import { taskEndpoint } from "@/services/loaders/auth/taskEndpoint";
 
 const authRouter = express.Router();
 
@@ -18,7 +18,7 @@ authRouter.post(
   "/register/loader",
   validateRegisterReq(),
   psnAuthenticate,
-  taskProgressLoaderWrapper
+  taskEndpoint
 );
 
 authRouter.post(
