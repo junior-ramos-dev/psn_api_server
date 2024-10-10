@@ -1,5 +1,6 @@
 import { IBulkResponse } from "@/models/interfaces/common/bulk";
 import { MongoDbError, PsnApiError } from "@/models/interfaces/common/error";
+import { IUserAndProfile } from "@/models/interfaces/user";
 import { PsnAuth } from "@/services/psnApi/psnAuth";
 import { insertAllDbGamesByUser } from "@/services/repositories/bulk/game";
 import { upsertDbTrophiesForAllGamesBulk } from "@/services/repositories/bulk/trophy";
@@ -34,12 +35,14 @@ export const checkEmailExists = async (email: string) => {
 };
 
 // Step 3 - Check if NPSSO exists [return taskHandler error]
-export const isMissingNpsso = (npsso: string) => {
+export const isMissingNpsso = async (npsso: string) => {
   if (!npsso) {
     throw new PsnApiError(
       "An error occurred in creating the account: Missing 'NPSSO' code"
     );
   }
+
+  return Promise.resolve(npsso);
 };
 
 // Step 4 - Get PSN credentials
@@ -123,4 +126,9 @@ export const getGamesTrophiesList = async (userId: string) => {
   console.log(
     `[${new Date().toISOString()}] Finished loading user data from PSN...`
   );
+};
+
+// Step 9 - Get result data
+export const getResultData = async (userAndProfile: IUserAndProfile) => {
+  return Promise.resolve(userAndProfile);
 };
