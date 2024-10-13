@@ -7,7 +7,10 @@
     "dev": "npx nodemon --exec ts-node src/index.ts --watch 'src/' -e ts,js",
     "swagger": "ts-node src/swagger.ts",
     "compile": "npx tsc",
-    "start": "node ./dist/index.js"
+    "start": "node ./dist/index.js",
+    "link": "npm-run-all -s link:*",
+    "link:lib-self": "cd ../jrd_task_handler && npm link",
+    "link:app-to-lib": "npm link jrd_task_handler"
   },
   "author": "Junior Ramos <junior.ramos.dev@gmail.com>",
   "license": "ISC",
@@ -58,6 +61,7 @@
     "eslint-plugin-simple-import-sort": "^12.1.1",
     "globals": "^15.11.0",
     "nodemon": "^3.1.7",
+    "npm-run-all": "^4.1.5",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.6.3",
