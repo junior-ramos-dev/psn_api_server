@@ -1,4 +1,4 @@
-import { ITaskHandlerSpecs } from "../../../../node_modules/jrd_task_handler";
+import { ITaskHandlerSpecs } from "../../../../node_modules/jrd_task_handler/dist";
 
 import {
   checkEmailExists,

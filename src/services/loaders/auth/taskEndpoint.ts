@@ -4,7 +4,7 @@ import {
   handleResponse,
   taskHandler,
   taskHandlerWrapper,
-} from "../../../../node_modules/jrd_task_handler";
+} from "../../../../node_modules/jrd_task_handler/dist";
 
 import { registerTasksSpecsList } from "./registerTasksSpecsList";
 
