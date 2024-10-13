@@ -44,6 +44,9 @@ export const registerTasksSpecsList: Array<ITaskHandlerSpecs> = [
     taskId: 4,
     taskName: "getPsnCredentials",
     task: getPsnCredentials,
+    requestArgs: {
+      requestArgsKeys: ["npsso"],
+    },
     taskReturnData: {
       cacheData: false,
     },
@@ -93,9 +96,12 @@ export const registerTasksSpecsList: Array<ITaskHandlerSpecs> = [
     taskId: 9,
     taskName: "getResultData",
     task: getResultData,
+    requestArgs: {
+      requestArgsKeys: ["res"],
+    },
     prevTaskDataAsArg: {
       prevTaskId: 5,
-      prevTaskDataArgs: ["user"],
+      prevTaskDataArgs: ["userDb", "userProfileDb"],
     },
     taskReturnData: {
       cacheData: false,

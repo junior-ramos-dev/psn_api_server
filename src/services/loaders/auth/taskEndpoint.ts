@@ -13,7 +13,9 @@ export const taskEndpoint = async (req: Request, res: Response) => {
   // Get NPSSO code set in the session
   const npsso = req.session.npsso!;
 
-  const requestArgs: object = { ...req.body, npsso };
+  const requestArgs: object = { ...req.body, npsso, res };
+
+  // console.log(requestArgs);
 
   const result = await taskHandlerWrapper(
     taskHandler,

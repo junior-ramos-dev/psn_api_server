@@ -1,8 +1,10 @@
+import { Response } from "express";
 import { Types } from "mongoose";
 
+import { generateToken } from "@/controllers/authController";
 import { IBulkResponse } from "@/models/interfaces/common/bulk";
 import { MongoDbError, PsnApiError } from "@/models/interfaces/common/error";
-import { IUserAndProfile } from "@/models/interfaces/user";
+import { IUser, IUserAndProfile, IUserProfile } from "@/models/interfaces/user";
 import { PsnAuth } from "@/services/psnApi/psnAuth";
 import { insertAllDbGamesByUser } from "@/services/repositories/bulk/game";
 import { upsertDbTrophiesForAllGamesBulk } from "@/services/repositories/bulk/trophy";
@@ -12,6 +14,8 @@ import {
   getDbUserByEmail,
   getDbUserByPsnOnlineId,
 } from "@/services/repositories/userRepository";
+
+let PSN_AUTH2: PsnAuth;
 
 // Step 1 - Check PSN onlineId exists
 export const checkOnlineIdExists = async (psnOnlineId: string) => {
@@ -50,6 +54,8 @@ export const isMissingNpsso = async (npsso: string) => {
 // Step 4 - Get PSN credentials
 export const getPsnCredentials = async (npsso: string) => {
   const psnAuth = await PsnAuth.createPsnAuth(npsso).then((psnAuth) => psnAuth);
+
+  PSN_AUTH2 = psnAuth;
 
   return psnAuth;
 };
@@ -133,6 +139,21 @@ export const getGamesTrophiesList = async (userId: Types.ObjectId) => {
 };
 
 // Step 9 - Get result data
-export const getResultData = async (userAndProfile: IUserAndProfile) => {
+export const getResultData = async (
+  res: Response,
+  userDb: IUser,
+  userProfileDb: IUserProfile
+) => {
+  console.log(res);
+
+  generateToken(res, String(userDb._id));
+
+  const userAndProfile: IUserAndProfile = {
+    userDb: userDb,
+    userProfileDb: userProfileDb,
+  };
+
   return Promise.resolve(userAndProfile);
 };
+
+export { PSN_AUTH2 };
