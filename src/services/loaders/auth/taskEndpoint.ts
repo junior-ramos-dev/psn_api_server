@@ -1,10 +1,9 @@
 import { Request, Response } from "express";
-
 import {
   handleResponse,
   taskHandler,
   taskHandlerWrapper,
-} from "../../../../node_modules/jrd_task_handler/dist";
+} from "jrd_task_handler";
 
 import { registerTasksSpecsList } from "./registerTasksSpecsList";
 
