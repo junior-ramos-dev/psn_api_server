@@ -3,6 +3,7 @@ import express from "express";
 import {
   loginUser,
   logoutUser,
+  registerLoader,
   registerUser,
 } from "@/controllers/authController";
 import { psnAuthenticate } from "@/middlewares/psnAuthMiddleware";
@@ -10,7 +11,6 @@ import {
   validateLoginReq,
   validateRegisterReq,
 } from "@/middlewares/validations/request/auth";
-import { taskEndpoint } from "@/services/loaders/auth/taskEndpoint";
 
 const authRouter = express.Router();
 
@@ -18,7 +18,7 @@ authRouter.post(
   "/register/loader",
   validateRegisterReq(),
   psnAuthenticate,
-  taskEndpoint
+  registerLoader
 );
 
 authRouter.post(
