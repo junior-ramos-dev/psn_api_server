@@ -1,10 +1,16 @@
 import { Request, Response } from "express";
+import {
+  handleResponse,
+  taskHandler,
+  taskHandlerWrapper,
+} from "jrd_task_handler";
 import jwt from "jsonwebtoken";
 
 import {
   controllersErrorHandler,
   ERROR_CLASS_NAME,
 } from "@/models/interfaces/common/error";
+import { registerTasksSpecsList } from "@/services/loaders/auth/registerTasksSpecsList";
 import { PsnAuth } from "@/services/psnApi/psnAuth";
 import { loadPsnGamesData } from "@/services/repositories/bulk/game";
 import {
@@ -118,6 +124,31 @@ const registerUser = async (req: Request, res: Response) => {
         "An error occurred in creating the account: Missing 'NPSSO' code",
     });
   }
+};
+
+/**
+ *
+ * @param req
+ * @param res
+ */
+export const registerLoader = async (req: Request, res: Response) => {
+  //TODO Fix
+  // Get NPSSO code set in the session
+  const npsso = req.session.npsso!;
+
+  const requestArgs: object = { ...req.body, npsso, res };
+
+  // console.log(requestArgs);
+
+  const result = await taskHandlerWrapper(
+    taskHandler,
+    requestArgs,
+    registerTasksSpecsList
+  );
+
+  console.log("result:", result);
+
+  handleResponse(result, res);
 };
 
 /**

@@ -1,5 +1,10 @@
+import { Response } from "express";
+import { Types } from "mongoose";
+
+import { generateToken } from "@/controllers/authController";
 import { IBulkResponse } from "@/models/interfaces/common/bulk";
 import { MongoDbError, PsnApiError } from "@/models/interfaces/common/error";
+import { IUser, IUserAndProfile, IUserProfile } from "@/models/interfaces/user";
 import { PsnAuth } from "@/services/psnApi/psnAuth";
 import { insertAllDbGamesByUser } from "@/services/repositories/bulk/game";
 import { upsertDbTrophiesForAllGamesBulk } from "@/services/repositories/bulk/trophy";
@@ -9,6 +14,8 @@ import {
   getDbUserByEmail,
   getDbUserByPsnOnlineId,
 } from "@/services/repositories/userRepository";
+
+let PSN_AUTH2: PsnAuth;
 
 // Step 1 - Check PSN onlineId exists
 export const checkOnlineIdExists = async (psnOnlineId: string) => {
@@ -34,17 +41,21 @@ export const checkEmailExists = async (email: string) => {
 };
 
 // Step 3 - Check if NPSSO exists [return taskHandler error]
-export const isMissingNpsso = (npsso: string) => {
+export const isMissingNpsso = async (npsso: string) => {
   if (!npsso) {
     throw new PsnApiError(
       "An error occurred in creating the account: Missing 'NPSSO' code"
     );
   }
+
+  return Promise.resolve(npsso);
 };
 
 // Step 4 - Get PSN credentials
 export const getPsnCredentials = async (npsso: string) => {
   const psnAuth = await PsnAuth.createPsnAuth(npsso).then((psnAuth) => psnAuth);
+
+  PSN_AUTH2 = psnAuth;
 
   return psnAuth;
 };
@@ -73,13 +84,13 @@ export const createUserAndProfile = async (
 };
 
 // Step 6 - Get user games list
-export const getUserGamesList = async (userId: string) => {
+export const getUserGamesList = async (userId: Types.ObjectId) => {
   // Get the list of games from PSN and insert on DB
   console.log(
     `[${new Date().toISOString()}] Started loading games data from PSN...`
   );
 
-  await insertAllDbGamesByUser(userId)
+  await insertAllDbGamesByUser(String(userId))
     .then((data) => {
       console.log(
         "================================================== GAMES LIST"
@@ -93,10 +104,10 @@ export const getUserGamesList = async (userId: string) => {
 };
 
 // Step 7 - Load the games icons
-export const loadGamesIcons = async (userId: string) => {
+export const loadGamesIcons = async (userId: Types.ObjectId) => {
   // Download and create (if not exists yet) the game image (trophyTitleIconUrl)
   // and insert as binary data in the collection "gamesicons"
-  await createDbGameIconBin(userId).then(() => {
+  await createDbGameIconBin(String(userId)).then(() => {
     console.log(
       "================================================== GAMES ICONS"
     );
@@ -104,7 +115,7 @@ export const loadGamesIcons = async (userId: string) => {
 };
 
 // Step 8 - Get the games trohies list
-export const getGamesTrophiesList = async (userId: string) => {
+export const getGamesTrophiesList = async (userId: Types.ObjectId) => {
   // Response for getting list of trophies
   const bulkResponse: IBulkResponse<string> = {
     name: "upsertTrophiesForAllGamesBulk",
@@ -114,13 +125,35 @@ export const getGamesTrophiesList = async (userId: string) => {
   };
 
   //Insert or Update the list of trophies for all games from a user (bulk)
-  await upsertDbTrophiesForAllGamesBulk(userId, bulkResponse).then(() => {
-    console.log(
-      "================================================== GAMES TROPHIES"
-    );
-  });
+  await upsertDbTrophiesForAllGamesBulk(String(userId), bulkResponse).then(
+    () => {
+      console.log(
+        "================================================== GAMES TROPHIES"
+      );
+    }
+  );
 
   console.log(
     `[${new Date().toISOString()}] Finished loading user data from PSN...`
   );
 };
+
+// Step 9 - Get result data
+export const getResultData = async (
+  res: Response,
+  userDb: IUser,
+  userProfileDb: IUserProfile
+) => {
+  console.log(res);
+
+  generateToken(res, String(userDb._id));
+
+  const userAndProfile: IUserAndProfile = {
+    userDb: userDb,
+    userProfileDb: userProfileDb,
+  };
+
+  return Promise.resolve(userAndProfile);
+};
+
+export { PSN_AUTH2 };

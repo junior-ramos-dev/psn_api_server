@@ -29,7 +29,7 @@ import {
   TROPHY_RARITY_MAP,
 } from "@/models/types/trophy";
 
-import { PSN_AUTH2 } from "../loaders/auth/registerLoader";
+import { PSN_AUTH2 } from "../loaders/auth/registerLoaderSteps";
 
 /**
  * Get game trophy groups

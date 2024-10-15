@@ -3,7 +3,7 @@ import { getProfileFromUserName, ProfileFromUserNameResponse } from "psn-api";
 import { PSN_AUTH } from "@/controllers/authController";
 import { PsnApiError } from "@/models/interfaces/common/error";
 
-import { PSN_AUTH2 } from "../loaders/auth/registerLoader";
+import { PSN_AUTH2 } from "../loaders/auth/registerLoaderSteps";
 
 /**
  * Get the user's PSN profile by Username

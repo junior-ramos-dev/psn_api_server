@@ -7,7 +7,10 @@
     "dev": "npx nodemon --exec ts-node src/index.ts --watch 'src/' -e ts,js",
     "swagger": "ts-node src/swagger.ts",
     "compile": "npx tsc",
-    "start": "node ./dist/index.js"
+    "start": "node ./dist/index.js",
+    "link": "npm-run-all -s link:*",
+    "link:lib-self": "cd ../jrd_task_handler && npm link",
+    "link:app-to-lib": "npm link jrd_task_handler"
   },
   "author": "Junior Ramos <junior.ramos.dev@gmail.com>",
   "license": "ISC",
@@ -28,6 +31,7 @@
     "express-validator": "^7.1.0",
     "fresh": "^0.5.2",
     "helmet": "^8.0.0",
+    "jrd_task_handler": "^1.0.1",
     "jsonwebtoken": "^9.0.2",
     "lodash": "^4.17.21",
     "mongoose": "^8.7.1",
