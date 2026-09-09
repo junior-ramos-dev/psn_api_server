@@ -4,16 +4,19 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "npx nodemon --exec ts-node src/index.ts --watch 'src/' -e ts,js",
+    "dev": "npx nodemon --exec ts-node -r ./src/polyfills.cjs src/index.ts --watch 'src/' -e ts,js",
     "swagger": "ts-node src/swagger.ts",
     "compile": "npx tsc",
-    "start": "node ./dist/index.js",
+    "start": "node -r ./src/polyfills.cjs ./dist/index.js",
     "link": "npm-run-all -s link:*",
     "link:lib-self": "cd ../jrd_task_handler && npm link",
     "link:app-to-lib": "npm link jrd_task_handler"
   },
   "author": "Junior Ramos <junior.ramos.dev@gmail.com>",
   "license": "ISC",
+  "engines": {
+    "node": ">=18"
+  },
   "dependencies": {
     "@types/swagger-ui-express": "^4.1.6",
     "axios": "^1.7.3",
@@ -35,6 +38,7 @@
     "jsonwebtoken": "^9.0.2",
     "lodash": "^4.17.21",
     "mongoose": "^8.7.1",
+    "mongodb-memory-server": "^10.1.4",
     "morgan": "^1.10.0",
     "psn-api": "^2.10.1",
     "sharp": "^0.33.5",

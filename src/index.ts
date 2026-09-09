@@ -1,3 +1,4 @@
+import "./polyfills.cjs";
 import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
 import cors from "cors";
@@ -57,7 +58,7 @@ app.use(express.json());
 app.use(helmet());
 
 const corsDefaultConfig = {
-  origin: "http://localhost:8001",
+  origin: process.env.FRONTEND_ORIGIN || "http://localhost:8001",
   credentials: true,
   exposedHeaders: ["ETag"],
   methods: ["GET", "POST", "DELETE", "UPDATE", "PUT", "PATCH", "OPTIONS"],
